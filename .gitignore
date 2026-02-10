@@ -480,3 +480,19 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# untuk Serilog
+
+/logs/
+*.log
+Log-*.txt
+
+# untuk secrets
+
+appsetings.json
+appsetings.Development.json
+
+# untuk .NET build
+
+bin/
+obj/
