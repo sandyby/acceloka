@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,8 +15,8 @@ namespace AccelokaSandy.Migrations
                 name: "Tickets",
                 columns: table => new
                 {
-                    TicketCode = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    TicketCode = table.Column<string>(type: "text", nullable: false),
                     TicketName = table.Column<string>(type: "text", nullable: false),
                     TicketCategory = table.Column<string>(type: "text", nullable: false),
                     Quota = table.Column<int>(type: "integer", nullable: false),
@@ -26,8 +25,14 @@ namespace AccelokaSandy.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tickets", x => x.TicketCode);
+                    table.PrimaryKey("PK_Tickets", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_TicketCode",
+                table: "Tickets",
+                column: "TicketCode",
+                unique: true);
         }
 
         /// <inheritdoc />

@@ -1,4 +1,5 @@
 using System.Reflection;
+using AccelokaSandy.Domain.Entities;
 using AccelokaSandy.Infrastructure.Persistence;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -17,14 +18,16 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .Enrich.FromLogContext();
 });
 
-builder.Services.AddMediatR(Assembly.GetExecutingAssembly()); // old method karena microsoft.extensions.dependencyinjection support maks. mediatr v11.1.0
-
-// builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly)); // ini buat mediatr v12+
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly)); // ini buat mediatr v12+
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+
+builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
+// builder.Services.AddScoped<IValidator<Ticket>, CreateTicketValidator>();
 
 // TODO:  pelajarin
 /*
@@ -38,15 +41,18 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<UserRegistrationRequest>, UserRegistrationValidator>();
 */
 
-builder.Services.AddControllers();
+// TODO: pelajarin jg
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); 
+builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo{
-        Title="Sandy's Accceloka API V1",
-        Version="v1",
-        Description="First time trying out Swagger for this!"
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Sandy's Accceloka API V1",
+        Version = "v1",
+        Description = "First time trying out Swagger for this!"
     });
 });
 
@@ -61,6 +67,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+app.UseExceptionHandler();
 app.MapControllers();
 app.Run();

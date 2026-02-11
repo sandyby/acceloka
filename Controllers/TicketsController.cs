@@ -1,24 +1,70 @@
+using AccelokaSandy.Application.Features.Categories.CreateCategory;
+using AccelokaSandy.Application.Features.Categories.GetAllCategories;
+using AccelokaSandy.Application.Features.Tickets.CreateTicket;
+using AccelokaSandy.Application.Features.Tickets.GetAvailableTickets;
+using AccelokaSandy.Application.Features.Tickets.GetCategoryById;
+using AccelokaSandy.Application.Features.Tickets.GetTicketByCode;
 using AccelokaSandy.Domain.Entities;
-using AccelokaSandy.Requests.Tickets;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccelokaSandy.Controllers;
 
 [ApiController]
-[Route("api/v1/tickets")]
-public class TicketsControlelr: ControllerBase
+[Route("api/v1")]
+public class TicketsController : ControllerBase
 {
-    private readonly IMediator _mediator;
-    public TicketsControlelr(IMediator mediator)
+    private readonly ISender _sender;
+    public TicketsController(ISender mediator)
     {
-        this._mediator = mediator;
+        this._sender = mediator;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetTickets()
+    [HttpGet("get-available-tickets")]
+    public async Task<IActionResult> GetAvailableTickets(
+        [FromQuery] GetAvailableTicketsQuery query
+    )
     {
-        var tickets = await _mediator.Send(new GetTicketsQuery());
-        return tickets is null ? NotFound() : Ok(tickets);
+        // var tickets = await _sender.Send(new GetAvailableTicketsQuery(ticketCategory, ticketCode, ticketName, price, minEventDate, maxEventDate, orderBy, orderState));
+        var tickets = await _sender.Send(query);
+        return Ok(tickets);
+    }
+
+    [HttpGet("get-all-categories")]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        var ticketCategories = await _sender.Send(new GetAllCategoriesQuery());
+        return Ok(ticketCategories);
+        // return ticketCategories is null ? NotFound() : Ok(ticketCategories);
+    }
+
+    [HttpGet("get-ticket-by-code/{ticketCode}")]
+    public async Task<IActionResult> GetTicketByCode(string ticketCode)
+    {
+        var ticket = await _sender.Send(new GetTicketByCodeQuery(ticketCode));
+        return Ok(ticket);
+        // return ticket is null ? NotFound() : Ok(ticket);
+    }
+
+    [HttpGet("get-category-by-id/{id}")]
+    public async Task<IActionResult> GetCategoryById(string id)
+    {
+        var ticketCategory = await _sender.Send(new GetCategoryByIdQuery(id));
+        return Ok(ticketCategory);
+        // return ticketCategory is null ? NotFound() : Ok(ticketCategory);
+    }
+
+    [HttpPost("create-ticket")]
+    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand cmd)
+    {
+        var ticket = await _sender.Send(cmd);
+        return CreatedAtAction(nameof(GetTicketByCode), new { ticketCode = ticket.TicketCode }, ticket);
+    }
+
+    [HttpPost("create-category")]
+    public async Task<IActionResult> CreateTicketCategory([FromBody] CreateCategoryCommand cmd)
+    {
+        var ticketCategory = await _sender.Send(cmd);
+        return CreatedAtAction(nameof(GetCategoryById), new { id = ticketCategory.Id }, ticketCategory);
     }
 }

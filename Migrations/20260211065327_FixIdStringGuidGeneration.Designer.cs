@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccelokaSandy.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260210090243_Initialization")]
-    partial class Initialization
+    [Migration("20260211065327_FixIdStringGuidGeneration")]
+    partial class FixIdStringGuidGeneration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,8 @@ namespace AccelokaSandy.Migrations
 
             modelBuilder.Entity("AccelokaSandy.Domain.Entities.Ticket", b =>
                 {
-                    b.Property<int>("TicketCode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketCode"));
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("timestamp with time zone");
@@ -46,11 +43,18 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("TicketCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("TicketName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("TicketCode");
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketCode")
+                        .IsUnique();
 
                     b.ToTable("Tickets");
                 });

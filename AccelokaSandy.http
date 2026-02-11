@@ -1,6 +1,50 @@
 @AccelokaSandy_HostAddress = http://localhost:5015
 
-GET {{AccelokaSandy_HostAddress}}/weatherforecast/
+GET {{AccelokaSandy_HostAddress}}/api/v1/get-available-tickets
 Accept: application/json
 
 ###
+
+GET {{AccelokaSandy_HostAddress}}/api/v1/get-available-tickets?maxeventdate=2026-02-13T00:00:00z
+Accept: application/json
+
+###
+
+GET {{AccelokaSandy_HostAddress}}/api/v1/get-all-categories
+Accept: application/json
+
+###
+
+GET {{AccelokaSandy_HostAddress}}/api/v1/get-ticket-by-code/TKYCGK01
+Accept: application/json
+
+###
+
+GET {{AccelokaSandy_HostAddress}}/api/v1/get-category-by-id/C001
+Accept: application/json
+
+###
+
+POST {{AccelokaSandy_HostAddress}}/api/v1/create-ticket
+Accept: application/json
+Content-Type: application/json
+
+{
+    "ticketCode": "TKYCGK01",
+    "ticketName": "Tokyo - Jakarta",
+    "ticketCategoryId": "159b53c6-f83d-43b8-89ff-ac9e4fa26b7e",
+    "quota": 1,
+    "price": 2450000,
+    "eventDate": "2026-12-01T18:00:00Z"
+}
+
+###
+
+POST {{AccelokaSandy_HostAddress}}/api/v1/create-category
+Accept: application/json
+Content-Type: application/json
+
+{
+    "ticketCategoryName": "Transporation By Air"
+}
+

@@ -3,6 +3,7 @@ using System;
 using AccelokaSandy.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccelokaSandy.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260211063701_Initialization")]
+    partial class Initialization
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,10 +30,6 @@ namespace AccelokaSandy.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("CategoryId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -39,6 +38,10 @@ namespace AccelokaSandy.Migrations
 
                     b.Property<int>("Quota")
                         .HasColumnType("integer");
+
+                    b.Property<string>("TicketCategory")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("TicketCode")
                         .IsRequired()
@@ -50,45 +53,10 @@ namespace AccelokaSandy.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("TicketCode")
                         .IsUnique();
 
                     b.ToTable("Tickets");
-                });
-
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketCategory", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TicketCategoryName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketCategoryName")
-                        .IsUnique();
-
-                    b.ToTable("TicketCategories");
-                });
-
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Ticket", b =>
-                {
-                    b.HasOne("AccelokaSandy.Domain.Entities.TicketCategory", "TicketCategory")
-                        .WithMany("Tickets")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("TicketCategory");
-                });
-
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketCategory", b =>
-                {
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }
