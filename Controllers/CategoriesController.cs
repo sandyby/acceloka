@@ -8,7 +8,7 @@ namespace AccelokaSandy.Controllers;
 
 [ApiController]
 [Route("api/v1")]
-
+[ApiVersion("1.0")]
 public class CategoriesController : ControllerBase
 {
     private readonly ISender _sender;

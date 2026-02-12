@@ -15,18 +15,29 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
     }
     public async Task<BookTicketsResponse> Handle(BookTicketsCommand request, CancellationToken ct)
     {
-        var toBeBookedTicketCodes = request.BookedTickets.Select(bt => bt.TicketCode).ToList();
+        var collapsedRequestedTicketCodes = request.BookedTickets
+            .GroupBy(bt => bt.TicketCode.ToUpper())
+            .Select(g => new
+            {
+                TicketCode = g.Key,
+                TotalQuantity = g.Sum(bt => bt.Quantity)
+            }).ToList();
+
+        var toBeBookedTicketCodes = collapsedRequestedTicketCodes.Select(bt => bt.TicketCode).ToList();
 
         var validToBeBookedTickets = await _context.Tickets.Include(t => t.TicketCategory).Where(t => toBeBookedTicketCodes.Contains(t.TicketCode)).ToListAsync(ct);
+
+        var groupedBookedTicketId = Guid.NewGuid().ToString();
 
         var bookedTickets = new List<BookedTicket>();
         var bookedTicketsResponse = new List<BookedTicketDetailDto>();
 
-        foreach (var ticketToBeBooked in request.BookedTickets)
+        foreach (var ticketToBeBooked in collapsedRequestedTicketCodes)
         {
-            var ticket = validToBeBookedTickets.FirstOrDefault(t => t.TicketCode == ticketToBeBooked.TicketCode);
+            var ticket = validToBeBookedTickets.FirstOrDefault(t => t.TicketCode.Equals(ticketToBeBooked.TicketCode, StringComparison.OrdinalIgnoreCase));
+            // ordinalignorecase katanya lebih better in performance (gc wise) dan culture invariant
 
-            if (ticket is null)
+            if (ticket == null)
             {
                 throw new NotFoundException($"The ticket with the code '{ticketToBeBooked.TicketCode}' does not exist!");
             }
@@ -36,9 +47,9 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
                 throw new ValidationException($"The ticket with the code '{ticketToBeBooked.TicketCode}' is out of quota!");
             }
 
-            if (ticketToBeBooked.Quantity > ticket.Quota)
+            if (ticketToBeBooked.TotalQuantity > ticket.Quota)
             {
-                throw new ValidationException($"The quantity '{ticketToBeBooked.Quantity}' exceeds the remaining quota '{ticket.Quota}' for ticket code '{ticket.TicketCode}'!");
+                throw new ValidationException($"The quantity '{ticketToBeBooked.TotalQuantity}' exceeds the remaining quota '{ticket.Quota}' for ticket code '{ticket.TicketCode}'!");
             }
 
             if (ticket.EventDate <= DateTime.UtcNow)
@@ -46,23 +57,23 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
                 throw new ValidationException($"The sales for the ticket coded '{ticketToBeBooked.TicketCode}' has been closed! It took place on {ticket.EventDate.ToString("yyyy-MM-dd HH:mm:ss")} UTC!");
             }
 
-            ticket.Quota -= ticketToBeBooked.Quantity;
+            ticket.Quota -= ticketToBeBooked.TotalQuantity;
 
             var bookedTicket = new BookedTicket
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = groupedBookedTicketId,
                 BookedTicketCode = ticket.TicketCode,
                 TicketId = ticket.Id,
-                Quantity = ticketToBeBooked.Quantity,
+                Quantity = ticketToBeBooked.TotalQuantity,
                 BookedAt = DateTime.UtcNow
             };
             bookedTickets.Add(bookedTicket);
             bookedTicketsResponse.Add(new BookedTicketDetailDto(
                 ticket.TicketCode,
                 ticket.TicketName,
-                ticketToBeBooked.Quantity,
+                ticketToBeBooked.TotalQuantity,
                 ticket.Price,
-                ticket.Price * ticketToBeBooked.Quantity
+                ticket.Price * ticketToBeBooked.TotalQuantity
             ));
         }
 

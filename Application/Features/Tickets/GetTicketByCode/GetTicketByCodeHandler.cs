@@ -24,7 +24,7 @@ public class GetTicketByCodeHandler : IRequestHandler<GetTicketByCodeQuery, GetT
             t.Price
         )).FirstOrDefaultAsync();
 
-        if (response is null)
+        if (response == null)
         {
             throw new NotFoundException($"Ticket with the code '{request.TicketCode}' was not found!");
         }

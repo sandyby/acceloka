@@ -1,10 +1,6 @@
-using AccelokaSandy.Application.Features.Categories.CreateCategory;
-using AccelokaSandy.Application.Features.Categories.GetAllCategories;
 using AccelokaSandy.Application.Features.Tickets.CreateTicket;
 using AccelokaSandy.Application.Features.Tickets.GetAvailableTickets;
-using AccelokaSandy.Application.Features.Tickets.GetCategoryById;
 using AccelokaSandy.Application.Features.Tickets.GetTicketByCode;
-using AccelokaSandy.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +8,7 @@ namespace AccelokaSandy.Controllers;
 
 [ApiController]
 [Route("api/v1")]
+[ApiVersion("1.0")]
 public class TicketsController : ControllerBase
 {
     private readonly ISender _sender;

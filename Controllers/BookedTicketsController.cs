@@ -8,7 +8,7 @@ namespace AccelokaSandy.Controllers;
 
 [ApiController]
 [Route("api/v1")]
-
+[ApiVersion("1.0")]
 public class BookedTicketsController : ControllerBase
 {
     private readonly ISender _sender;
@@ -16,7 +16,6 @@ public class BookedTicketsController : ControllerBase
     {
         this._sender = sender;
     }
-
 
     [HttpGet("get-booked-tickets")]
     public async Task<IActionResult> GetBookedTickets([FromQuery] GetBookedTicketsQuery query)
@@ -39,3 +38,5 @@ public class BookedTicketsController : ControllerBase
         return Ok(bookedTickets);
     }
 }
+
+// kalo sempet coba api versioning

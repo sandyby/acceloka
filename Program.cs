@@ -4,6 +4,7 @@ using AccelokaSandy.Infrastructure.Persistence;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
@@ -26,20 +27,13 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 
 builder.Services.AddControllers();
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
 builder.Services.AddFluentValidationAutoValidation();
-// builder.Services.AddScoped<IValidator<Ticket>, CreateTicketValidator>();
-
-// TODO:  pelajarin
-/*
-.AddFluentValidation(fv =>
-    {
-        // Automatically register all validators in the assembly
-        fv.RegisterValidatorsFromAssemblyContaining<UserRegistrationValidator>();
-    });
-
-// Optional: Explicitly register validators
-builder.Services.AddScoped<IValidator<UserRegistrationRequest>, UserRegistrationValidator>();
-*/
 
 // TODO: pelajarin jg
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); 

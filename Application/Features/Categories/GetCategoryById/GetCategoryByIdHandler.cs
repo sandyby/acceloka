@@ -20,7 +20,7 @@ public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, GetC
             tc.TicketCategoryName
         )).FirstOrDefaultAsync();
 
-        if (response is null)
+        if (response == null)
         {
             throw new NotFoundException($"Category with the id '{request.Id}' was not found!");
         }

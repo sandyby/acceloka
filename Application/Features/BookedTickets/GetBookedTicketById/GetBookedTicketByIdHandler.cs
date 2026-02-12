@@ -22,7 +22,7 @@ public class GetBookedTicketByIdHandler : IRequestHandler<GetBookedTicketByIdQue
             bt.Quantity
         )).FirstOrDefaultAsync();
 
-        if (bookedTicket is null)
+        if (bookedTicket == null)
         {
             throw new NotFoundException($"Booked ticket with the ID '{request.BookedTicketId}' was not found!");
         }
