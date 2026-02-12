@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQuery, List<GetAvailableTicketsResponse>>
+public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQuery, GetAvailableTicketsResponse>
 {
     private readonly AppDbContext _context;
 
@@ -17,21 +17,21 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
         this._context = context;
     }
 
-    public async Task<List<GetAvailableTicketsResponse>> Handle(GetAvailableTicketsQuery request, CancellationToken ct)
+    public async Task<GetAvailableTicketsResponse> Handle(GetAvailableTicketsQuery request, CancellationToken ct)
     {
         var query = _context.Tickets.AsNoTracking().Include(t => t.TicketCategory).Where(t => t.Quota > 0).AsQueryable();
 
         if (!string.IsNullOrEmpty(request.TicketCategory))
         {
-            query = query.Where(t => t.TicketCategory.TicketCategoryName.Contains(request.TicketCategory));
+            query = query.Where(t => t.TicketCategory.TicketCategoryName.ToLower() == request.TicketCategory.ToLower());
         }
         if (!string.IsNullOrEmpty(request.TicketCode))
         {
-            query = query.Where(t => t.TicketCode == request.TicketCode);
+            query = query.Where(t => t.TicketCode.ToLower() == request.TicketCode.ToLower());
         }
         if (!string.IsNullOrEmpty(request.TicketName))
         {
-            query = query.Where(t => t.TicketName.Contains(request.TicketName));
+            query = query.Where(t => t.TicketName.ToLower().Contains(request.TicketName.ToLower()));
         }
         if (request.MaxPrice.HasValue)
         {
@@ -46,6 +46,8 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             query = query.Where(t => t.EventDate <= request.MaxEventDate.Value);
         }
 
+        var totalFilteredTicketsCount = await query.CountAsync();
+
         bool isOrderStateDesc = request.OrderState?.ToLower() == "desc";
         query = request.OrderBy?.ToLower() switch
         {
@@ -56,16 +58,22 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             _ => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCode) : query.OrderBy(t => t.TicketCode)
         };
 
-        return await query.Select(t =>
-        new GetAvailableTicketsResponse(
-            t.EventDate,
-            t.TicketCategory.TicketCategoryName,
-            t.TicketCode,
-            t.TicketName,
-            t.Quota,
-            t.Price
-        )).ToListAsync();
+        var skipNumber = (request.PageNumber - 1) * request.PageSize;
 
-        // return await _context.Tickets.Select(t => new TicketDto(t.TicketCode, t.TicketName, t.TicketCategory, t.Quota, t.Price, t.EventDate)).ToListAsync(ct);
+        var tickets = await query.Skip(skipNumber).Take(request.PageSize).Select(t =>
+            new AvailableTicketDto(
+                t.EventDate,
+                t.TicketCategory.TicketCategoryName,
+                t.TicketCode,
+                t.TicketName,
+                t.Quota,
+                t.Price
+            )).ToListAsync(ct);
+
+        return new GetAvailableTicketsResponse
+        {
+            AvailableTickets = tickets,
+            TotalTicketsCount = totalFilteredTicketsCount
+        };
     }
 }

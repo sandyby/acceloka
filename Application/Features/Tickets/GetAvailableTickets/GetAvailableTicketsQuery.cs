@@ -10,5 +10,7 @@ public record GetAvailableTicketsQuery(
     DateTime? MinEventDate,
     DateTime? MaxEventDate,
     string? OrderBy = "TicketCode",
-    string? OrderState = "asc"
-) : IRequest<List<GetAvailableTicketsResponse>>;
+    string? OrderState = "asc",
+    int PageNumber = 1,
+    int PageSize = 10
+) : IRequest<GetAvailableTicketsResponse>;

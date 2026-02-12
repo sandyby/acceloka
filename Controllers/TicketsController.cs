@@ -21,11 +21,12 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet("get-available-tickets")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetAvailableTicketsResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> GetAvailableTickets(
         [FromQuery] GetAvailableTicketsQuery query
     )
     {
-        // var tickets = await _sender.Send(new GetAvailableTicketsQuery(ticketCategory, ticketCode, ticketName, price, minEventDate, maxEventDate, orderBy, orderState));
         var tickets = await _sender.Send(query);
         return Ok(tickets);
     }
@@ -53,6 +54,13 @@ public class TicketsController : ControllerBase
         return Ok(ticketCategory);
         // return ticketCategory is null ? NotFound() : Ok(ticketCategory);
     }
+
+    // [HttpPost("book-ticket")]
+    // public async Task<IActionResult> BookTicket([FromQuery] BookTicketQuery query)
+    // {
+    //     var result = await _sender.Send(query);
+    //     return CreatedAtAction(nameof(GetTicketByCode), new { ticketCode = ticket.TicketCode }, ticket);
+    // }
 
     [HttpPost("create-ticket")]
     public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand cmd)
