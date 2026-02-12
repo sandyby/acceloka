@@ -1,8 +1,7 @@
-using System.Net;
+using System.ComponentModel.DataAnnotations;
 using AccelokaSandy.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
@@ -22,10 +21,17 @@ public class GlobalExceptionHandler : IExceptionHandler
                 problemDetails.Detail = exception.Message;
                 break;
 
-            case FluentValidation.ValidationException validationException:
+            case ValidationException validationException:
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Validation Error";
                 problemDetails.Detail = validationException.Message;
+                break;
+
+
+            case FluentValidation.ValidationException fluentValidationException:
+                problemDetails.Status = StatusCodes.Status400BadRequest;
+                problemDetails.Title = "Fluent Validation Error";
+                problemDetails.Detail = fluentValidationException.Message;
                 break;
 
             default:

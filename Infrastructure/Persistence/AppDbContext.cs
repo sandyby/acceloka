@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<TicketCategory> TicketCategories { get; set; }
+    public DbSet<BookedTicket> BookedTickets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

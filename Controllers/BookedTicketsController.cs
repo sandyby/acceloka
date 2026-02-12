@@ -33,7 +33,7 @@ public class BookedTicketsController : ControllerBase
     }
 
     [HttpPost("book-tickets")]
-    public async Task<IActionResult> BookTickets([FromQuery] BookTicketCommand cmd)
+    public async Task<IActionResult> BookTickets([FromBody] BookTicketsCommand cmd)
     {
         var bookedTickets = await _sender.Send(cmd);
         return Ok(bookedTickets);
