@@ -29,5 +29,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<TicketCategory>().HasKey(tc => tc.Id);
         modelBuilder.Entity<TicketCategory>().Property(tc => tc.Id).ValueGeneratedNever();
         modelBuilder.Entity<TicketCategory>().HasIndex(tc => tc.TicketCategoryName).IsUnique();
+
+        // booked tickets
+        modelBuilder.Entity<BookedTicket>().HasKey(bt => bt.Id);
+        modelBuilder.Entity<BookedTicket>().Property(bt => bt.Id).ValueGeneratedNever();
+        modelBuilder.Entity<BookedTicket>().HasOne(bt => bt.Ticket).WithMany().HasForeignKey(bt => bt.TicketId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<BookedTicket>().HasIndex(bt => bt.BookedTicketCode).IsUnique();
     }
 }

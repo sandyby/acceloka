@@ -31,48 +31,17 @@ public class TicketsController : ControllerBase
         return Ok(tickets);
     }
 
-    [HttpGet("get-all-categories")]
-    public async Task<IActionResult> GetAllCategories()
-    {
-        var ticketCategories = await _sender.Send(new GetAllCategoriesQuery());
-        return Ok(ticketCategories);
-        // return ticketCategories is null ? NotFound() : Ok(ticketCategories);
-    }
-
     [HttpGet("get-ticket-by-code/{ticketCode}")]
     public async Task<IActionResult> GetTicketByCode(string ticketCode)
     {
         var ticket = await _sender.Send(new GetTicketByCodeQuery(ticketCode));
         return Ok(ticket);
-        // return ticket is null ? NotFound() : Ok(ticket);
     }
-
-    [HttpGet("get-category-by-id/{id}")]
-    public async Task<IActionResult> GetCategoryById(string id)
-    {
-        var ticketCategory = await _sender.Send(new GetCategoryByIdQuery(id));
-        return Ok(ticketCategory);
-        // return ticketCategory is null ? NotFound() : Ok(ticketCategory);
-    }
-
-    // [HttpPost("book-ticket")]
-    // public async Task<IActionResult> BookTicket([FromQuery] BookTicketQuery query)
-    // {
-    //     var result = await _sender.Send(query);
-    //     return CreatedAtAction(nameof(GetTicketByCode), new { ticketCode = ticket.TicketCode }, ticket);
-    // }
 
     [HttpPost("create-ticket")]
     public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand cmd)
     {
         var ticket = await _sender.Send(cmd);
         return CreatedAtAction(nameof(GetTicketByCode), new { ticketCode = ticket.TicketCode }, ticket);
-    }
-
-    [HttpPost("create-category")]
-    public async Task<IActionResult> CreateTicketCategory([FromBody] CreateCategoryCommand cmd)
-    {
-        var ticketCategory = await _sender.Send(cmd);
-        return CreatedAtAction(nameof(GetCategoryById), new { id = ticketCategory.Id }, ticketCategory);
     }
 }
