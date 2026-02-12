@@ -13,20 +13,31 @@ public class GetBookedTicketByIdHandler : IRequestHandler<GetBookedTicketByIdQue
     }
     public async Task<GetBookedTicketByIdResponse> Handle(GetBookedTicketByIdQuery request, CancellationToken ct)
     {
-        var bookedTicket = await _context.BookedTickets.AsNoTracking().Include(bt => bt.Ticket).Where(bt => bt.Id == request.BookedTicketId).Select(bt => new GetBookedTicketByIdResponse(
-            bt.Id,
-            bt.BookedTicketCode,
-            bt.Ticket.TicketName,
-            bt.Ticket.EventDate,
-            bt.BookedAt,
-            bt.Quantity
-        )).FirstOrDefaultAsync();
+        var bookedTickets = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory).Where(bt => bt.Id == request.BookedTicketId).ToListAsync(ct);
 
-        if (bookedTicket == null)
+        if (!bookedTickets.Any())
         {
-            throw new NotFoundException($"Booked ticket with the ID '{request.BookedTicketId}' was not found!");
+            throw new NotFoundException($"The booked ticket with the id '{request.BookedTicketId}' does not exist!");
         }
 
-        return bookedTicket;
+        var groupedBookedTickets = bookedTickets.GroupBy(bt => bt.Ticket.TicketCategory.TicketCategoryName).Select(g => new BookedTicketByIdPerCategorySummaryDto(
+            g.Sum(bt => bt.Quantity),
+            g.Key,
+            g.Select(bt => new BookedTicketsByIdDto(
+                bt.Id,
+                bt.BookedTicketCode,
+                bt.Ticket.TicketName,
+                bt.Ticket.EventDate,
+                bt.BookedAt,
+                bt.Quantity,
+                (int) bt.Ticket.Price,
+                (int) (bt.Quantity * bt.Ticket.Price)
+            )).ToList()
+        )).ToList();
+
+        return new GetBookedTicketByIdResponse
+        {
+            BookedTicketsByIdPerCategory = groupedBookedTickets
+        };
     }
 }

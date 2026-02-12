@@ -24,11 +24,11 @@ public class BookedTicketsController : ControllerBase
         return Ok(bookedTickets);
     }
 
-    [HttpGet("get-booked-ticket-by-code/{BookedTicketCode}")]
-    public async Task<IActionResult> GetBookedTicketByCode(string BookedTicketCode)
+    [HttpGet("get-booked-ticket/{BookedTicketId}")]
+    public async Task<IActionResult> GetBookedTicket(string BookedTicketId)
     {
-        var bookedTicket = await _sender.Send(new GetBookedTicketByIdQuery(BookedTicketCode));
-        return Ok(bookedTicket);
+        var bookedTicketsById = await _sender.Send(new GetBookedTicketByIdQuery(BookedTicketId));
+        return Ok(bookedTicketsById);
     }
 
     [HttpPost("book-tickets")]
