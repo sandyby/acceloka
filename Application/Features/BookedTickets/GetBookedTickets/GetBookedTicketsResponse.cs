@@ -4,6 +4,7 @@ public class GetBookedTicketsResponse
     public int TotalBookedTickets { get; set; }
 }
 public record BookedTicketDto(
+    string BookedTicketId,
     string BookedTicketCode,
     string TicketName,
     DateTime EventDate,

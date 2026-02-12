@@ -24,10 +24,10 @@ public class CategoriesController : ControllerBase
         return Ok(ticketCategories);
     }
 
-    [HttpGet("get-category-by-id/{id}")]
-    public async Task<IActionResult> GetCategoryById(string id)
+    [HttpGet("get-category-by-id/{TicketCategoryId}")]
+    public async Task<IActionResult> GetCategoryById(string TicketCategoryId)
     {
-        var ticketCategory = await _sender.Send(new GetCategoryByIdQuery(id));
+        var ticketCategory = await _sender.Send(new GetCategoryByIdQuery(TicketCategoryId));
         return Ok(ticketCategory);
     }
 

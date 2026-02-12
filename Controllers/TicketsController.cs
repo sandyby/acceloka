@@ -31,10 +31,10 @@ public class TicketsController : ControllerBase
         return Ok(tickets);
     }
 
-    [HttpGet("get-ticket-by-code/{ticketCode}")]
-    public async Task<IActionResult> GetTicketByCode(string ticketCode)
+    [HttpGet("get-ticket-by-code/{TicketCode}")]
+    public async Task<IActionResult> GetTicketByCode(string TicketCode)
     {
-        var ticket = await _sender.Send(new GetTicketByCodeQuery(ticketCode));
+        var ticket = await _sender.Send(new GetTicketByCodeQuery(TicketCode));
         return Ok(ticket);
     }
 

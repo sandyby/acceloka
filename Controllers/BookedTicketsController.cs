@@ -1,5 +1,5 @@
 using AccelokaSandy.Application.Features.BookedTickets.BookTickets;
-using AccelokaSandy.Application.Features.BookedTickets.GetBookedTicketByCode;
+using AccelokaSandy.Application.Features.BookedTickets.GetBookedTicketById;
 using AccelokaSandy.Application.Features.BookedTickets.GetBookedTickets;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +25,10 @@ public class BookedTicketsController : ControllerBase
         return Ok(bookedTickets);
     }
 
-    [HttpGet("get-booked-ticket-by-code/{bookedTicketCode}")]
-    public async Task<IActionResult> GetBookedTicketByCode(string bookedTicketCode)
+    [HttpGet("get-booked-ticket-by-code/{BookedTicketCode}")]
+    public async Task<IActionResult> GetBookedTicketByCode(string BookedTicketCode)
     {
-        var bookedTicket = await _sender.Send(new GetBookedTicketByCodeQuery(bookedTicketCode));
+        var bookedTicket = await _sender.Send(new GetBookedTicketByIdQuery(BookedTicketCode));
         return Ok(bookedTicket);
     }
 

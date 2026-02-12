@@ -43,6 +43,7 @@ public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, Ge
 
         var bookedTickets = await query.Skip(skipNumber).Take(request.PageSize).Select(bt => new BookedTicketDto
         (
+            bt.Id,
             bt.BookedTicketCode,
             bt.Ticket.TicketName,
             bt.Ticket.EventDate,
