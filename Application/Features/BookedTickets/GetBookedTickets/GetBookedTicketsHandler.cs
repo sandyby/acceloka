@@ -1,6 +1,7 @@
 using AccelokaSandy.Application.Features.BookedTickets.GetBookedTickets;
 using AccelokaSandy.Infrastructure.Persistence;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, GetBookedTicketsResponse>
 {
@@ -11,26 +12,50 @@ public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, Ge
     }
     public async Task<GetBookedTicketsResponse> Handle(GetBookedTicketsQuery request, CancellationToken ct)
     {
-        // var categoryExists = await _context.TicketCategories.AnyAsync(tc => tc.TicketCategoryName == request.TicketCategoryName, ct);
+        var query = _context.BookedTickets.AsNoTracking().Include(bt => bt.Ticket).AsQueryable();
 
-        // if (categoryExists)
-        // {
-        //     throw new ValidationException($"The category with the name '{request.TicketCategoryName}' already exist!");
-        // }
+        if (!string.IsNullOrEmpty(request.TicketCategory))
+        {
+            query = query.Where(bt => bt.Ticket.TicketCategory.TicketCategoryName.ToLower() == request.TicketCategory.ToLower());
+        }
 
-        // var ticketCategory = new TicketCategory
-        // {
-        //     TicketCategoryName = request.TicketCategoryName
-        // };
-        // _context.TicketCategories.Add(ticketCategory);
-        // await _context.SaveChangesAsync(ct);
-        // return new GetBookedTicketByCodeResponse(
-        //     ticketCategory.Id,
-        //     ticketCategory.TicketCategoryName
-        //     );
-        return new GetBookedTicketsResponse(
-            "sample-id",
-            "sample-category-name"
-        );
+        if (request.MinEventDate.HasValue)
+        {
+            query = query.Where(bt => bt.Ticket.EventDate >= request.MinEventDate.Value);
+        }
+
+        if (request.MaxEventDate.HasValue)
+        {
+            query = query.Where(bt => bt.Ticket.EventDate <= request.MaxEventDate.Value);
+        }
+
+        var totalFilteredTicketsCount = await query.CountAsync();
+
+        var isOrderStateDesc = request.OrderState?.ToLower() == "desc";
+        query = request.OrderBy?.ToLower() switch
+        {
+            "categoryname" => isOrderStateDesc ? query.OrderByDescending(bt => bt.Ticket.TicketCategory.TicketCategoryName) : query.OrderBy(bt => bt.Ticket.TicketCategory.TicketCategoryName),
+            "eventdate" => isOrderStateDesc ? query.OrderByDescending(bt => bt.Ticket.EventDate) : query.OrderBy(bt => bt.Ticket.EventDate),
+            _ => !isOrderStateDesc ? query.OrderBy(bt => bt.Ticket.EventDate) : query.OrderByDescending(bt => bt.Ticket.EventDate)
+        };
+
+        var skipNumber = (request.PageNumber - 1) * request.PageSize;
+
+        var bookedTickets = await query.Skip(skipNumber).Take(request.PageSize).Select(bt => new BookedTicketDto
+        (
+            bt.BookedTicketCode,
+            bt.Ticket.TicketName,
+            bt.Ticket.EventDate,
+            bt.BookedAt,
+            bt.Quantity,
+            bt.Ticket.Price,
+            bt.Quantity * bt.Ticket.Price
+        )).ToListAsync();
+
+        return new GetBookedTicketsResponse
+        {
+            BookedTickets = bookedTickets,
+            TotalBookedTickets = totalFilteredTicketsCount
+        };
     }
 }

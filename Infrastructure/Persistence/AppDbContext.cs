@@ -35,6 +35,5 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BookedTicket>().HasKey(bt => bt.Id);
         modelBuilder.Entity<BookedTicket>().Property(bt => bt.Id).ValueGeneratedNever();
         modelBuilder.Entity<BookedTicket>().HasOne(bt => bt.Ticket).WithMany().HasForeignKey(bt => bt.TicketId).OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<BookedTicket>().HasIndex(bt => bt.BookedTicketCode).IsUnique();
     }
 }
