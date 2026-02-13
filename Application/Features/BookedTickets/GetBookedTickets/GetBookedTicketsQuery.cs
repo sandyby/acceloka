@@ -4,9 +4,11 @@ namespace AccelokaSandy.Application.Features.BookedTickets.GetBookedTickets;
 
 public record GetBookedTicketsQuery(
     string? TicketCategory,
+    DateTime? MinBookedAt,
+    DateTime? MaxBookedAt,
     DateTime? MinEventDate,
     DateTime? MaxEventDate,
-    string? OrderBy = "TicketCode",
+    string? OrderBy = "TicketCategory",
     string? OrderState = "asc",
     int PageNumber = 1,
     int PageSize = 10

@@ -2,11 +2,6 @@ using AccelokaSandy.Infrastructure.Persistence;
 using AccelokaSandy.Application.Features.Tickets.GetAvailableTickets;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
-using Microsoft.Net.Http.Headers;
-using AccelokaSandy.Domain.Entities;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQuery, GetAvailableTicketsResponse>
 {
@@ -51,7 +46,7 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
         bool isOrderStateDesc = request.OrderState?.ToLower() == "desc";
         query = request.OrderBy?.ToLower() switch
         {
-            "categoryname" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCategory.TicketCategoryName) : query.OrderBy(t => t.TicketCategory.TicketCategoryName),
+            "ticketcategory" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCategory.TicketCategoryName) : query.OrderBy(t => t.TicketCategory.TicketCategoryName),
             "ticketname" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketName) : query.OrderBy(t => t.TicketName),
             "price" => isOrderStateDesc ? query.OrderByDescending(t => t.Price) : query.OrderBy(t => t.Price),
             "eventdate" => isOrderStateDesc ? query.OrderByDescending(t => t.EventDate) : query.OrderBy(t => t.EventDate),

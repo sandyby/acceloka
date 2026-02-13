@@ -1,49 +1,72 @@
-using System.ComponentModel.DataAnnotations;
 using AccelokaSandy.Application.Common.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
+    private readonly IProblemDetailsService _problemDetailsService;
+    public GlobalExceptionHandler(IProblemDetailsService problemDetailsService)
+    {
+        this._problemDetailsService = problemDetailsService;
+    }
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken ct)
     {
-        var problemDetails = new ProblemDetails
+        /*
+            dari rfc 7807 sendiri, disebutnya harus dicantumin URI di bagian 'type', entaitu ke IETF docs atau di API kita sendiri ada docs tersendiri
+
+            kemudian juga, dari yg dibaca, rfc 7807 sudah cukup outdated dan memankebanyakan refer to rfc 9110 atau rfc 9457 (sepertinya)
+        */
+
+        ProblemDetails? problemDetails = exception switch
         {
-            Instance = httpContext.Request.Path,
-            Extensions = { ["traceId"] = httpContext.TraceIdentifier }
+            NotFoundException notFoundException => new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+                Title = "Value Not Found",
+                Detail = notFoundException.Message,
+                Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+            },
+
+            /*
+                karena disable builder.Services.addfluetnvalidationautovalidation (sepertinya), makanya harus dicaught secara manual di sini untuk dibuat proper problem details
+            */
+
+            FluentValidation.ValidationException fluentValidationException => new ValidationProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                Title = "One or more validation errors occurred.",
+                Instance = httpContext.Request.Path,
+                Errors = fluentValidationException.Errors
+                                .GroupBy(ex => ex.PropertyName ?? string.Empty)
+                                .ToDictionary(
+                                    g => string.IsNullOrEmpty(g.Key) ? "General" : g.Key,
+                                    g => g.Select(err => err.ErrorMessage).Distinct().ToArray()
+                                )
+            },
+
+            _ => null
         };
 
-        switch (exception)
+        if (problemDetails is not null)
         {
-            case NotFoundException:
-                problemDetails.Status = StatusCodes.Status404NotFound;
-                problemDetails.Title = "Not Found";
-                problemDetails.Detail = exception.Message;
-                break;
+            httpContext.Response.ContentType = "application/problem+json";
+            httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
 
-            case ValidationException validationException:
-                problemDetails.Status = StatusCodes.Status400BadRequest;
-                problemDetails.Title = "Validation Error";
-                problemDetails.Detail = validationException.Message;
-                break;
+            var context = new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                ProblemDetails = problemDetails,
+                Exception = exception
+            };
 
-
-            case FluentValidation.ValidationException fluentValidationException:
-                problemDetails.Status = StatusCodes.Status400BadRequest;
-                problemDetails.Title = "Fluent Validation Error";
-                problemDetails.Detail = fluentValidationException.Message;
-                break;
-
-            default:
-                problemDetails.Status = StatusCodes.Status500InternalServerError;
-                problemDetails.Title = "Server Error";
-                problemDetails.Detail = "An unexpected error occured";
-                break;
+            await _problemDetailsService.WriteAsync(context);
+            return true;
         }
 
-        httpContext.Response.StatusCode = problemDetails.Status.Value;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, ct);
-
-        return true;
+        return false;
     }
 }

@@ -1,8 +1,6 @@
-using System.Reflection;
-using AccelokaSandy.Domain.Entities;
+using AccelokaSandy.Application.Common.Behaviors;
 using AccelokaSandy.Infrastructure.Persistence;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +23,6 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
-
 builder.Services.AddControllers();
 builder.Services.AddApiVersioning(options =>
 {
@@ -33,11 +30,11 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
 });
-builder.Services.AddFluentValidationAutoValidation();
 
-// TODO: pelajarin jg
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>(); 
+// validation pipeline, exception handling, problem details related stuff (harus wajib kudu pelajarin for clean dan standardized error responses)
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
