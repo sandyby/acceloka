@@ -39,6 +39,13 @@ public class BookedTicketsController : ControllerBase
         return Ok(bookedTickets);
     }
 
+    [HttpPut("edit-booked-ticket/{BookedTicketId}")]
+    public async Task<IActionResult> EditBookedTicket(string BookedTicketId, [FromBody] EditBookedTicketCommand cmd)
+    {
+        var editedBookedTicket = await _sender.Send(BookedTicketId, cmd);
+        return Ok(editedBookedTicket);
+    }
+
     [HttpDelete("revoke-ticket/{BookedTicketId}/{BookedTicketCode}/{Quantity}")]
     public async Task<IActionResult> RevokeBookedTicket(string BookedTicketId, string BookedTicketCode, int Quantity)
     {
