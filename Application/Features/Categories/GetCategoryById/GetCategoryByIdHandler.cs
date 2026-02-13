@@ -15,7 +15,7 @@ public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, GetC
 
     public async Task<GetCategoryByIdResponse> Handle(GetCategoryByIdQuery request, CancellationToken ct)
     {
-        var response = await _context.TicketCategories.AsNoTracking().Where(tc => tc.Id == request.Id).Select(tc => new GetCategoryByIdResponse(
+        var response = await _context.TicketCategories.AsNoTracking().Where(tc => EF.Functions.ILike(tc.Id, request.Id)).Select(tc => new GetCategoryByIdResponse(
             tc.Id,
             tc.TicketCategoryName
         )).FirstOrDefaultAsync();

@@ -14,7 +14,7 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand, CreateTi
     }
     public async Task<CreateTicketResponse> Handle(CreateTicketCommand request, CancellationToken ct)
     {
-        var categoryExists = await _context.TicketCategories.AnyAsync(c => c.Id == request.TicketCategoryId, ct);
+        var categoryExists = await _context.TicketCategories.AnyAsync(c => EF.Functions.ILike(c.Id, request.TicketCategoryId), ct);
 
         if (!categoryExists)
         {

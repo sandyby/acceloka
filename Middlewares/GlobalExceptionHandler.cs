@@ -48,6 +48,15 @@ public class GlobalExceptionHandler : IExceptionHandler
                                 )
             },
 
+            InvalidQuantityException invalidQuantityException => new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                Title = "Invalid Quantity Specified",
+                Detail = invalidQuantityException.Message,
+                Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+            },
+
             _ => null
         };
 

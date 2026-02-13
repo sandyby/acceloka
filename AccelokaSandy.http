@@ -48,3 +48,10 @@ Content-Type: application/json
     "ticketCategoryName": "Transporation By Air"
 }
 
+###
+
+GET {{AccelokaSandy_HostAddress}}/api/v1/get-booked-tickets
+
+###
+
+DELETE {{AccelokaSandy_HostAddress}}/api/v1/revoke-ticket/f45f1cf8-bde5-4d46-bef5-17e45b19a66f/HTL002/7

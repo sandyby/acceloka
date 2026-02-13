@@ -13,31 +13,31 @@ public class GetBookedTicketByIdHandler : IRequestHandler<GetBookedTicketByIdQue
     }
     public async Task<GetBookedTicketByIdResponse> Handle(GetBookedTicketByIdQuery request, CancellationToken ct)
     {
-        var bookedTickets = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory).Where(bt => bt.Id == request.BookedTicketId).ToListAsync(ct);
+        var bookedTickets = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory).Where(bt => EF.Functions.ILike(bt.Id, request.BookedTicketId)).ToListAsync(ct);
 
         if (!bookedTickets.Any())
         {
             throw new NotFoundException($"The booked ticket with the id '{request.BookedTicketId}' does not exist!");
         }
 
-        var groupedBookedTickets = bookedTickets.GroupBy(bt => bt.Ticket.TicketCategory.TicketCategoryName).Select(g => new BookedTicketByIdPerCategorySummaryDto(
+        var groupedBookedTicketsByCategory = bookedTickets.GroupBy(bt => bt.Ticket.TicketCategory.TicketCategoryName).Select(g => new BookedTicketByIdPerCategorySummaryDto(
             g.Sum(bt => bt.Quantity),
             g.Key,
-            g.Select(bt => new BookedTicketsByIdDto(
-                bt.Id,
+            g.Select(bt => new BookedTicketsByCategory(
                 bt.BookedTicketCode,
                 bt.Ticket.TicketName,
                 bt.Ticket.EventDate,
-                bt.BookedAt,
                 bt.Quantity,
-                (int) bt.Ticket.Price,
-                (int) (bt.Quantity * bt.Ticket.Price)
+                (int)bt.Ticket.Price,
+                (int)(bt.Quantity * bt.Ticket.Price)
             )).ToList()
         )).ToList();
 
         return new GetBookedTicketByIdResponse
         {
-            BookedTicketsByIdPerCategory = groupedBookedTickets
+            BookedTicketId = bookedTickets.First().Id,
+            BookedAt = bookedTickets.First().BookedAt,
+            BookedTicketsByIdPerCategorySummary = groupedBookedTicketsByCategory
         };
     }
 }

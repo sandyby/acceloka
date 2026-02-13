@@ -1,8 +1,8 @@
-using System.ComponentModel.DataAnnotations;
 using AccelokaSandy.Application.Common.Exceptions;
 using AccelokaSandy.Application.Features.BookedTickets.BookTickets;
 using AccelokaSandy.Domain.Entities;
 using AccelokaSandy.Infrastructure.Persistence;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,7 +49,7 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
 
             if (ticketToBeBooked.TotalQuantity > ticket.Quota)
             {
-                throw new ValidationException($"The quantity '{ticketToBeBooked.TotalQuantity}' exceeds the remaining quota '{ticket.Quota}' for ticket code '{ticket.TicketCode}'!");
+                throw new InvalidQuantityException($"The quantity '{ticketToBeBooked.TotalQuantity}' exceeds the remaining quota '{ticket.Quota}' for ticket code '{ticket.TicketCode}'!");
             }
 
             if (ticket.EventDate <= DateTime.UtcNow)

@@ -1,6 +1,7 @@
 using AccelokaSandy.Application.Features.BookedTickets.BookTickets;
 using AccelokaSandy.Application.Features.BookedTickets.GetBookedTicketById;
 using AccelokaSandy.Application.Features.BookedTickets.GetBookedTickets;
+using AccelokaSandy.Application.Features.BookedTickets.RevokeBookedTicket;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +37,13 @@ public class BookedTicketsController : ControllerBase
     {
         var bookedTickets = await _sender.Send(cmd);
         return Ok(bookedTickets);
+    }
+
+    [HttpDelete("revoke-ticket/{BookedTicketId}/{BookedTicketCode}/{Quantity}")]
+    public async Task<IActionResult> RevokeBookedTicket(string BookedTicketId, string BookedTicketCode, int Quantity)
+    {
+        var revokedBookedTicket = await _sender.Send(new RevokeBookedTicketCommand(BookedTicketId, BookedTicketCode, Quantity));
+        return Ok(revokedBookedTicket);
     }
 }
 

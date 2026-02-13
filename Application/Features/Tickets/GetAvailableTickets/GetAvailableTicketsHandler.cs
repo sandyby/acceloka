@@ -18,15 +18,15 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
 
         if (!string.IsNullOrEmpty(request.TicketCategory))
         {
-            query = query.Where(t => t.TicketCategory.TicketCategoryName.ToLower() == request.TicketCategory.ToLower());
+            query = query.Where(t => EF.Functions.ILike(t.TicketCategory.TicketCategoryName, request.TicketCategory));
         }
         if (!string.IsNullOrEmpty(request.TicketCode))
         {
-            query = query.Where(t => t.TicketCode.ToLower() == request.TicketCode.ToLower());
+            query = query.Where(t => EF.Functions.ILike(t.TicketCode, request.TicketCode));
         }
         if (!string.IsNullOrEmpty(request.TicketName))
         {
-            query = query.Where(t => t.TicketName.ToLower().Contains(request.TicketName.ToLower()));
+            query = query.Where(t => EF.Functions.ILike(t.TicketName, request.TicketName));
         }
         if (request.MaxPrice.HasValue)
         {

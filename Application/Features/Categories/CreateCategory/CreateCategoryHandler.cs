@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using AccelokaSandy.Application.Features.Categories.CreateCategory;
 using AccelokaSandy.Domain.Entities;
 using AccelokaSandy.Infrastructure.Persistence;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +14,7 @@ public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, Crea
     }
     public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand request, CancellationToken ct)
     {
-        var categoryExists = await _context.TicketCategories.AnyAsync(tc => tc.TicketCategoryName == request.TicketCategoryName, ct);
+        var categoryExists = await _context.TicketCategories.AnyAsync(tc => EF.Functions.ILike(tc.TicketCategoryName, request.TicketCategoryName), ct);
 
         if (categoryExists)
         {

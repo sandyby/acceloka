@@ -1,20 +1,21 @@
 public class GetBookedTicketByIdResponse
 {
-    public List<BookedTicketByIdPerCategorySummaryDto> BookedTicketsByIdPerCategory { get; set; } = new();
+
+    public string BookedTicketId { get; set; } = string.Empty;
+    public DateTime BookedAt { get; set; }
+    public List<BookedTicketByIdPerCategorySummaryDto> BookedTicketsByIdPerCategorySummary { get; set; } = new();
 }
 
 public record BookedTicketByIdPerCategorySummaryDto(
     int QuantityPerCategory,
     string CategoryName,
-    List<BookedTicketsByIdDto> BookedTicketsById
+    List<BookedTicketsByCategory> bookedTicketsByCategory
 );
 
-public record BookedTicketsByIdDto(
-    string BookedTicketId,
+public record BookedTicketsByCategory(
     string BookedTicketCode,
     string TicketName,
     DateTime EventDate,
-    DateTime BookedAt,
     int Quantity,
     int UnitPrice,
     int TotalPriceAmount

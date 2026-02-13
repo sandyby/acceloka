@@ -16,7 +16,7 @@ public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, Ge
 
         if (!string.IsNullOrEmpty(request.TicketCategory))
         {
-            query = query.Where(bt => bt.Ticket.TicketCategory.TicketCategoryName.ToLower() == request.TicketCategory.ToLower());
+            query = query.Where(bt => EF.Functions.ILike(bt.Ticket.TicketCategory.TicketCategoryName, request.TicketCategory));
         }
 
         if (request.MinBookedAt.HasValue)
