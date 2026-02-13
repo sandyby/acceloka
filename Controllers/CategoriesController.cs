@@ -33,9 +33,14 @@ public class CategoriesController : ControllerBase
 
 
     [HttpPost("create-category")]
-    public async Task<IActionResult> CreateTicketCategory([FromBody] CreateCategoryCommand cmd)
+    public async Task<IActionResult> CreateTicketCategory([FromBody] CreateCategoryRequest body)
     {
-        var ticketCategory = await _sender.Send(cmd);
-        return CreatedAtAction(nameof(GetCategoryById), new { id = ticketCategory.Id }, ticketCategory);
+        if (body == null)
+        {
+            return BadRequest("The request body is required!");
+        }
+
+        var ticketCategory = await _sender.Send(new CreateCategoryCommand(body.TicketCategoryName));
+        return CreatedAtAction(nameof(GetCategoryById), new { TicketCategoryId = ticketCategory.Id }, ticketCategory);
     }
 }

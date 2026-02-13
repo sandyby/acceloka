@@ -44,7 +44,7 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
 
             if (ticket.Quota <= 0)
             {
-                throw new ValidationException($"The ticket with the code '{ticketToBeBooked.TicketCode}' is out of quota!");
+                throw new InvalidQuantityException($"The ticket with the code '{ticketToBeBooked.TicketCode}' is out of quota!");
             }
 
             if (ticketToBeBooked.TotalQuantity > ticket.Quota)
@@ -54,7 +54,7 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
 
             if (ticket.EventDate <= DateTime.UtcNow)
             {
-                throw new ValidationException($"The sales for the ticket coded '{ticketToBeBooked.TicketCode}' has been closed! It took place on {ticket.EventDate.ToString("yyyy-MM-dd HH:mm:ss")} UTC!");
+                throw new InvalidPeriodException($"The sales for the ticket coded '{ticketToBeBooked.TicketCode}' has been closed! It took place on {ticket.EventDate.ToString("yyyy-MM-dd HH:mm:ss")} UTC!");
             }
 
             ticket.Quota -= ticketToBeBooked.TotalQuantity;
@@ -90,6 +90,7 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
         var grandTotal = bookedTicketsResponse.Sum(bt => bt.TotalPriceAmount);
 
         return new BookTicketsResponse(
+            groupedBookedTicketId,
             grandTotal,
             categorySummaries
         );

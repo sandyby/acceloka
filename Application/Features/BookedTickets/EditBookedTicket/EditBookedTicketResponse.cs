@@ -1,12 +1,7 @@
+using Application.Features.BookedTickets;
+
 public class EditBookedTicketResponse
 {
-    string BookedTicketId { get; init; } = String.Empty;
-    List<EditedBookedTicketDto> EditedBookedTickets { get; init; } = new();
+    public string BookedTicketId { get; init; } = String.Empty;
+    public List<UpdatedBookedTicketDto> UpdatedBookedTickets { get; init; } = new List<UpdatedBookedTicketDto>();
 }
-
-public record EditedBookedTicketDto(
-    string BookedTicketCode,
-    string BookedTicketName,
-    string BookedTicketCategoryName,
-    int Quantity
-);

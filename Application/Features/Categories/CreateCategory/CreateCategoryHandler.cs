@@ -1,3 +1,4 @@
+using AccelokaSandy.Application.Common.Exceptions;
 using AccelokaSandy.Application.Features.Categories.CreateCategory;
 using AccelokaSandy.Domain.Entities;
 using AccelokaSandy.Infrastructure.Persistence;
@@ -18,7 +19,7 @@ public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, Crea
 
         if (categoryExists)
         {
-            throw new ValidationException($"The category with the name '{request.TicketCategoryName}' already exist!");
+            throw new DuplicateValuesException($"The category with the name '{request.TicketCategoryName}' already exist!");
         }
 
         var ticketCategory = new TicketCategory

@@ -10,3 +10,7 @@ public record BookTicketsBodyContent(
     string TicketCode,
     int Quantity
 );
+
+public record BookTicketsRequest(
+    List<BookTicketsBodyContent> BookedTickets
+);

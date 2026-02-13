@@ -1,4 +1,5 @@
 public record BookTicketsResponse(
+    string BookedTicketId,
     int TotalPriceAmount,
     List<CategorySummaryDto> TicketsPerCategories
 );

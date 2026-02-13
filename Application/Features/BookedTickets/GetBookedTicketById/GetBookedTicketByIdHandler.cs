@@ -13,7 +13,7 @@ public class GetBookedTicketByIdHandler : IRequestHandler<GetBookedTicketByIdQue
     }
     public async Task<GetBookedTicketByIdResponse> Handle(GetBookedTicketByIdQuery request, CancellationToken ct)
     {
-        var bookedTickets = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory).Where(bt => EF.Functions.ILike(bt.Id, request.BookedTicketId)).ToListAsync(ct);
+        var bookedTickets = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory).Where(bt => bt.Id == request.BookedTicketId).ToListAsync(ct);
 
         if (!bookedTickets.Any())
         {

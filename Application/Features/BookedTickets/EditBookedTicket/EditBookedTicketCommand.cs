@@ -11,3 +11,7 @@ public record EditBookedTicketBodyContent(
     string BookedTicketCode,
     int NewQuantity
 );
+
+public record EditBookedTicketRequest(
+    List<EditBookedTicketBodyContent> ToBeEditedBookedTickets
+);

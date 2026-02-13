@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using AccelokaSandy.Application.Common.Exceptions;
 using AccelokaSandy.Application.Features.Tickets.CreateTicket;
 using AccelokaSandy.Domain.Entities;
 using AccelokaSandy.Infrastructure.Persistence;
@@ -14,13 +14,20 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand, CreateTi
     }
     public async Task<CreateTicketResponse> Handle(CreateTicketCommand request, CancellationToken ct)
     {
-        var categoryExists = await _context.TicketCategories.AnyAsync(c => EF.Functions.ILike(c.Id, request.TicketCategoryId), ct);
+        var categoryExists = await _context.TicketCategories.FirstOrDefaultAsync(c => c.Id == request.TicketCategoryId, ct);
 
-        if (!categoryExists)
+        if (categoryExists == null)
         {
-            throw new ValidationException("The category selected doesn't exist!");
+            throw new NotFoundException("category selected doesn't exist!");
         }
-        
+
+        var ticketCodeExists = await _context.Tickets.AnyAsync(t => EF.Functions.ILike(t.TicketCode, request.TicketCode), ct);
+
+        if (ticketCodeExists)
+        {
+            throw new DuplicateValuesException($"The ticket with the code '{request.TicketCode}' already exist!");
+        }
+
         var ticket = new Ticket
         {
             TicketCode = request.TicketCode,
@@ -34,7 +41,7 @@ public class CreateTicketHandler : IRequestHandler<CreateTicketCommand, CreateTi
         await _context.SaveChangesAsync(ct);
         return new CreateTicketResponse(
             ticket.TicketCode,
-            ticket.TicketCategory.TicketCategoryName,
+            categoryExists.TicketCategoryName,
             ticket.TicketName,
             ticket.Quota,
             ticket.Price,

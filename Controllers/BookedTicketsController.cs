@@ -2,6 +2,7 @@ using AccelokaSandy.Application.Features.BookedTickets.BookTickets;
 using AccelokaSandy.Application.Features.BookedTickets.GetBookedTicketById;
 using AccelokaSandy.Application.Features.BookedTickets.GetBookedTickets;
 using AccelokaSandy.Application.Features.BookedTickets.RevokeBookedTicket;
+using Application.Features.BookedTickets.EditBookedTicket;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,16 +34,26 @@ public class BookedTicketsController : ControllerBase
     }
 
     [HttpPost("book-tickets")]
-    public async Task<IActionResult> BookTickets([FromBody] BookTicketsCommand cmd)
+    public async Task<IActionResult> BookTickets([FromBody] BookTicketsRequest body)
     {
-        var bookedTickets = await _sender.Send(cmd);
+        if (body == null || !body.BookedTickets.Any())
+        {
+            return BadRequest("The request body is required!");
+        }
+
+        var bookedTickets = await _sender.Send(new BookTicketsCommand(body.BookedTickets));
         return Ok(bookedTickets);
     }
 
     [HttpPut("edit-booked-ticket/{BookedTicketId}")]
-    public async Task<IActionResult> EditBookedTicket(string BookedTicketId, [FromBody] EditBookedTicketCommand cmd)
+    public async Task<IActionResult> EditBookedTicket(string BookedTicketId, [FromBody] EditBookedTicketRequest body)
     {
-        var editedBookedTicket = await _sender.Send(BookedTicketId, cmd);
+        if (body == null || !body.ToBeEditedBookedTickets.Any())
+        {
+            return BadRequest("The request body is required!");
+        }
+
+        var editedBookedTicket = await _sender.Send(new EditBookedTicketCommand(BookedTicketId, body.ToBeEditedBookedTickets));
         return Ok(editedBookedTicket);
     }
 

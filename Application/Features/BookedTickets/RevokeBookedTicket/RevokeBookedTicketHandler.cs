@@ -1,6 +1,7 @@
 using AccelokaSandy.Application.Common.Exceptions;
 using AccelokaSandy.Application.Features.BookedTickets.RevokeBookedTicket;
 using AccelokaSandy.Infrastructure.Persistence;
+using Application.Features.BookedTickets;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,8 @@ public class RevokeBookedTicketHandler : IRequestHandler<RevokeBookedTicketComma
     }
     public async Task<RevokeBookedTicketResponse> Handle(RevokeBookedTicketCommand request, CancellationToken ct)
     {
-        // var toBeRevokedBookedTicketExists = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory)
-        //     .FirstOrDefaultAsync(bt => string.Equals(bt.Id, request.BookedTicketId, StringComparison.OrdinalIgnoreCase) && string.Equals(bt.BookedTicketCode, request.BookedTicketCode, StringComparison.OrdinalIgnoreCase), ct);
-
         var toBeRevokedBookedTicketExists = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory)
-            .FirstOrDefaultAsync(bt => EF.Functions.ILike(bt.Id, request.BookedTicketId) && EF.Functions.ILike(bt.BookedTicketCode, request.BookedTicketCode), ct);
+            .FirstOrDefaultAsync(bt => bt.Id == request.BookedTicketId && EF.Functions.ILike(bt.BookedTicketCode, request.BookedTicketCode), ct);
 
         /*
             quite unsure apakah seharusnya perlu handle case insensitive comparison, contohnya kayak di atas (BookedTicketCode & BookedTicketId)
@@ -56,7 +54,7 @@ public class RevokeBookedTicketHandler : IRequestHandler<RevokeBookedTicketComma
         // TODO: kalau sempat update quota di table tickets juga jika event date masih valid/eligible (?)
 
         var updatedBookedTicketsById = await _context.BookedTickets.Include(bt => bt.Ticket).ThenInclude(t => t.TicketCategory)
-            .Where(bt => EF.Functions.ILike(bt.Id, request.BookedTicketId)).ToListAsync(ct);
+            .Where(bt => bt.Id == request.BookedTicketId).ToListAsync(ct);
 
         return new RevokeBookedTicketResponse(
             toBeRevokedBookedTicketExists.Id,

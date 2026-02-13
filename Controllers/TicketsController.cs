@@ -36,9 +36,21 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPost("create-ticket")]
-    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand cmd)
+    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketRequest body)
     {
-        var ticket = await _sender.Send(cmd);
-        return CreatedAtAction(nameof(GetTicketByCode), new { ticketCode = ticket.TicketCode }, ticket);
+        if (body == null)
+        {
+            return BadRequest("The request body is required!");
+        }
+
+        var ticket = await _sender.Send(new CreateTicketCommand(
+            body.TicketCode,
+            body.TicketCategoryId,
+            body.TicketName,
+            body.Quota,
+            body.Price,
+            body.EventDate
+        ));
+        return CreatedAtAction(nameof(GetTicketByCode), new { TicketCode = ticket.TicketCode }, ticket);
     }
 }
