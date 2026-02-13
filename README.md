@@ -1,17 +1,18 @@
 NuGet Packages used:
 ====================
-AutoMapper.Extensions.Microsoft.DependencyInjection Version="12.0.1"
-FluentValidation Version="12.1.1"
-FluentValidation.AspNetCore Version="11.3.1"
-FFluentValidation.DependencyInjectionExtensions Version="12.1.1"
-MediatR Version="14.0.0"
-Microsoft.AspNetCore.Mvc.Versioning Version="5.1.0"
-Microsoft.AspNetCore.OpenApi Version="10.0.2"
-Microsoft.EntityFrameworkCore.Design Version="10.0.2"
-Npgsql.EntityFrameworkCore.PostgreSQL Version="10.0.0"
-Serilog.AspNetCore Version="10.0.0" />
-Serilog.Sinks.File Version="7.0.0" />
-Swashbuckle.AspNetCore Version="10.1.2"
+
+- AutoMapper.Extensions.Microsoft.DependencyInjection Version="12.0.1"
+- FluentValidation Version="12.1.1"
+- FluentValidation.AspNetCore Version="11.3.1"
+- FFluentValidation.DependencyInjectionExtensions Version="12.1.1"
+- MediatR Version="14.0.0"
+- Microsoft.AspNetCore.Mvc.Versioning Version="5.1.0"
+- Microsoft.AspNetCore.OpenApi Version="10.0.2"
+- Microsoft.EntityFrameworkCore.Design Version="10.0.2"
+- Npgsql.EntityFrameworkCore.PostgreSQL Version="10.0.0"
+- Serilog.AspNetCore Version="10.0.0" />
+- Serilog.Sinks.File Version="7.0.0" />
+- Swashbuckle.AspNetCore Version="10.1.2"
 
 Notes
 =====
