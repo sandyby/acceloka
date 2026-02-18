@@ -10,15 +10,15 @@ NuGet Packages used:
 - Microsoft.AspNetCore.OpenApi Version="10.0.2"
 - Microsoft.EntityFrameworkCore.Design Version="10.0.2"
 - Npgsql.EntityFrameworkCore.PostgreSQL Version="10.0.0"
-- Serilog.AspNetCore Version="10.0.0" />
-- Serilog.Sinks.File Version="7.0.0" />
+- Serilog.AspNetCore Version="10.0.0"
+- Serilog.Sinks.File Version="7.0.0"
 - Swashbuckle.AspNetCore Version="10.1.2"
 
 Notes
 =====
 
 Swagger UI is used to help testing the API endpoints easier:
---> Should be accessible on Development environment only at localhost:[your_port]/swagger/index.html),
+--> Should be accessible on Development environment only at localhost:[your_port]/swagger/index.html,
 --> as for Production environment, it will not have Swagger UI, but you can test via the .http file, Postman, directly via URIs or anything that might be able to help you.
 
 Unfortunately, I haven't prepared the seeder for populating the database.
