@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import './globals.css';
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
+import { ThemeProvider } from "@mui/material/styles";
+import { CssBaseline } from "@mui/material";
+import accelokaTheme from "@/styles/theme";
+import { centuryGothic, notoSans } from "@/fonts/font";
+import "../styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Acceloka",
@@ -12,9 +17,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${notoSans.className} ${centuryGothic.variable}`}
+    >
       <body>
-        {children}
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={accelokaTheme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );
