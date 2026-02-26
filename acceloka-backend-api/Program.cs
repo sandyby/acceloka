@@ -4,6 +4,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Serilog;
 
@@ -15,6 +16,11 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext();
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy => policy.WithOrigins("http://localhost:3000/tickets").AllowAnyHeader().AllowAnyMethod());
 });
 
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly)); // ini buat mediatr v12+
@@ -58,6 +64,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseCors("Frontend");
 app.UseExceptionHandler();
 app.MapControllers();
 app.Run();
