@@ -1,7 +1,7 @@
 "use client";
 
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
-import { notoSans } from "../fonts/font";
+import { notoSans } from "@/fonts/font";
 
 const accelokaTheme = createTheme({
   typography: {

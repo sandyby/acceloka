@@ -1,46 +1,21 @@
 "use client";
 
-import { Link } from "@mui/material";
-import { styled } from "@mui/system";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-
-const StyledMenuWrapper = styled("div")({
-  position: "relative",
-  display: "flex",
-  gap: "24px",
-  borderRadius: "40px",
-  width: "fit-content",
-  padding: "10px",
-  backgroundColor: "var(--color-white-900)",
-});
-
-const StyledLink = styled(Link, {
-  shouldForwardProp: (prop) => prop !== "active",
-})<{ active?: boolean }>(({ active }) => ({
-  position: "relative",
-  padding: "8px 16px",
-  cursor: "pointer",
-  textWrap: "nowrap",
-  textDecoration: "none",
-  borderRadius: "42px",
-  color: active ? "var(--color-white-900)" : "var(--color-secondary-900)",
-  zIndex: 1,
-  fontSize: 18,
-  ...(active
-    ? {}
-    : {
-        ":hover": {
-          backgroundColor: "var(--color-primary-500)",
-          color: "var(--color-white-900)",
-        },
-      }),
-}));
+import { useContext, useEffect } from "react";
+import ActiveCategoryContext from "@/contexts/ActiveCategoryContext";
+import StyledLink from "@/components/ui/StyledLink";
+import StyledMenuWrapper from "@/components/ui/StyledMenuWrapper";
 
 const Menu = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeCategory = searchParams.get("category") ?? "flights";
+  const currentActiveCategory = searchParams.get("category") ?? "flights";
+  const { activeCategory, setActiveCategory } = useContext(ActiveCategoryContext);
+
+  useEffect(() => {
+    setActiveCategory(currentActiveCategory);
+  }, [currentActiveCategory])
 
   const menuItems = [
     { label: "Flights", category: "flights" },
@@ -51,19 +26,21 @@ const Menu = () => {
     { label: "Sea Transportations", category: "sea-transportations" },
   ];
 
-  const changeCategory = (category: string) => {
+    const changeCategory = (category: string) => {
     router.replace(`/?category=${category}`);
   };
 
   return (
     <StyledMenuWrapper>
       {menuItems.map((item) => {
-        const isActive = activeCategory === item.category;
+        const isActive = currentActiveCategory === item.category;
 
         return (
           <StyledLink
             key={item.category}
-            onClick={() => changeCategory(item.category)}
+            onClick={() => {
+              changeCategory(item.category);
+            }}
             active={isActive}
           >
             {isActive && (

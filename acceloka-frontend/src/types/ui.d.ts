@@ -1,4 +1,5 @@
 export type UIFontWeights = "bold" | "normal";
+export type UITypographyColors = "primary" | "secondary" | "white";
 export type UIBackgroundColors =
   | "primary"
   | "secondary"
@@ -9,4 +10,4 @@ export type UIBackgroundColors =
   | "accent-quaternary";
 export type UIVariants = "primary" | "secondary" | "accent" | "disabled";
 export type UIStates = "active" | "default" | "hover" | "disabled";
-export type UISizes = 64 | 48 | 36 | 32 | 28 | 24 | 18 | 16 | 14 | 12;
+export type UITypographySizes = 64 | 48 | 36 | 32 | 28 | 24 | 20 | 18 | 16 | 14 | 12;

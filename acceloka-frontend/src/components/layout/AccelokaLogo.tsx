@@ -9,8 +9,9 @@ const AccelokaLogo = () => {
         src="/images/logo/logo_with_text.svg"
         alt="Acceloka. Your Plans, Accelerated"
         preload={true}
-        width={250}
-        height={80}
+        width="0"
+        height="0"
+        style={{ width: '240px', height: "auto" }}
       />
     </div>
   );

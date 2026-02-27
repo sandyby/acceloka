@@ -4,7 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import accelokaTheme from "@/styles/theme";
 import { centuryGothic, notoSans } from "@/fonts/font";
-import "../styles/globals.css";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Acceloka",
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${notoSans.className} ${centuryGothic.variable}`}
+      className={`${notoSans.className} ${centuryGothic.variable} no-scroll`}
     >
       <body>
         <AppRouterCacheProvider>
