@@ -1,5 +1,5 @@
 export type UIFontWeights = "bold" | "normal";
-export type UITypographyColors = "primary" | "secondary" | "white";
+export type UITypographyColors = "primary" | "secondary" | "white" | "accent";
 export type UIBackgroundColors =
   | "primary"
   | "secondary"

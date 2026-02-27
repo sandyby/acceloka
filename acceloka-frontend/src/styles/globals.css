@@ -14,6 +14,15 @@
   --color-primary-800: #003855;
   --color-primary-900: #011c2f;
   --color-secondary-900: #011c2f;
+  --color-secondary-800: #022e4f;
+  --color-secondary-700: #034372;
+  --color-secondary-600: #03538d;
+  --color-secondary-500: #0362a7;
+  --color-secondary-400: #0481dd;
+  --color-secondary-300: #61bafc;
+  --color-secondary-200: #9fd6fd;
+  --color-secondary-100: #c5e6fe;
+  --color-secondary-50: #e3f3ff;
   --color-accent-primary-900: #8e8e93;
   --color-accent-secondary-900: #cccccc;
   --color-accent-tertiary-900: #e0e0e0;

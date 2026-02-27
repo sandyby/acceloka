@@ -5,6 +5,7 @@ import { CssBaseline } from "@mui/material";
 import accelokaTheme from "@/styles/theme";
 import { centuryGothic, notoSans } from "@/fonts/font";
 import "@/styles/globals.css";
+import ReactQueryClientProvider from "@/providers/ReactQueryClientProvider";
 
 export const metadata: Metadata = {
   title: "Acceloka",
@@ -19,13 +20,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${notoSans.className} ${centuryGothic.variable} no-scroll`}
+      className={`${notoSans.className} ${centuryGothic.className} no-scroll`}
     >
       <body>
         <AppRouterCacheProvider>
           <ThemeProvider theme={accelokaTheme}>
             <CssBaseline />
-            {children}
+            <ReactQueryClientProvider>
+              {children}
+            </ReactQueryClientProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

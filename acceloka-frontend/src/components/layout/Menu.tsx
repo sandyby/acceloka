@@ -11,10 +11,15 @@ const Menu = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentActiveCategory = searchParams.get("category") ?? "flights";
-  const { activeCategory, setActiveCategory } = useContext(ActiveCategoryContext);
+  const { setActiveCategory, setHasLoaded } = useContext(ActiveCategoryContext);
 
   useEffect(() => {
     setActiveCategory(currentActiveCategory);
+    setHasLoaded(true);
+
+    return (() => {
+      setHasLoaded(false);
+    })
   }, [currentActiveCategory])
 
   const menuItems = [
@@ -22,11 +27,12 @@ const Menu = () => {
     { label: "Hotels", category: "hotels" },
     { label: "Concerts", category: "concerts" },
     { label: "Movies", category: "movies" },
-    { label: "Land Transportations", category: "land-transportations" },
-    { label: "Sea Transportations", category: "sea-transportations" },
+    { label: "Trains", category: "trains" },
+    { label: "Bus", category: "bus" },
+    { label: "Ferries & Ships", category: "sea-transportations" },
   ];
 
-    const changeCategory = (category: string) => {
+  const changeCategory = (category: string) => {
     router.replace(`/?category=${category}`);
   };
 

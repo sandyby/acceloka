@@ -20,7 +20,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Frontend", policy => policy.WithOrigins("http://localhost:3000/tickets").AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("Frontend", policy => policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod());
 });
 
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly)); // ini buat mediatr v12+
