@@ -2,8 +2,6 @@ import AccelokaLogo from "@/components/layout/AccelokaLogo";
 import Filters from "@/components/layout/Filters";
 import Menu from "@/components/layout/Menu";
 import TicketContents from "@/components/layout/TicketContents";
-import TicketsHeader from "@/components/layout/TicketsHeader";
-import StyledTicketCardsSkeleton from "@/components/ui/skeletons/StyledTicketCardsSkeleton";
 import StyledTicketContentsSkeleton from "@/components/ui/skeletons/StyledTicketContentsSkeleton";
 import ActiveCategoryContextProvider from "@/contexts/ActiveCategoryContext/ActiveCategoryProvider";
 import TotalTicketsFilteredProvider from "@/contexts/TotalTicketsFilteredContext/TotalTicketsFilteredContext";
@@ -14,7 +12,7 @@ export default function Home() {
   return (
     <>
       <ActiveCategoryContextProvider>
-        <main className="relative scroll-smooth scroll no-scroll min-w-screen h-screen overflow-hidden">
+        <main className="relative scroll-smooth scroll no-scroll min-w-dvw min-h-dvh">
           <div id="main-wrapper" className="h-fit mt-2 mx-22 mb-22 flex flex-col justify-center items-center">
             <div className="w-full flex flex-col gap-y-3 items-center">
               <AccelokaLogo />
