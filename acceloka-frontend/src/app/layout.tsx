@@ -6,6 +6,7 @@ import accelokaTheme from "@/styles/theme";
 import { centuryGothic, notoSans } from "@/fonts/font";
 import "@/styles/globals.css";
 import ReactQueryClientProvider from "@/providers/ReactQueryClientProvider";
+import ActiveCategoryContextProvider from "@/contexts/ActiveCategoryContext";
 
 export const metadata: Metadata = {
   title: "Acceloka",
@@ -27,7 +28,9 @@ export default function RootLayout({
           <ThemeProvider theme={accelokaTheme}>
             <CssBaseline />
             <ReactQueryClientProvider>
-              {children}
+              <ActiveCategoryContextProvider>
+                {children}
+              </ActiveCategoryContextProvider>
             </ReactQueryClientProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>

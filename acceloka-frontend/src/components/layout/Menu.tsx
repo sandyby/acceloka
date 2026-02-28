@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useContext, useEffect } from "react";
-import ActiveCategoryContext from "@/contexts/ActiveCategoryContext";
+import { ActiveCategoryContext } from "@/contexts/ActiveCategoryContext";
 import StyledLink from "@/components/ui/StyledLink";
 import StyledMenuWrapper from "@/components/ui/StyledMenuWrapper";
 
@@ -33,7 +33,7 @@ const Menu = () => {
   ];
 
   const changeCategory = (category: string) => {
-    router.replace(`/?category=${category}`);
+    router.replace(`/?category=${category}&page=1`);
   };
 
   return (

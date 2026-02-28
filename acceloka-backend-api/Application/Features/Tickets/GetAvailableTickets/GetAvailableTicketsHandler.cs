@@ -68,7 +68,9 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
         return new GetAvailableTicketsResponse
         {
             AvailableTickets = tickets,
-            TotalTicketsCount = totalFilteredTicketsCount
+            TotalTicketsCount = totalFilteredTicketsCount,
+            CurrentPage = request.PageNumber,
+            PageSize = request.PageSize
         };
     }
 }

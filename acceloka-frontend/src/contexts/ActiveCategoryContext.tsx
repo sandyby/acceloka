@@ -1,9 +1,21 @@
 "use client";
 
+import { createContext, Dispatch, SetStateAction } from "react";
 import { useState, ReactNode } from "react";
-import ActiveCategoryContext, {
-  ActiveCategoryContextType,
-} from ".";
+
+export type ActiveCategoryContextType = {
+  activeCategory: string,
+  setActiveCategory: Dispatch<SetStateAction<string>>,
+  hasLoaded:boolean,
+  setHasLoaded: Dispatch<SetStateAction<boolean>>
+};
+
+export const ActiveCategoryContext = createContext<ActiveCategoryContextType>({
+  activeCategory: "",
+  setActiveCategory: () => {},
+  hasLoaded: false,
+  setHasLoaded: () => {}
+});
 
 export default function ActiveCategoryContextProvider({
   children,
