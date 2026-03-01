@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 public class TicketPolymorphicConverter<TBase> : JsonConverter
@@ -21,14 +22,7 @@ public class TicketPolymorphicConverter<TBase> : JsonConverter
             return;
         }
         var realType = value.GetType();
-        var settings = new JsonSerializerSettings
-        {
-            NullValueHandling = serializer.NullValueHandling,
-            TypeNameHandling = serializer.TypeNameHandling,
-            Formatting = serializer.Formatting,
-            ReferenceLoopHandling = serializer.ReferenceLoopHandling,
-            Converters = serializer.Converters.Where(c => c != this).ToList()
-        };
+        var settings = NewtonsoftJsonSerializerSettings.AccelokaDefaultJsonSerializerSettings();
         var tempSerializer = JsonSerializer.Create(settings);
         tempSerializer.Serialize(writer, value, realType);
     }

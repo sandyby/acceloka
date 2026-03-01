@@ -63,9 +63,10 @@ public record CreateTicketCommand(
 //     int Quota,
 //     int Price,
 //     string Cinema,
+//     string CinemaType,
 //     TimeSpan Duration,
 //     string SeatSection,
-//     DateTime ScreeningDate
+//     DateTime ScreeningTime
 // );
 
 // public record CreateTrainTicketRequest(
@@ -75,6 +76,7 @@ public record CreateTicketCommand(
 //     int Quota,
 //     int Price,
 //     string TrainCode,
+//     string TrainType,
 //     string SeatClass,
 //     string DepartureStation,
 //     string ArrivalStation,

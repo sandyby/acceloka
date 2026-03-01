@@ -30,7 +30,13 @@ public class AppDbContext : DbContext
 
             builder.HasDiscriminator<string>("TicketType")
                 .HasValue<TicketBase>("TicketBase")
-                .HasValue<FlightTicket>("flight");
+                .HasValue<FlightTicket>("flight")
+                .HasValue<HotelTicket>("hotel")
+                .HasValue<ConcertTicket>("concert")
+                .HasValue<MovieTicket>("movie")
+                .HasValue<TrainTicket>("train")
+                .HasValue<BusTicket>("bus")
+                .HasValue<SeaTransportationTicket>("seatransportation");
         });
 
         // categories

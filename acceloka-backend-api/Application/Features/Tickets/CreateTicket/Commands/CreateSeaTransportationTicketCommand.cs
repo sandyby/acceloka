@@ -2,6 +2,7 @@ using MediatR;
 
 public record CreateSeaTransportationTicketCommand(
     string TicketCode,
+    string TicketCategoryName,
     string TicketCategoryId,
     string TicketName,
     int Quota,

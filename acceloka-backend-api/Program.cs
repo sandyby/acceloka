@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,11 +36,13 @@ builder.Services.AddScoped<ITicketToDtoMapper, TicketToDtoMapper>();
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
-    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-    options.SerializerSettings.TypeNameHandling = TypeNameHandling.None;
-    options.SerializerSettings.Formatting = Formatting.None;
-    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-    options.SerializerSettings.Converters.Add(new TicketPolymorphicConverter<ITicketDto>());
+    var settings = options.SerializerSettings;
+    settings.NullValueHandling = NullValueHandling.Ignore;
+    settings.TypeNameHandling = TypeNameHandling.None;
+    settings.Formatting = Formatting.None;
+    settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    settings.Converters.Add(new TicketPolymorphicConverter<ITicketDto>());
 });
 
 builder.Services.AddApiVersioning(options =>

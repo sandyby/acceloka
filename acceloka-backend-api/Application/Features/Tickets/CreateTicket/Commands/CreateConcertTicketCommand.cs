@@ -2,6 +2,7 @@ using MediatR;
 
 public record CreateConcertTicketCommand(
     string TicketCode,
+    string TicketCategoryName,
     string TicketCategoryId,
     string TicketName,
     int Quota,
@@ -10,5 +11,6 @@ public record CreateConcertTicketCommand(
     string Artist,
     string SeatSection,
     TimeSpan Duration,
-    DateTime ConcertDate
+    DateTime ConcertDate,
+    List<string>? Packages
 ): IRequest<CreateTicketResponse>;

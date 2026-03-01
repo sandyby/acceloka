@@ -7,7 +7,7 @@ public class FlightTicket : TicketBase
     public TimeSpan Duration { get; set; }
     public required string DepartureAirport { get; set; }
     public required string ArrivalAirport { get; set; }
-    public required string SeatClass { get; set; } = "economy";
+    public required string SeatClass { get; set; } = "Economy";
     public int BaggageKg { get; set; } = 25;
     public int TransitsCount { get; set; } = 0;
     public List<string>? Amenities { get; set; }

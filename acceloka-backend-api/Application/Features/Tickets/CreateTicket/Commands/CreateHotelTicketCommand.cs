@@ -2,6 +2,7 @@ using MediatR;
 
 public record CreateHotelTicketCommand(
     string TicketCode,
+    string TicketCategoryName,
     string TicketCategoryId,
     string TicketName,
     int Quota,
@@ -10,6 +11,6 @@ public record CreateHotelTicketCommand(
     string RoomType,
     DateTime MinCheckInDate,
     DateTime MaxCheckOutDate,
-    int maxOccupancy,
+    int MaxOccupancy,
     List<string> Amenities
 ): IRequest<CreateTicketResponse>;
