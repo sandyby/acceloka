@@ -52,10 +52,10 @@ public class BookTicketsHandler : IRequestHandler<BookTicketsCommand, BookTicket
                 throw new InvalidQuantityException($"The quantity '{ticketToBeBooked.TotalQuantity}' exceeds the remaining quota '{ticket.Quota}' for ticket code '{ticket.TicketCode}'!");
             }
 
-            if (ticket.EventDate <= DateTime.UtcNow)
-            {
-                throw new InvalidPeriodException($"The sales for the ticket coded '{ticketToBeBooked.TicketCode}' has been closed! It took place on {ticket.EventDate.ToString("yyyy-MM-dd HH:mm:ss")} UTC!");
-            }
+            // if (ticket.EventDate <= DateTime.UtcNow)
+            // {
+            //     throw new InvalidPeriodException($"The sales for the ticket coded '{ticketToBeBooked.TicketCode}' has been closed! It took place on {ticket.EventDate.ToString("yyyy-MM-dd HH:mm:ss")} UTC!");
+            // }
 
             ticket.Quota -= ticketToBeBooked.TotalQuantity;
 

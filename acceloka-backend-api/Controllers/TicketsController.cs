@@ -35,21 +35,30 @@ public class TicketsController : ControllerBase
         return Ok(ticket);
     }
 
-    [HttpPost("create-ticket")]
-    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketRequest body)
+    [HttpPost("create-ticket/flights")]
+    public async Task<IActionResult> CreateFlightTicket([FromBody] CreateFlightTicketCommand body)
     {
         if (body == null)
         {
             return BadRequest("The request body is required!");
         }
 
-        var ticket = await _sender.Send(new CreateTicketCommand(
-            body.TicketCode,
-            body.TicketCategoryId,
-            body.TicketName,
-            body.Quota,
-            body.Price,
-            body.EventDate
+        var ticket = await _sender.Send(new CreateFlightTicketCommand(
+            TicketCode: body.TicketCode,
+            TicketCategoryName: body.TicketCategoryName,
+            TicketCategoryId: body.TicketCategoryId,
+            TicketName: body.TicketName,
+            Quota: body.Quota,
+            Price: body.Price,
+            Airline: body.Airline,
+            SeatClass: body.SeatClass,
+            DepartureAirport: body.DepartureAirport,
+            ArrivalAirport: body.ArrivalAirport,
+            DepartureTime: body.DepartureTime,
+            Duration: body.Duration,
+            BaggageKg: body.BaggageKg,
+            TransitsCount: body.TransitsCount,
+            Amenities: body.Amenities
         ));
         return CreatedAtAction(nameof(GetTicketByCode), new { TicketCode = ticket.TicketCode }, ticket);
     }

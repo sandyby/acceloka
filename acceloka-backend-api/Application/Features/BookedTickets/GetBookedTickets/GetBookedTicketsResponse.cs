@@ -8,7 +8,7 @@ public record BookedTicketDto(
     string BookedTicketCode,
     string TicketName,
     string TicketCategory,
-    DateTime EventDate,
+    // DateTime EventDate,
     DateTime BookedAt,
     int Quantity,
     int UnitPrice,

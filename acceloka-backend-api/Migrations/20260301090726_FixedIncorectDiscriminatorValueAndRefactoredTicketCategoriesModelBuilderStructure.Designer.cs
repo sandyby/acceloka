@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AccelokaSandy.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccelokaSandy.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301090726_FixedIncorectDiscriminatorValueAndRefactoredTicketCategoriesModelBuilderStructure")]
+    partial class FixedIncorectDiscriminatorValueAndRefactoredTicketCategoriesModelBuilderStructure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,6 +32,10 @@ namespace AccelokaSandy.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CategoryId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CategoryName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -142,7 +149,7 @@ namespace AccelokaSandy.Migrations
                     b.Property<int>("TransitsCount")
                         .HasColumnType("integer");
 
-                    b.HasDiscriminator().HasValue("flight");
+                    b.HasDiscriminator().HasValue("flights");
                 });
 
             modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketBase", b =>

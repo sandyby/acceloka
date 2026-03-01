@@ -16,7 +16,6 @@ public class GetTicketByCodeHandler : IRequestHandler<GetTicketByCodeQuery, GetT
     public async Task<GetTicketByCodeResponse> Handle(GetTicketByCodeQuery request, CancellationToken ct)
     {
         var response = await _context.Tickets.AsNoTracking().Include(t => t.TicketCategory).Where(t => EF.Functions.ILike(t.TicketCode, request.TicketCode)).Select(t => new GetTicketByCodeResponse(
-            t.EventDate,
             t.TicketCategory.TicketCategoryName,
             t.TicketCode,
             t.TicketName,

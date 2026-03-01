@@ -3,6 +3,5 @@ public record CreateTicketResponse(
     string TicketCategory,
     string TicketName,
     int Quota,
-    decimal Price,
-    DateTime EventDate
+    decimal Price
 );

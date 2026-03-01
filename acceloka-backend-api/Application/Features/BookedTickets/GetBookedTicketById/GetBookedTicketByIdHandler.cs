@@ -26,7 +26,6 @@ public class GetBookedTicketByIdHandler : IRequestHandler<GetBookedTicketByIdQue
             g.Select(bt => new BookedTicketsByCategory(
                 bt.BookedTicketCode,
                 bt.Ticket.TicketName,
-                bt.Ticket.EventDate,
                 bt.Quantity,
                 (int)bt.Ticket.Price,
                 (int)(bt.Quantity * bt.Ticket.Price)

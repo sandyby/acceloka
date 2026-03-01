@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AccelokaSandy.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccelokaSandy.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301093130_FixedIncorrectDiscriminatorValuesForTickets")]
+    partial class FixedIncorrectDiscriminatorValuesForTickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,8 +51,8 @@ namespace AccelokaSandy.Migrations
 
                     b.Property<string>("TicketType")
                         .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
 
                     b.HasKey("Id");
 
@@ -60,7 +63,7 @@ namespace AccelokaSandy.Migrations
 
                     b.ToTable("Tickets", (string)null);
 
-                    b.HasDiscriminator<string>("TicketType").HasValue("TicketBase");
+                    b.HasDiscriminator<string>("TicketType").HasValue("base");
 
                     b.UseTphMappingStrategy();
                 });

@@ -15,7 +15,7 @@ public record BookedTicketByIdPerCategorySummaryDto(
 public record BookedTicketsByCategory(
     string BookedTicketCode,
     string TicketName,
-    DateTime EventDate,
+    // DateTime EventDate,
     int Quantity,
     int UnitPrice,
     int TotalPriceAmount

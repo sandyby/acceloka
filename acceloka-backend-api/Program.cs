@@ -1,4 +1,5 @@
 using AccelokaSandy.Application.Common.Behaviors;
+using AccelokaSandy.Application.Common.Mappings;
 using AccelokaSandy.Infrastructure.Persistence;
 using FluentValidation;
 using MediatR;
@@ -28,6 +29,13 @@ builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.AddScoped<ITicketToDtoMapper, TicketToDtoMapper>();
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, new TicketPolymorphicResolver());
+});
 
 builder.Services.AddControllers();
 builder.Services.AddApiVersioning(options =>

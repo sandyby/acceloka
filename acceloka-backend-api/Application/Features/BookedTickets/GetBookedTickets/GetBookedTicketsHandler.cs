@@ -29,15 +29,15 @@ public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, Ge
             query = query.Where(bt => bt.BookedAt <= request.MaxBookedAt.Value);
         }
 
-        if (request.MinEventDate.HasValue)
-        {
-            query = query.Where(bt => bt.Ticket.EventDate >= request.MinEventDate.Value);
-        }
+        // if (request.MinEventDate.HasValue)
+        // {
+        //     query = query.Where(bt => bt.Ticket.EventDate >= request.MinEventDate.Value);
+        // }
 
-        if (request.MaxEventDate.HasValue)
-        {
-            query = query.Where(bt => bt.Ticket.EventDate <= request.MaxEventDate.Value);
-        }
+        // if (request.MaxEventDate.HasValue)
+        // {
+        //     query = query.Where(bt => bt.Ticket.EventDate <= request.MaxEventDate.Value);
+        // }
 
         var totalFilteredTicketsCount = await query.CountAsync();
 
@@ -45,9 +45,10 @@ public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, Ge
         query = request.OrderBy?.ToLower() switch
         {
             "ticketcategory" => isOrderStateDesc ? query.OrderByDescending(bt => bt.Ticket.TicketCategory.TicketCategoryName) : query.OrderBy(bt => bt.Ticket.TicketCategory.TicketCategoryName),
-            "eventdate" => isOrderStateDesc ? query.OrderByDescending(bt => bt.Ticket.EventDate) : query.OrderBy(bt => bt.Ticket.EventDate),
-            "bookedat" => isOrderStateDesc ? query.OrderByDescending(bt => bt.BookedAt) : query.OrderBy(bt => bt.BookedAt),
-            _ => !isOrderStateDesc ? query.OrderBy(bt => bt.Ticket.EventDate) : query.OrderByDescending(bt => bt.Ticket.EventDate)
+            // "eventdate" => isOrderStateDesc ? query.OrderByDescending(bt => bt.Ticket.EventDate) : query.OrderBy(bt => bt.Ticket.EventDate),
+            "bookedate" => isOrderStateDesc ? query.OrderByDescending(bt => bt.BookedAt) : query.OrderBy(bt => bt.BookedAt),
+            // _ => !isOrderStateDesc ? query.OrderBy(bt => bt.Ticket.EventDate) : query.OrderByDescending(bt => bt.Ticket.EventDate)
+            _ => !isOrderStateDesc ? query.OrderBy(bt => bt.Ticket.TicketCategory) : query.OrderByDescending(bt => bt.Ticket.TicketCategory)
         };
 
         var skipNumber = (request.PageNumber - 1) * request.PageSize;
@@ -58,11 +59,10 @@ public class GetBookedTicketsHandler : IRequestHandler<GetBookedTicketsQuery, Ge
             bt.BookedTicketCode,
             bt.Ticket.TicketName,
             bt.Ticket.TicketCategory.TicketCategoryName,
-            bt.Ticket.EventDate,
             bt.BookedAt,
             bt.Quantity,
             bt.Ticket.Price,
-            bt.Quantity * bt.Ticket.Price
+            (int)bt.Quantity * bt.Ticket.Price
         )).ToListAsync();
 
         return new GetBookedTicketsResponse
