@@ -1,12 +1,13 @@
 using AccelokaSandy.Application.Common.Behaviors;
 using AccelokaSandy.Application.Common.Mappings;
+using AccelokaSandy.Application.Features.Tickets.Dtos;
 using AccelokaSandy.Infrastructure.Persistence;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
+using Newtonsoft.Json;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,12 +33,15 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddScoped<ITicketToDtoMapper, TicketToDtoMapper>();
 
-builder.Services.Configure<JsonOptions>(options =>
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
-    options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, new TicketPolymorphicResolver());
+    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+    options.SerializerSettings.TypeNameHandling = TypeNameHandling.None;
+    options.SerializerSettings.Formatting = Formatting.None;
+    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    options.SerializerSettings.Converters.Add(new TicketPolymorphicConverter<ITicketDto>());
 });
 
-builder.Services.AddControllers();
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
