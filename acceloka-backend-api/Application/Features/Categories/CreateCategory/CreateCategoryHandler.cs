@@ -1,6 +1,6 @@
 using AccelokaSandy.Application.Common.Exceptions;
 using AccelokaSandy.Application.Features.Categories.CreateCategory;
-using AccelokaSandy.Domain.Entities;
+using AccelokaSandy.Domain.Entities.Categories;
 using AccelokaSandy.Infrastructure.Persistence;
 using FluentValidation;
 using MediatR;

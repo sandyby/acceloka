@@ -28,7 +28,7 @@ const Menu = () => {
     { label: "Concerts", category: "concerts" },
     { label: "Movies", category: "movies" },
     { label: "Trains", category: "trains" },
-    { label: "Bus", category: "bus" },
+    { label: "Buses", category: "buses" },
     { label: "Ferries & Ships", category: "sea-transportations" },
   ];
 

@@ -23,49 +23,50 @@ namespace AccelokaSandy.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketBase", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Bookings.BookedTicket", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("CategoryId")
+                    b.Property<string>("BookedTicketCode")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Price")
+                    b.Property<string>("BookingId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BookingId1")
+                        .HasColumnType("text");
+
+                    b.Property<int>("OriginalPrice")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Quota")
+                    b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<string>("TicketCode")
+                    b.Property<int>("SnapshotTotalPrice")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TicketId")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("TicketName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TicketType")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("TicketCode")
+                    b.HasIndex("BookedTicketCode")
                         .IsUnique();
 
-                    b.ToTable("Tickets", (string)null);
+                    b.HasIndex("BookingId");
 
-                    b.HasDiscriminator<string>("TicketType").HasValue("TicketBase");
+                    b.HasIndex("BookingId1");
 
-                    b.UseTphMappingStrategy();
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("BookedTickets", (string)null);
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketCategory", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Categories.TicketCategory", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -82,37 +83,102 @@ namespace AccelokaSandy.Migrations
                     b.ToTable("TicketCategories");
                 });
 
-            modelBuilder.Entity("BookedTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.TicketBase", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<string>("BookedTicketCode")
-                        .HasColumnType("text");
+                    b.Property<string>("Amenities")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("Amenities");
 
-                    b.Property<DateTime>("BookedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int?>("BaggageKg")
+                        .HasColumnType("integer")
+                        .HasColumnName("BaggageKg");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TicketId")
+                    b.Property<string>("CategoryId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id", "BookedTicketCode");
+                    b.Property<DateTime?>("DepartureTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DepartureTime");
 
-                    b.HasIndex("TicketId");
+                    b.Property<TimeSpan?>("Duration")
+                        .HasColumnType("interval")
+                        .HasColumnName("Duration");
 
-                    b.ToTable("BookedTickets");
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quota")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SeatClass")
+                        .HasColumnType("text")
+                        .HasColumnName("SeatClass");
+
+                    b.Property<string>("TicketCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TicketName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TicketType")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
+
+                    b.Property<int?>("TransitsCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("TransitsCount");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("TicketCode")
+                        .IsUnique();
+
+                    b.ToTable("Tickets", (string)null);
+
+                    b.HasDiscriminator<string>("TicketType").HasValue("TicketBase");
+
+                    b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.BusTicket", b =>
+            modelBuilder.Entity("Booking", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
-                    b.PrimitiveCollection<List<string>>("Amenities")
-                        .HasColumnType("text[]");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalPrice")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Bookings", (string)null);
+                });
+
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.BusTicket", b =>
+                {
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("ArrivalStop")
                         .IsRequired()
@@ -130,43 +196,12 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("SeatClass")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TransitsCount")
-                        .HasColumnType("integer");
-
-                    b.ToTable("Tickets", t =>
-                        {
-                            t.Property("Amenities")
-                                .HasColumnName("BusTicket_Amenities");
-
-                            t.Property("DepartureTime")
-                                .HasColumnName("BusTicket_DepartureTime");
-
-                            t.Property("Duration")
-                                .HasColumnName("BusTicket_Duration");
-
-                            t.Property("SeatClass")
-                                .HasColumnName("BusTicket_SeatClass");
-
-                            t.Property("TransitsCount")
-                                .HasColumnName("BusTicket_TransitsCount");
-                        });
-
                     b.HasDiscriminator().HasValue("bus");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.ConcertTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.ConcertTicket", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("Artist")
                         .IsRequired()
@@ -174,9 +209,6 @@ namespace AccelokaSandy.Migrations
 
                     b.Property<DateTime>("ConcertDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
 
                     b.PrimitiveCollection<List<string>>("Packages")
                         .HasColumnType("text[]");
@@ -191,9 +223,6 @@ namespace AccelokaSandy.Migrations
 
                     b.ToTable("Tickets", t =>
                         {
-                            t.Property("Duration")
-                                .HasColumnName("ConcertTicket_Duration");
-
                             t.Property("SeatSection")
                                 .HasColumnName("ConcertTicket_SeatSection");
                         });
@@ -201,68 +230,28 @@ namespace AccelokaSandy.Migrations
                     b.HasDiscriminator().HasValue("concert");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.FlightTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.FlightTicket", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("Airline")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.PrimitiveCollection<List<string>>("Amenities")
-                        .HasColumnType("text[]");
-
                     b.Property<string>("ArrivalAirport")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("BaggageKg")
-                        .HasColumnType("integer");
 
                     b.Property<string>("DepartureAirport")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("SeatClass")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TransitsCount")
-                        .HasColumnType("integer");
-
-                    b.ToTable("Tickets", t =>
-                        {
-                            t.Property("Amenities")
-                                .HasColumnName("FlightTicket_Amenities");
-
-                            t.Property("DepartureTime")
-                                .HasColumnName("FlightTicket_DepartureTime");
-
-                            t.Property("Duration")
-                                .HasColumnName("FlightTicket_Duration");
-
-                            t.Property("SeatClass")
-                                .HasColumnName("FlightTicket_SeatClass");
-
-                            t.Property("TransitsCount")
-                                .HasColumnName("FlightTicket_TransitsCount");
-                        });
-
                     b.HasDiscriminator().HasValue("flight");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.HotelTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.HotelTicket", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
-
-                    b.PrimitiveCollection<List<string>>("Amenities")
-                        .HasColumnType("text[]");
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("HotelName")
                         .IsRequired()
@@ -281,18 +270,12 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("Tickets", t =>
-                        {
-                            t.Property("Amenities")
-                                .HasColumnName("HotelTicket_Amenities");
-                        });
-
                     b.HasDiscriminator().HasValue("hotel");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.MovieTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.MovieTicket", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("Cinema")
                         .IsRequired()
@@ -302,9 +285,6 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
                     b.Property<DateTime>("ScreeningTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -312,21 +292,12 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("Tickets", t =>
-                        {
-                            t.Property("Duration")
-                                .HasColumnName("MovieTicket_Duration");
-                        });
-
                     b.HasDiscriminator().HasValue("movie");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.SeaTransportationTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.SeaTransportationTicket", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
-
-                    b.PrimitiveCollection<List<string>>("Amenities")
-                        .HasColumnType("text[]");
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("ArrivalPort")
                         .IsRequired()
@@ -340,19 +311,6 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("SeatClass")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TransitsCount")
-                        .HasColumnType("integer");
-
                     b.Property<string>("TransportationType")
                         .IsRequired()
                         .HasColumnType("text");
@@ -360,28 +318,15 @@ namespace AccelokaSandy.Migrations
                     b.HasDiscriminator().HasValue("seatransportation");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TrainTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.TrainTicket", b =>
                 {
-                    b.HasBaseType("AccelokaSandy.Domain.Entities.TicketBase");
-
-                    b.PrimitiveCollection<List<string>>("Amenities")
-                        .HasColumnType("text[]");
+                    b.HasBaseType("AccelokaSandy.Domain.Entities.Tickets.TicketBase");
 
                     b.Property<string>("ArrivalStation")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("DepartureStation")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("SeatClass")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -393,33 +338,35 @@ namespace AccelokaSandy.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TransitsCount")
-                        .HasColumnType("integer");
-
-                    b.ToTable("Tickets", t =>
-                        {
-                            t.Property("Amenities")
-                                .HasColumnName("TrainTicket_Amenities");
-
-                            t.Property("DepartureTime")
-                                .HasColumnName("TrainTicket_DepartureTime");
-
-                            t.Property("Duration")
-                                .HasColumnName("TrainTicket_Duration");
-
-                            t.Property("SeatClass")
-                                .HasColumnName("TrainTicket_SeatClass");
-
-                            t.Property("TransitsCount")
-                                .HasColumnName("TrainTicket_TransitsCount");
-                        });
-
                     b.HasDiscriminator().HasValue("train");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketBase", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Bookings.BookedTicket", b =>
                 {
-                    b.HasOne("AccelokaSandy.Domain.Entities.TicketCategory", "TicketCategory")
+                    b.HasOne("Booking", "Booking")
+                        .WithMany("BookedTickets")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Booking", null)
+                        .WithMany("Tickets")
+                        .HasForeignKey("BookingId1");
+
+                    b.HasOne("AccelokaSandy.Domain.Entities.Tickets.TicketBase", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Tickets.TicketBase", b =>
+                {
+                    b.HasOne("AccelokaSandy.Domain.Entities.Categories.TicketCategory", "TicketCategory")
                         .WithMany("Tickets")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -428,19 +375,15 @@ namespace AccelokaSandy.Migrations
                     b.Navigation("TicketCategory");
                 });
 
-            modelBuilder.Entity("BookedTicket", b =>
+            modelBuilder.Entity("AccelokaSandy.Domain.Entities.Categories.TicketCategory", b =>
                 {
-                    b.HasOne("AccelokaSandy.Domain.Entities.TicketBase", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Ticket");
+                    b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("AccelokaSandy.Domain.Entities.TicketCategory", b =>
+            modelBuilder.Entity("Booking", b =>
                 {
+                    b.Navigation("BookedTickets");
+
                     b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618

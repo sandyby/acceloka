@@ -1,5 +1,5 @@
 using AccelokaSandy.Application.Features.Tickets.Dtos;
-using AccelokaSandy.Domain.Entities;
+using AccelokaSandy.Domain.Entities.Tickets;
 
 namespace AccelokaSandy.Application.Common.Mappings;
 
@@ -7,6 +7,15 @@ public class TicketToDtoMapper : ITicketToDtoMapper
 {
     public ITicketDto Map(TicketBase ticket)
     {
+        var baseDto = new BaseTicketDto
+        {
+            TicketCategory = ticket.TicketCategory?.TicketCategoryName ?? "unknown",
+            TicketCode = ticket.TicketCode,
+            TicketName = ticket.TicketName,
+            Quota = ticket.Quota,
+            Price = ticket.Price,
+        };
+
         if (ticket is FlightTicket ft)
         {
             return new FlightTicketDto
@@ -18,13 +27,14 @@ public class TicketToDtoMapper : ITicketToDtoMapper
                 Price = ft.Price,
 
                 Airline = ft.Airline,
-                DepartureTime = ft.DepartureTime,
-                Duration = ft.Duration,
                 DepartureAirport = ft.DepartureAirport,
                 ArrivalAirport = ft.ArrivalAirport,
-                SeatClass = ft.SeatClass,
-                BaggageKg = ft.BaggageKg,
-                TransitsCount = ft.TransitsCount,
+
+                DepartureTime = ticket.DepartureTime ?? default,
+                Duration = ticket.Duration ?? default,
+                SeatClass = ticket.SeatClass ?? "Economy",
+                BaggageKg = ticket.BaggageKg ?? 25,
+                TransitsCount = ticket.TransitsCount ?? 0,
                 Amenities = ft.Amenities?.ToList() ?? new()
             };
         }
@@ -60,7 +70,7 @@ public class TicketToDtoMapper : ITicketToDtoMapper
                 Artist = ct.Artist,
                 SeatSection = ct.SeatSection,
                 ConcertDate = ct.ConcertDate,
-                Duration = ct.Duration,
+                Duration = ticket.Duration ?? default,
                 Packages = ct.Packages?.ToList() ?? new()
             };
         }
@@ -78,7 +88,7 @@ public class TicketToDtoMapper : ITicketToDtoMapper
                 CinemaType = mt.CinemaType,
                 SeatSection = mt.SeatSection,
                 ScreeningTime = mt.ScreeningTime,
-                Duration = mt.Duration,
+                Duration = ticket.Duration ?? default,
             };
         }
         else if (ticket is TrainTicket tt)
@@ -93,12 +103,12 @@ public class TicketToDtoMapper : ITicketToDtoMapper
 
                 TrainCode = tt.TrainCode,
                 TrainType = tt.TrainType,
-                SeatClass = tt.SeatClass,
                 DepartureStation = tt.DepartureStation,
                 ArrivalStation = tt.ArrivalStation,
-                DepartureTime = tt.DepartureTime,
-                Duration = tt.Duration,
-                TransitsCount = tt.TransitsCount,
+                SeatClass = ticket.SeatClass ?? "Economy",
+                DepartureTime = ticket.DepartureTime ?? default,
+                Duration = ticket.Duration ?? default,
+                TransitsCount = ticket.TransitsCount ?? 0,
                 Amenities = tt.Amenities?.ToList() ?? new()
             };
         }
@@ -114,12 +124,12 @@ public class TicketToDtoMapper : ITicketToDtoMapper
 
                 BusCode = bt.BusCode,
                 BusType = bt.BusType,
-                SeatClass = bt.SeatClass,
                 DepartureStop = bt.DepartureStop,
                 ArrivalStop = bt.ArrivalStop,
-                DepartureTime = bt.DepartureTime,
-                Duration = bt.Duration,
-                TransitsCount = bt.TransitsCount,
+                SeatClass = ticket.SeatClass ?? "Economy",
+                DepartureTime = ticket.DepartureTime ?? default,
+                Duration = ticket.Duration ?? default,
+                TransitsCount = ticket.TransitsCount ?? 0,
                 Amenities = bt.Amenities?.ToList() ?? new()
             };
         }
@@ -135,23 +145,16 @@ public class TicketToDtoMapper : ITicketToDtoMapper
 
                 TransportationType = st.TransportationType,
                 Company = st.Company,
-                SeatClass = st.SeatClass,
                 DeparturePort = st.DeparturePort,
                 ArrivalPort = st.ArrivalPort,
-                DepartureTime = st.DepartureTime,
-                Duration = st.Duration,
-                TransitsCount = st.TransitsCount,
+                SeatClass = ticket.SeatClass ?? "Basic",
+                DepartureTime = ticket.DepartureTime ?? default,
+                Duration = ticket.Duration ?? default,
+                TransitsCount = ticket.TransitsCount ?? 0,
                 Amenities = st.Amenities?.ToList() ?? new()
             };
         }
 
-        return new TicketDto
-        {
-            TicketCategory = ticket.TicketCategory.TicketCategoryName,
-            TicketCode = ticket.TicketCode,
-            TicketName = ticket.TicketName,
-            Quota = ticket.Quota,
-            Price = ticket.Price
-        };
+        return baseDto;
     }
 }

@@ -1,10 +1,10 @@
 namespace AccelokaSandy.Application.Features.Tickets.Dtos;
 
-public class TicketDto: ITicketDto
+public abstract class TicketDto : ITicketDto
 {
-    public string TicketCategory { get; set; } = null!;
-    public string TicketCode { get; set; } = null!;
-    public string TicketName { get; set; } = null!;
+    public required string TicketCode { get; set; }
+    public required string TicketName { get; set; }
+    public required string TicketCategory { get; set; }
     public int Quota { get; set; }
     public int Price { get; set; }
 }

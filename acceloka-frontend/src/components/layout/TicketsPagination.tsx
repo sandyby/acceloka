@@ -7,13 +7,13 @@ import { PaginationItem } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function TicketsPagination() {
-    const { data, pageNumber } = useTicketsData();
+    const { data } = useTicketsData();
     const searchParams = useSearchParams();
     const router = useRouter();
 
     if (!data) return null;
 
-    const totalPages = Math.ceil(data.totalTicketsCount / 2);
+    const totalPages = Math.ceil(data.totalTicketsCount / data.pageSize);
 
     if (totalPages < 1) return null;
 
@@ -26,7 +26,7 @@ export default function TicketsPagination() {
     return (
         <StyledPagination
             count={totalPages}
-            page={pageNumber}
+            page={data.currentPage}
             onChange={changePage}
             shape="rounded"
             size="medium"

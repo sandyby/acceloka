@@ -1,7 +1,6 @@
-public record GetTicketByCodeResponse(
-    string TicketCategory,
-    string TicketCode,
-    string TicketName,
-    int Quota,
-    int Price
-);
+using AccelokaSandy.Application.Features.Tickets.Dtos;
+
+public class GetTicketByCodeResponse
+{
+    public ITicketDto Ticket { get; set; } = null!;
+};

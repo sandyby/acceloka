@@ -1,15 +1,10 @@
-export interface FlightTicket {
-  eventDate: string;
-  ticketCategory: string;
-  ticketCode: string;
-  ticketName: string;
-  quota: number;
-  price: number;
-}
+import { ITicketBase } from "./card";
 
-export interface FlightTicketsQueryResponse {
-  availableTickets: FlightTicket[];
+export interface GetAvailableTicketQueryResponse {
+  availableTickets: ITicketBase[];
   totalTicketsCount: number;
+  currentPage: number;
+  pageSize: number;
 }
 
 /*

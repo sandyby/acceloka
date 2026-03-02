@@ -1,7 +1,7 @@
 // using AccelokaSandy.Application.Common.Exceptions;
 // using AccelokaSandy.Application.Features.Tickets.CreateTicket;
 // using AccelokaSandy.Application.Features.Tickets.Dtos;
-// using AccelokaSandy.Domain.Entities;
+// using AccelokaSandy.Domain.Entities.Tickets;
 // using AccelokaSandy.Infrastructure.Persistence;
 // using MediatR;
 // using Microsoft.EntityFrameworkCore;

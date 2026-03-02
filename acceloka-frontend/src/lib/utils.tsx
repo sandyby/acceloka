@@ -1,3 +1,7 @@
+import StyledConcertTicketCard from "@/components/ui/cards/StyledConcertTicketCard";
+import StyledFlightTicketCard from "@/components/ui/cards/StyledFlightTicketCard";
+import StyledHotelTicketCard from "@/components/ui/cards/StyledHotelTicketCard";
+import { AvailableTicketTypes } from "@/types/card";
 import {
   AirplaneTicketRounded,
   ApartmentRounded,
@@ -36,5 +40,32 @@ export function getIconCategoryMapping(category: string, fontSizeInput: number |
       return <DirectionsBoatRounded sx={{ fontSize: fontSizeInput }} {...props} />
     default:
       return <ConfirmationNumberRounded sx={{ fontSize: fontSizeInput }} {...props} />
+  }
+}
+
+export function TicketCardMapping({ ticket }: { ticket: AvailableTicketTypes }) {
+  switch (ticket.ticketCategory) {
+    case "flight":
+      return <StyledFlightTicketCard ticket={ticket} />;
+    case "hotel":
+      return <StyledHotelTicketCard ticket={ticket} />;
+    case "concert":
+      return <StyledConcertTicketCard ticket={ticket} />;
+    // case "movie":
+    //   return <StyledMovieTicketCard ticket={ticket} />;
+    // case "train":
+    //   return <StyledTrainTicketCard ticket={ticket} />;
+    // case "bus":
+    //   return <StyledBusTicketCard ticket={ticket} />;
+    // case "sea":
+    //   return <StyledSeaTransportationTicketCard ticket={ticket} />;
+    default:
+      // This should never happen if types are correct, but good for safety
+      console.warn(`Unknown ticket category: ${ticket.ticketCategory}`);
+      return (
+        <div className="p-4 bg-red-50 text-red-800 rounded-lg">
+          {`The ticket category ${ticket.ticketCategory} doesn't exist!`}
+        </div>
+      );
   }
 }

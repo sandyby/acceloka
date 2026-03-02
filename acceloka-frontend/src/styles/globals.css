@@ -28,7 +28,11 @@
   --color-accent-tertiary-900: #e0e0e0;
   --color-accent-quarternary-900: #f2f2f7;
   --color-dark-green-900: #045c1a;
-  --color-red-900: #ec3a3e;
+  --color-red-900: #4b070a;
+  --color-red-800: #6c0b10;
+  --color-red-700: #870e14;
+  --color-red-600: #af121a;
+  --color-red-500: #dd1721;
 }
 
 .font-century-gothic {
