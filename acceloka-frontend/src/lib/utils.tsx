@@ -12,6 +12,8 @@ import {
   DirectionsBoatRounded,
   TheatersRounded,
 } from "@mui/icons-material";
+import { format, add } from "date-fns";
+
 
 export function fetchDataSimulated(duration: number = 2000) {
   return new Promise((resolve) => {
@@ -22,7 +24,7 @@ export function fetchDataSimulated(duration: number = 2000) {
   });
 }
 
-export function getIconCategoryMapping(category: string, fontSizeInput: number | string = "36px", props = {}) {
+export function iconCategoryMapper(category: string, fontSizeInput: number | string = "36px", props = {}) {
   switch (category.toLowerCase()) {
     case "flights":
       return <AirplaneTicketRounded sx={{ fontSize: fontSizeInput }} {...props} />
@@ -43,24 +45,23 @@ export function getIconCategoryMapping(category: string, fontSizeInput: number |
   }
 }
 
-export function TicketCardMapping({ ticket }: { ticket: AvailableTicketTypes }) {
+export function ticketCardMapper(ticket: AvailableTicketTypes) {
   switch (ticket.ticketCategory) {
-    case "flight":
+    case "flights":
       return <StyledFlightTicketCard ticket={ticket} />;
-    case "hotel":
+    case "hotels":
       return <StyledHotelTicketCard ticket={ticket} />;
-    case "concert":
+    case "concerts":
       return <StyledConcertTicketCard ticket={ticket} />;
-    // case "movie":
+    // case "movies":
     //   return <StyledMovieTicketCard ticket={ticket} />;
-    // case "train":
+    // case "trains":
     //   return <StyledTrainTicketCard ticket={ticket} />;
-    // case "bus":
+    // case "buses":
     //   return <StyledBusTicketCard ticket={ticket} />;
-    // case "sea":
+    // case "sea-transportations":
     //   return <StyledSeaTransportationTicketCard ticket={ticket} />;
     default:
-      // This should never happen if types are correct, but good for safety
       console.warn(`Unknown ticket category: ${ticket.ticketCategory}`);
       return (
         <div className="p-4 bg-red-50 text-red-800 rounded-lg">
@@ -68,4 +69,21 @@ export function TicketCardMapping({ ticket }: { ticket: AvailableTicketTypes }) 
         </div>
       );
   }
+}
+
+export function calculateArrivalTime(departureTimeInput: string, durationInput: string) {
+  const departureTime = new Date(departureTimeInput);
+  const [hours, minutes, seconds] = durationInput.split(":").map(Number);
+  const duration = (hours * 60 * 60) + (minutes * 60) + seconds;
+  const arrivalTime = add(departureTime, { seconds: duration });
+  return dateTimeFormatter(arrivalTime);
+}
+
+export function dateTimeFormatter(dateTimeInput: Date) {
+  return dateTimeInput.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+export function durationFormatter(durationInput: string) {
+  const [hours, minutes, seconds] = durationInput.split(":").map(Number);
+  return { hours, minutes, seconds };
 }

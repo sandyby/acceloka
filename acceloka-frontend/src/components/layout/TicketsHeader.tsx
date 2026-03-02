@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { ActiveCategoryContext } from "@/contexts/ActiveCategoryContext";
 import StyledTypography from "@/components/ui/StyledTypography";
 import StyledTicketCountDisplay from "../ui/headers/StyledTicketCountDisplay";
-import { getIconCategoryMapping } from "@/lib/utils";
+import { iconCategoryMapper } from "@/lib/utils";
 import { useTicketsData } from "@/contexts/TicketsDataContext";
 
 const TicketsHeader = () => {
@@ -18,7 +18,7 @@ const TicketsHeader = () => {
                     {activeCategory}
                 </StyledTypography>
                 <div className="flex items-center gap-x-2 pt-1.5 pb-2.5">
-                    {getIconCategoryMapping(activeCategory, "36px", { color: "primary" })}
+                    {iconCategoryMapper(activeCategory, "36px", { color: "primary" })}
                     <StyledTicketCountDisplay count={data?.totalTicketsCount} />
                 </div>
             </div >

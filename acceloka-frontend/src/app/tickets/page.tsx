@@ -1,3 +1,7 @@
+"use client";
+
+import SliderWithTooltip from "@/components/ui/SliderWithTooltip";
+
 export default async function TicketsPage() {
 
     return (
@@ -10,6 +14,15 @@ export default async function TicketsPage() {
                     </span>
                     <div className="absolute left-1/2 -ml-0.5 w-0.5 h-full border-2 border-dashed border-secondary-900 mx-auto"></div>
                 </div>
+            </div>
+            <div className="p-10">
+                <SliderWithTooltip
+                    min={0}
+                    max={200}
+                    step={5}
+                    initialValue={100}
+                    onChange={(val) => console.log("Slider value:", val)}
+                />
             </div>
         </div>
     )

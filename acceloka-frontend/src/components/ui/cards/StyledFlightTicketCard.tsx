@@ -1,11 +1,14 @@
 "use client";
+
 import StyledTypography from '@/components/ui/StyledTypography';
+import { calculateArrivalTime, dateTimeFormatter, durationFormatter } from '@/lib/utils';
 import { IFlightTicket } from '@/types/card';
 
 export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTicket }) {
+    const { hours, minutes, seconds } = durationFormatter(ticket.duration);
+
     return (
         <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200">
-            {/* Dashed flight path line */}
             <div className="absolute inset-y-0 right-1/3 w-px bg-gray-300">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
                     ✈️
@@ -16,7 +19,6 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
             </div>
 
             <div className="grid grid-cols-[3fr_1fr_3fr] h-full p-5 gap-4">
-                {/* Left - Main info */}
                 <div className="flex flex-col justify-between">
                     <div>
                         <StyledTypography variant="h6" fontWeight="bold" className="text-secondary-900">
@@ -50,7 +52,6 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
                     </div>
                 </div>
 
-                {/* Center - Price (prominent) */}
                 <div className="flex flex-col items-center justify-center">
                     <StyledTypography variant="h5" fontWeight="bold" className="text-primary-600">
                         Rp {ticket.price.toLocaleString('id-ID')}
@@ -60,17 +61,19 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
                     </StyledTypography>
                 </div>
 
-                {/* Right - Flight details */}
                 <div className="flex flex-col justify-between text-right">
                     <div>
                         <div className="text-lg font-semibold text-secondary-900">
-                            {new Date(ticket.departureTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                            {dateTimeFormatter(new Date(ticket.departureTime))}
                         </div>
                         <div className="text-sm text-gray-600">
                             {ticket.departureAirport} → {ticket.arrivalAirport}
                         </div>
+                        <div className="text-lg font-semibold text-secondary-900">
+                            {calculateArrivalTime(ticket.departureTime, ticket.duration)}
+                        </div>
                         <div className="text-sm text-gray-500 mt-1">
-                            {ticket.duration}
+                            {`${hours}h ${seconds > 0 ? minutes + 1 : minutes}m`}
                         </div>
                     </div>
 
@@ -87,10 +90,9 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
 
 // import StyledTicketCardStructure from './StyledTicketCardStructure';
 // import StyledTypography from '@/components/ui/StyledTypography';
-// import { FlightTicket } from '@/types/api';
-// import { width } from '@mui/system';
+// import { IFlightTicket } from '@/types/card';
 
-// const StyledFlightTicketCard = ({ ticket }: { ticket: FlightTicket }) => {
+// const StyledFlightTicketCard = ({ ticket }: { ticket: IFlightTicket }) => {
 //     return (
 //         <div className="relative inset-0 bg-white-900 w-full h-60 rounded-[16px] mask-[linear-gradient(white,white)] mask-no-repeat mask-exclude [-webkit-mask-composite:destination-out] py-2 flex">
 //             <div className="absolute w-12 h-full absolute right-1/4 top-0">
