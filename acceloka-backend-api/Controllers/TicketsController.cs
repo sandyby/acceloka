@@ -29,6 +29,13 @@ public class TicketsController : ControllerBase
         return Ok(tickets);
     }
 
+    [HttpGet("get-ticket-metadata")]
+    public async Task<IActionResult> GetTicketMetadata([FromQuery] GetTicketMetadataQuery query)
+    {
+        var result = await _sender.Send(query);
+        return Ok(result);
+    }
+
     [HttpGet("get-ticket-by-code/{TicketCode}")]
     public async Task<IActionResult> GetTicketByCode(string TicketCode)
     {

@@ -3,6 +3,7 @@ using AccelokaSandy.Application.Features.Tickets.GetAvailableTickets;
 using AccelokaSandy.Application.Common.Mappings;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using AccelokaSandy.Domain.Entities.Tickets;
 
 public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQuery, GetAvailableTicketsResponse>
 {
@@ -36,6 +37,53 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             query = query.Where(t => t.Price <= request.MaxPrice);
         }
 
+        if (request.TicketCategory!.Equals("flights", StringComparison.OrdinalIgnoreCase))
+        {
+            var flightTicketQuery = query.OfType<FlightTicket>();
+            if (request.DepartureStart.HasValue)
+            {
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime >= request.DepartureStart);
+            }
+
+            if (request.DepartureEnd.HasValue)
+            {
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime >= request.DepartureEnd);
+            }
+
+            // if (request.ArrivalStart.HasValue)
+            // {
+            //     flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime + ft.Duration >= request.ArrivalStart.Value);
+            // }
+
+            // if (request.ArrivalEnd.HasValue)
+            // {
+            //     flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime + ft.Duration <= request.ArrivalEnd.Value);
+            // }
+
+            if (request.ArrivalStart.HasValue)
+            {
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime >= request.ArrivalStart.Value);
+            }
+
+            if (request.ArrivalEnd.HasValue)
+            {
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime <= request.ArrivalEnd.Value);
+            }
+
+            if (!string.IsNullOrEmpty(request.Airline))
+                flightTicketQuery = flightTicketQuery.Where(f => EF.Functions.ILike(f.Airline, request.Airline));
+
+            if (!string.IsNullOrEmpty(request.SeatClass))
+                flightTicketQuery = flightTicketQuery.Where(f => EF.Functions.ILike(f.SeatClass!, request.SeatClass));
+
+            if (request.Amenities is { Count: > 0 })
+                flightTicketQuery = flightTicketQuery.Where(f =>
+                    request.Amenities.All(a => f.Amenities!.Contains(a))
+                );
+
+            query = flightTicketQuery;
+        }
+
         var totalFilteredTicketsCount = await query.CountAsync();
 
         bool isOrderStateDesc = request.OrderState?.ToLower() == "desc";
@@ -44,6 +92,8 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             "ticketcategory" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCategory.TicketCategoryName) : query.OrderBy(t => t.TicketCategory.TicketCategoryName),
             "ticketname" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketName) : query.OrderBy(t => t.TicketName),
             "price" => isOrderStateDesc ? query.OrderByDescending(t => t.Price) : query.OrderBy(t => t.Price),
+            "departuretime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.DepartureTime) : query.OrderBy(t => (t as FlightTicket)!.DepartureTime),
+            "arrivaltime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.ArrivalTime) : query.OrderBy(t => (t as FlightTicket)!.ArrivalTime),
             _ => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCode) : query.OrderBy(t => t.TicketCode)
         };
 

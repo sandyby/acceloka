@@ -6,5 +6,4 @@ namespace AccelokaSandy.Application.Common.Mappings;
 public interface ITicketToDtoMapper
 {
     ITicketDto Map(TicketBase ticket);
-    // ITicketDto Map(TicketBase ticket);
 }

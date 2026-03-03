@@ -7,8 +7,20 @@ public record GetAvailableTicketsQuery(
     string? TicketCode,
     string? TicketName,
     int? MaxPrice,
-    DateTime? MinEventDate,
-    DateTime? MaxEventDate,
+    // DateTime? MinEventDate,
+// DateTime? MaxEventDate,
+
+    // flight stuff coba dlu
+    DateTime? DepartureStart,
+    DateTime? DepartureEnd,
+    DateTime? ArrivalStart,
+    DateTime? ArrivalEnd,
+    string? Airline,
+    List<string>? Amenities,
+    string? SeatClass,
+
+
+
     string? OrderBy = "TicketCode",
     string? OrderState = "asc",
     int PageNumber = 1,

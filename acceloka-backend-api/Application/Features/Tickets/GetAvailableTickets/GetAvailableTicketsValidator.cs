@@ -20,9 +20,9 @@ public class GetAvailableTicketsValidator : AbstractValidator<GetAvailableTicket
     public GetAvailableTicketsValidator()
     {
         RuleFor(t => t.MaxPrice).GreaterThanOrEqualTo(0).When(t => t.MaxPrice.HasValue).WithMessage("Max. price must be greater than or equal to 0!");
-        RuleFor(t => t.MinEventDate).GreaterThanOrEqualTo(DateTime.UtcNow.Date).When(t => t.MinEventDate.HasValue).WithMessage("Min. event date must be today or in the upcoming days!");
-        RuleFor(t => t.MaxEventDate).GreaterThanOrEqualTo(DateTime.UtcNow.Date).When(t => t.MaxEventDate.HasValue).WithMessage("Max. event date must be today or in the upcoming days!");
-        RuleFor(t => t.MaxEventDate).GreaterThanOrEqualTo(t => t.MinEventDate).When(t => t.MinEventDate.HasValue && t.MaxEventDate.HasValue).WithMessage("Max. event date must be greater than or equal to min. event date!");
+        // RuleFor(t => t.MinEventDate).GreaterThanOrEqualTo(DateTime.UtcNow.Date).When(t => t.MinEventDate.HasValue).WithMessage("Min. event date must be today or in the upcoming days!");
+        // RuleFor(t => t.MaxEventDate).GreaterThanOrEqualTo(DateTime.UtcNow.Date).When(t => t.MaxEventDate.HasValue).WithMessage("Max. event date must be today or in the upcoming days!");
+        // RuleFor(t => t.MaxEventDate).GreaterThanOrEqualTo(t => t.MinEventDate).When(t => t.MinEventDate.HasValue && t.MaxEventDate.HasValue).WithMessage("Max. event date must be greater than or equal to min. event date!");
         RuleFor(t => t.PageNumber).GreaterThan(0).WithMessage("Page number must be greater than 0!");
         RuleFor(t => t.PageSize).GreaterThan(0).LessThanOrEqualTo(20).WithMessage("Page size must be between 1 and 20!");
         RuleFor(t => t.OrderBy).Must(t => string.IsNullOrWhiteSpace(t) || _allowedOrderByFields.Contains(t)).WithMessage($"Order by must be one of the following: {string.Join(", ", _allowedOrderByFields)}");

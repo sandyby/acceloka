@@ -16,6 +16,7 @@ public abstract class TicketBase
     public List<string>? Amenities { get; set; } = new();
     public DateTime? DepartureTime { get; set; }
     public TimeSpan? Duration { get; set; }
+    public DateTime? ArrivalTime => DepartureTime + Duration;
     public string? SeatClass { get; set; }
     public int? TransitsCount { get; set; }
     public int? BaggageKg { get; set; }
