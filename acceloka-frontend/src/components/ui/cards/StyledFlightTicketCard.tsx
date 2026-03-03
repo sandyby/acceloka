@@ -3,151 +3,108 @@
 import StyledTypography from '@/components/ui/StyledTypography';
 import { calculateArrivalTime, durationFormatter, formatDateTimeWithWords } from '@/lib/utils';
 import { IFlightTicket } from '@/types/card';
+import { KeyboardDoubleArrowRightSharp } from '@mui/icons-material';
+import { color } from 'framer-motion';
 
 export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTicket }) {
     const { hours, minutes, seconds } = durationFormatter(ticket.duration);
 
     return (
-        <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200">
-            <div className="absolute inset-y-0 right-1/3 w-px bg-gray-300">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                    ✈️
-                </div>
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                    🛬
-                </div>
-            </div>
-
-            <div className="grid grid-cols-[3fr_1fr_3fr] h-full p-5 gap-4">
-                <div className="flex flex-col justify-between">
-                    <div>
-                        <StyledTypography variant="h6" fontWeight="bold" className="text-secondary-900">
+        <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200 flex">
+            <div className="grid grid-cols-[1fr_auto] w-full h-full pt-1 pb-2 px-3">
+                <div className="w-full col-span-2 flex flex-row justify-between">
+                    <div className="">
+                        <StyledTypography fontSizeInput={24} fontWeightInput="bold" className="text-secondary-900">
                             {ticket.ticketName}
                         </StyledTypography>
-                        <StyledTypography variant="subtitle2" className="text-secondary-700 mt-1">
-                            {ticket.airline} • {ticket.seatClass}
+                        <StyledTypography fontSizeInput={18} className="text-primary-600 mt-1">
+                            {ticket.airline}
                         </StyledTypography>
-
-                        <div className="flex flex-wrap gap-2 mt-3 capitalize">
-                            <span className="px-3 py-1 bg-primary-500 text-white  text-xs rounded-full">
-                                {ticket.ticketCategory}
-                            </span>
-                            {ticket.transitsCount === 0 && (
-                                <span className="px-3 py-1 bg-dark-green-900 text-white text-xs rounded-full">
-                                    {ticket.transitsCount > 0 ? `${ticket.transitsCount} transits` : "Direct"}
-                                </span>
-                            )}
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-3 capitalize">
-                            {ticket.amenities?.map((amenity, idx) => (
-                                <span key={idx} className="px-3 py-1 border border-primary-500 text-primary-500  text-xs rounded-full">
-                                    {amenity}
-                                </span>
-                            ))}
-                        </div>
                     </div>
-
-                    <div className="text-sm text-gray-600">
-                        Quota left: <strong>{ticket.quota}</strong>
+                    <div className="text-end">
+                        <StyledTypography fontWeightInput="bold" fontSizeInput={28}
+                            className="text-primary-600" sx={{ marginBottom: -1 }}>
+                            Rp {ticket.price.toLocaleString('id-ID')}
+                        </StyledTypography>
+                        <StyledTypography fontSizeInput={18} className="text-gray-500">
+                            /pax
+                        </StyledTypography>
                     </div>
                 </div>
-
-                <div className="flex flex-col items-center justify-center">
-                    <StyledTypography variant="h5" fontWeight="bold" className="text-primary-600">
-                        Rp {ticket.price.toLocaleString('id-ID')}
-                    </StyledTypography>
-                    <StyledTypography variant="caption" className="text-gray-500">
-                        /pax
-                    </StyledTypography>
-                </div>
-
-                <div className="flex flex-col justify-between text-right">
-                    <div>
-                        <div className="text-sm font-semibold text-secondary-900">
-                            {formatDateTimeWithWords(new Date(ticket.departureTime), { weekday: "short", month: "short" })}
+                <div className="flex flex-row items-end justify-between items-start content-start">
+                    <div className="flex flex-col justify-between h-full">
+                        <div className="">
+                            <div className="mb-2 flex flex-col gap-y-0.5">
+                                <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                    Seat Class
+                                </StyledTypography>
+                                <div className="">
+                                    <span className="inline-block px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
+                                        {ticket.seatClass}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="mb-2 flex flex-col gap-y-0.5">
+                                <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                    Amenities
+                                </StyledTypography>
+                                <div className="flex flex-wrap gap-2 capitalize">
+                                    {ticket.amenities?.map((amenity, idx) => (
+                                        <span key={idx} className="px-3 py-1 border border-primary-500 text-primary-500 text-xs rounded-full">
+                                            {amenity}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-sm text-gray-600">
-                            {ticket.departureAirport} → {ticket.arrivalAirport}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">
-                            {`${hours}h ${seconds > 0 ? minutes + 1 : minutes}m`}
-                        </div>
-                        <div className="text-sm font-semibold text-secondary-900">
-                            {calculateArrivalTime(ticket.departureTime, ticket.duration)}
+                        <div className="mt-auto text-md text-accent-primary-900">
+                            Ticket Quota: {ticket.quota}
                         </div>
                     </div>
+                    <div className="my-auto">
+                        <div className="flex w-max">
+                            <div className="flex items-center text-center">
+                                <div className="max-w-40 mx-2">
+                                    <p className="text-sm mb-1 text-accent-primary-900">Departure Time</p>
+                                    <div className="text-sm font-semibold w-[70%] mx-auto text-secondary-900">
+                                        {formatDateTimeWithWords(new Date(ticket.departureTime), { weekday: "short", month: "short" })}
+                                    </div>
+                                </div>
 
-                    <div className="text-sm text-gray-600">
-                        Baggage: {ticket.baggageKg} kg
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <div className="text-md text-accent-primary-900 font-semibold -mb-2">
+                                    {ticket.transitsCount > 0 ? `${ticket.transitsCount} transit(s)` : "Direct"}
+                                </div>
+                                <div className="flex gap-x-2 items-center">
+                                    <p className="w-30 text-center text-4xl font-bold text-secondary-900">
+                                        {ticket.departureAirport}
+                                    </p>
+                                    <div className="flex flex-col text-center">
+                                        <div className="flex gap-x-[-20px]">
+                                            <KeyboardDoubleArrowRightSharp color="primary" sx={{ fontSize: 64 }} />
+                                        </div>
+                                    </div>
+                                    <p className="w-30  text-center text-4xl font-bold text-secondary-900">
+                                        {ticket.arrivalAirport}
+                                    </p>
+                                </div>
+                                <div className="text-md text-accent-primary-900 -mt-2">
+                                    {`${hours}h ${seconds > 0 ? minutes + 1 : minutes}m`}
+                                </div>
+                            </div>
+                            <div className="flex items-center text-center">
+                                <div className="max-w-40 mx-2">
+                                    <p className="text-sm mb-1 text-accent-primary-900">Arrival Time</p>
+                                    <div className="text-sm font-semibold w-[70%] mx-auto text-secondary-900">
+                                        {calculateArrivalTime(ticket.departureTime, ticket.duration)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
-
-// "use client";
-
-// import StyledTicketCardStructure from './StyledTicketCardStructure';
-// import StyledTypography from '@/components/ui/StyledTypography';
-// import { IFlightTicket } from '@/types/card';
-
-// const StyledFlightTicketCard = ({ ticket }: { ticket: IFlightTicket }) => {
-//     return (
-//         <div className="relative inset-0 bg-white-900 w-full h-60 rounded-[16px] mask-[linear-gradient(white,white)] mask-no-repeat mask-exclude [-webkit-mask-composite:destination-out] py-2 flex">
-//             <div className="absolute w-12 h-full absolute right-1/4 top-0">
-//                 <span className="absolute w-12 h-12 rounded-full bg-secondary-900 -top-1/10 mx-auto">
-//                 </span>
-//                 <span className="absolute w-12 h-12 rounded-full bg-secondary-900 -bottom-1/10 mx-auto">
-//                 </span>
-//                 <div className="absolute left-1/2 -ml-0.5 w-0.5 h-full border-2 border-dashed border-secondary-900 mx-auto"></div>
-//             </div>
-//             <div className='w-[calc(75%-68px)] mx-2.5 flex-none flex-wrap wrap-break-word'>
-//                 <StyledTypography fontSizeInput={20} fontWeightInput="bold" width={"fit-content"} sx={{ textTransform: "capitalize", maxWidth: "420px" }}>
-//                     {ticket.ticketName}
-//                 </StyledTypography>
-//                 <div className='w-fit max-w-105 h-fit my-1 flex flex-row flex-wrap gap-x-1.25 gap-y-0.5'>
-//                     <div className='h-fit px-2.5 py-0.5 bg-primary-500 rounded-2xl'>
-//                         <StyledTypography fontSizeInput={12} width={"fit-content"} sx={{ textTransform: "capitalize", color: "var(--color-white-900)" }}>
-//                             {ticket.ticketCategory}
-//                         </StyledTypography>
-//                     </div>
-//                     <div className='h-fit px-2.5 py-0.5 bg-dark-green-900 rounded-2xl'>
-//                         <StyledTypography fontSizeInput={12} width={"fit-content"} sx={{ textTransform: "capitalize", color: "var(--color-white-900)" }}>
-//                             Raya Sale
-//                         </StyledTypography>
-//                     </div>
-//                     <div className='h-fit px-2.5 py-0.5 border border-primary-500 rounded-2xl'>
-//                         <StyledTypography fontSizeInput={12} width={"fit-content"} sx={{ textTransform: "capitalize", color: "var(--color-primary-500)" }}>
-//                             Popular Pick
-//                         </StyledTypography>
-//                     </div>
-//                     <div className='h-fit px-2.5 py-0.5 bg-red-500 rounded-2xl'>
-//                         <StyledTypography fontSizeInput={12} width={"fit-content"} sx={{ textTransform: "capitalize", color: "var(--color-white-900)" }}>
-//                             Newcomer Sale
-//                         </StyledTypography>
-//                     </div>
-//                 </div>
-//                 <StyledTypography width={"fit-content"} sx={{ textTransform: "capitalize" }}>
-//                     {ticket.quota}
-//                 </StyledTypography>
-//                 <StyledTypography width={"fit-content"} sx={{ textTransform: "capitalize" }}>
-//                     {ticket.price}
-//                 </StyledTypography>
-//                 <StyledTypography width={"fit-content"} sx={{ textTransform: "capitalize" }}>
-//                     {ticket.eventDate}
-//                 </StyledTypography>
-//             </div>
-//             <div className='w-12 flex-none'>
-
-//             </div>
-//             <div className='flex-1 w-0 flex-wrap wrap-break-word mx-2.5'>
-//                 <p className='text-secondary-900'>ahsdhashdaahsdhashdaahsdhashda</p>
-//                 <p className='text-secondary-900'>ahsdhashdaahsdhashda</p>
-//                 <p className='text-secondary-900'>ahsdhashda</p>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default StyledFlightTicketCard;

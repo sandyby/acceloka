@@ -10,4 +10,22 @@ export type UIBackgroundColors =
   | "accent-quaternary";
 export type UIVariants = "primary" | "secondary" | "accent" | "disabled";
 export type UIStates = "active" | "default" | "hover" | "disabled";
-export type UITypographySizes = 64 | 48 | 36 | 32 | 28 | 24 | 20 | 18 | 16 | 14 | 12;
+export type UITypographySizes =
+  | 64
+  | 48
+  | 36
+  | 32
+  | 28
+  | 24
+  | 20
+  | 18
+  | 16
+  | 14
+  | 12;
+
+export interface UIInputBaseProps {
+  label: string;
+  value: string | number | undefined;
+  onChange: (val: string) => void;
+  placeholder?: string;
+}

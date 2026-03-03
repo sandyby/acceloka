@@ -41,7 +41,7 @@ export function iconCategoryMapper(category: string, fontSizeInput: number | str
       return <MusicNoteRounded sx={{ fontSize: fontSizeInput }} {...props} />
     case "trains":
       return <TrainRounded sx={{ fontSize: fontSizeInput }} {...props} />
-    case "bus":
+    case "buses":
       return <DirectionsBusRounded sx={{ fontSize: fontSizeInput }} {...props} />
     case "sea-transportations":
       return <DirectionsBoatRounded sx={{ fontSize: fontSizeInput }} {...props} />

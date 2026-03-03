@@ -7,65 +7,72 @@ export default function StyledMovieTicketCard({ ticket }: { ticket: IMovieTicket
     const { hours, minutes, seconds } = durationFormatter(ticket.duration);
 
     return (
-        <div className="relative bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl shadow-md overflow-hidden h-60 border border-red-200">
-            <div className="absolute inset-y-0 right-1/3 w-px bg-red-300">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-xl">
-                    🎬
-                </div>
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-xl">
-                    🍿
-                </div>
+        <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200 flex">
+            <div className="w-[200px] h-full bg-accent-tertiary-900">
             </div>
-
-            <div className="grid grid-cols-[3fr_1fr_3fr] h-full p-5 gap-4">
-                <div className="flex flex-col justify-between">
-                    <div>
-                        <StyledTypography variant="h6" fontWeight="bold" className="text-secondary-900">
+            <div className="grid grid-cols-[1fr_auto] w-full h-full pt-1 pb-2 px-3">
+                <div className="w-full col-span-2 flex flex-row justify-between">
+                    <div className="">
+                        <StyledTypography fontSizeInput={24} fontWeightInput="bold" className="text-secondary-900">
                             {ticket.ticketName}
                         </StyledTypography>
-                        <StyledTypography variant="subtitle2" className="text-red-700 mt-1">
-                            {ticket.cinema} • {ticket.cinemaType}
+                        <StyledTypography fontSizeInput={18} className="text-primary-600 mt-1">
+                            {ticket.cinema}
                         </StyledTypography>
-
-                        <div className="flex flex-wrap gap-2 mt-3 capitalize">
-                            <span className="px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
-                                {ticket.ticketCategory}
-                            </span>
-                            <span className="px-3 py-1 bg-red-600 text-white text-xs rounded-full">
-                                {ticket.seatSection}
-                            </span>
-                        </div>
                     </div>
-
-                    <div className="text-sm text-gray-600">
-                        Quota left: <strong>{ticket.quota}</strong>
+                    <div className="text-end">
+                        <StyledTypography fontWeightInput="bold" fontSizeInput={28}
+                            className="text-primary-600" sx={{ marginBottom: -1 }}>
+                            Rp {ticket.price.toLocaleString('id-ID')}
+                        </StyledTypography>
+                        <StyledTypography fontSizeInput={18} className="text-gray-500">
+                            /pax
+                        </StyledTypography>
                     </div>
                 </div>
-
-                <div className="flex flex-col items-center justify-center">
-                    <StyledTypography variant="h5" fontWeight="bold" className="text-primary-600">
-                        Rp {ticket.price.toLocaleString('id-ID')}
-                    </StyledTypography>
-                    <StyledTypography variant="caption" className="text-gray-500">
-                        /ticket
-                    </StyledTypography>
-                </div>
-
-                <div className="flex flex-col justify-between text-right">
-                    <div>
-                        <div className="text-lg font-semibold text-secondary-900">
-                            {formatDateTimeWithWords(new Date(ticket.screeningTime), {weekday: "short", month: "long", hour12: false})}
+                <div className="flex flex-row items-end justify-between items-start content-start">
+                    <div className="flex flex-col justify-between h-full">
+                        <div className="">
+                            <div className="mb-2 flex flex-col gap-y-0.5">
+                                <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                    Cinema Type
+                                </StyledTypography>
+                                <div className="mb-2">
+                                    <span className="inline-block px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
+                                        {ticket.cinemaType}
+                                    </span>
+                                </div>
+                                <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                    Seat Section
+                                </StyledTypography>
+                                <div className="">
+                                    <span className="inline-block px-3 py-1 border border-secondary-900 text-secondary-900 text-xs rounded-full">
+                                        {ticket.seatSection}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                            Duration: {`${hours}h ${seconds > 0 ? minutes + 1 : minutes}m`}
+                        <div className="mt-auto text-md text-accent-primary-900">
+                            Ticket Quota: {ticket.quota}
                         </div>
                     </div>
-
-                    <div className="text-sm text-red-700">
-                        Cinema: {ticket.cinema}
+                    <div className="text-end mt-auto">
+                        <div className="flex flex-col gap-y-1.5">
+                            <div className="text-sm text-secondary-900">
+                                <div className="">Screening Time</div>
+                                <div className="text-lg font-bold">
+                                    {formatDateTimeWithWords(new Date(ticket.screeningTime), { weekday: "long", month: "short" })}
+                                </div>
+                            </div><div className="text-sm text-secondary-900">
+                                <div className="">Duration</div>
+                                <div className="text-primary-500 font-bold text-md">
+                                    {`${hours}h ${seconds > 0 ? minutes + 1 : minutes}m`}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
