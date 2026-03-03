@@ -10,8 +10,6 @@ export default function StyledConcertTicketCard({ ticket }: { ticket: IConcertTi
 
   return (
     <div className="relative bg-gradient-to-br from-primary-50 to-secondary-50 rounded-2xl shadow-md h-64 border border-primary-200 overflow-hidden">
-      {/* <div className="absolute top-4 right-4 text-3xl opacity-30">🎤</div> */}
-
       <div className="flex flex-col justify-between p-6 h-full">
         <div className="flex gap-x-4 justify-between">
           <div className="grow">

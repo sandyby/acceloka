@@ -10,9 +10,6 @@ export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket
 
     return (
         <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200">
-            {/* <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-2xl">
-                🏨
-            </div> */}
 
             <div className="grid grid-cols-[1fr_auto] h-full p-6 gap-6">
                 <div className="flex flex-col justify-between">
@@ -37,10 +34,6 @@ export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket
                             ))}
                         </div>
                     </div>
-
-                    {/* <div className="text-lg font-bold text-accent-primary-900">
-                        Available until {formatDateTimeWithWords(new Date(ticket.maxCheckOutDate), { weekday: "long", month: "short" })}
-                    </div> */}
 
                     <div className="mt-4 text-md text-accent-primary-900">
                         Max. Occupancies: {ticket.maxOccupancy} {ticket.maxOccupancy > 1 ? 'guests' : 'guest'}

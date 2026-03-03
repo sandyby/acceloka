@@ -63,9 +63,6 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
 
                 <div className="flex flex-col justify-between text-right">
                     <div>
-                        {/* <div className="text-lg font-semibold text-secondary-900">
-                            {dateTimeFormatter(new Date(ticket.departureTime))}
-                        </div> */}
                         <div className="text-sm font-semibold text-secondary-900">
                             {formatDateTimeWithWords(new Date(ticket.departureTime), { weekday: "short", month: "short" })}
                         </div>
