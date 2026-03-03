@@ -2,23 +2,25 @@
 
 import { IHotelTicket } from "@/types/card";
 import StyledTypography from "../StyledTypography";
+import { calculateDuration, formatDateTimeWithWords, generateRandomDays } from "@/lib/utils";
+import { add, addDays } from "date-fns";
 
 export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket }) {
+    const tempMaxCheckOutDate = addDays(ticket.minCheckInDate, generateRandomDays(5)).toString();
+
     return (
         <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200">
-            {/* Hotel icon hint */}
-            <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-2xl">
+            {/* <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-2xl">
                 🏨
-            </div>
+            </div> */}
 
-            <div className="grid grid-cols-2 h-full p-6 gap-6">
-                {/* Left - Hotel & Room */}
+            <div className="grid grid-cols-[1fr_auto] h-full p-6 gap-6">
                 <div className="flex flex-col justify-between">
-                    <div>
-                        <StyledTypography variant="h6" fontWeight="bold" className="text-secondary-900">
+                    <div className="">
+                        <StyledTypography fontSizeInput={24} fontWeightInput="bold" className="text-secondary-900">
                             {ticket.ticketName}
                         </StyledTypography>
-                        <StyledTypography variant="subtitle1" className="text-primary-600 mt-1">
+                        <StyledTypography fontSizeInput={18} className="text-primary-600 mt-1">
                             {ticket.hotelName}
                         </StyledTypography>
 
@@ -27,36 +29,53 @@ export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket
                                 {ticket.roomType}
                             </span>
                         </div>
-
-                        <div className="mt-4 text-sm text-gray-700">
-                            Max: {ticket.maxOccupancy} {ticket.maxOccupancy > 1 ? 'guests' : 'guest'}
+                        <div className="flex flex-wrap gap-2 mt-3 capitalize">
+                            {ticket.amenities?.map((amenity, idx) => (
+                                <span key={idx} className="px-3 py-1 border border-primary-500 text-primary-500  text-xs rounded-full">
+                                    {amenity}
+                                </span>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="text-sm text-gray-600">
-                        Available until {new Date(ticket.maxCheckOutDate).toLocaleDateString('id-ID')}
+                    {/* <div className="text-lg font-bold text-accent-primary-900">
+                        Available until {formatDateTimeWithWords(new Date(ticket.maxCheckOutDate), { weekday: "long", month: "short" })}
+                    </div> */}
+
+                    <div className="mt-4 text-md text-accent-primary-900">
+                        Max. Occupancies: {ticket.maxOccupancy} {ticket.maxOccupancy > 1 ? 'guests' : 'guest'}
                     </div>
                 </div>
 
-                {/* Right - Price & Dates */}
                 <div className="flex flex-col items-end justify-between text-right">
-                    <div>
-                        <StyledTypography variant="h5" fontWeight="bold" className="text-primary-600">
+                    <div className="">
+                        <StyledTypography fontWeightInput="bold" fontSizeInput={28}
+                            className="text-primary-600" sx={{ marginBottom: -1 }}>
                             Rp {ticket.price.toLocaleString('id-ID')}
                         </StyledTypography>
-                        <StyledTypography variant="caption" className="text-gray-500">
-                            per night
+                        <StyledTypography fontSizeInput={18} className="text-gray-500">
+                            /night
                         </StyledTypography>
+                        <div className="mt-2">
+                            <p className="text-primary-500 text-md">{calculateDuration(ticket.minCheckInDate, tempMaxCheckOutDate)}</p>
+                        </div>
                     </div>
 
-                    <div className="text-sm">
-                        <div>Check-in from</div>
-                        <div className="font-medium">
-                            {new Date(ticket.minCheckInDate).toLocaleDateString('id-ID', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    <div className="flex flex-col gap-x-6">
+                        <div className="text-sm text-secondary-900">
+                            <div className="">Check-in from</div>
+                            <div className="text-lg font-bold">
+                                {formatDateTimeWithWords(new Date(ticket.minCheckInDate), { weekday: "long", month: "short" })}
+                            </div>
+                        </div><div className="text-sm text-secondary-900">
+                            <div className="">Max. check-out until</div>
+                            <div className="text-lg font-bold">
+                                {formatDateTimeWithWords(new Date(tempMaxCheckOutDate), { weekday: "long", month: "short" })}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

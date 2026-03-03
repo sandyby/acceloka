@@ -1,7 +1,7 @@
 "use client";
 
 import StyledTypography from '@/components/ui/StyledTypography';
-import { calculateArrivalTime, dateTimeFormatter, durationFormatter } from '@/lib/utils';
+import { calculateArrivalTime, durationFormatter, formatDateTimeWithWords } from '@/lib/utils';
 import { IFlightTicket } from '@/types/card';
 
 export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTicket }) {
@@ -34,7 +34,7 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
                             </span>
                             {ticket.transitsCount === 0 && (
                                 <span className="px-3 py-1 bg-dark-green-900 text-white text-xs rounded-full">
-                                    Direct
+                                    {ticket.transitsCount > 0 ? `${ticket.transitsCount} transits` : "Direct"}
                                 </span>
                             )}
                         </div>
@@ -63,17 +63,20 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
 
                 <div className="flex flex-col justify-between text-right">
                     <div>
-                        <div className="text-lg font-semibold text-secondary-900">
+                        {/* <div className="text-lg font-semibold text-secondary-900">
                             {dateTimeFormatter(new Date(ticket.departureTime))}
+                        </div> */}
+                        <div className="text-sm font-semibold text-secondary-900">
+                            {formatDateTimeWithWords(new Date(ticket.departureTime), { weekday: "short", month: "short" })}
                         </div>
                         <div className="text-sm text-gray-600">
                             {ticket.departureAirport} → {ticket.arrivalAirport}
                         </div>
-                        <div className="text-lg font-semibold text-secondary-900">
-                            {calculateArrivalTime(ticket.departureTime, ticket.duration)}
-                        </div>
                         <div className="text-sm text-gray-500 mt-1">
                             {`${hours}h ${seconds > 0 ? minutes + 1 : minutes}m`}
+                        </div>
+                        <div className="text-sm font-semibold text-secondary-900">
+                            {calculateArrivalTime(ticket.departureTime, ticket.duration)}
                         </div>
                     </div>
 

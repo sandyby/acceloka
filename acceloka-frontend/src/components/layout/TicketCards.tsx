@@ -32,8 +32,8 @@ export default function TicketCards() {
                     or refresh the page if the problem continues
                 </p>
             </div>)}
-            {data && data.availableTickets.length > 0 && (data.availableTickets.map((ticket: AvailableTicketTypes) => (
-                ticketCardMapper(ticket)
+            {data && data.availableTickets.length > 0 && (data.availableTickets.map((ticket: AvailableTicketTypes, idx) => (
+                ticketCardMapper(ticket, idx)
             )))}
             {(!isFetching && !isError && (!data || data.availableTickets.length === 0)) && (<div>
                 <StyledTypography fontSizeInput={18} colorInput="accent" fontWeightInput="normal" sx={{ textTransform: "capitalize" }}>
