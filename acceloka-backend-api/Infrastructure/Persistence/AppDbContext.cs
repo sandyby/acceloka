@@ -68,11 +68,11 @@ public class AppDbContext : DbContext
 
         // categories
         modelBuilder.Entity<TicketCategory>(builder =>
-        {
-            builder.HasKey(tc => tc.Id);
-            builder.Property(tc => tc.Id).ValueGeneratedNever();
-            builder.HasIndex(tc => tc.TicketCategoryName).IsUnique();
-        });
+                {
+                    builder.HasKey(tc => tc.Id);
+                    builder.Property(tc => tc.Id).ValueGeneratedNever();
+                    builder.HasIndex(tc => tc.TicketCategoryName).IsUnique();
+                });
 
         // booked tickets
         modelBuilder.Entity<BookedTicket>(builder =>

@@ -40,14 +40,16 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
         if (request.TicketCategory!.Equals("flights", StringComparison.OrdinalIgnoreCase))
         {
             var flightTicketQuery = query.OfType<FlightTicket>();
-            if (request.DepartureStart.HasValue)
+            if (request.MinDeparture.HasValue)
             {
-                flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime >= request.DepartureStart);
+                var minDeparture = DateTime.SpecifyKind(request.MinDeparture.Value, DateTimeKind.Utc);
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime >= minDeparture);
             }
 
-            if (request.DepartureEnd.HasValue)
+            if (request.MaxDeparture.HasValue)
             {
-                flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime >= request.DepartureEnd);
+                var maxDeparture = DateTime.SpecifyKind(request.MaxDeparture.Value, DateTimeKind.Utc);
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime <= maxDeparture);
             }
 
             // if (request.ArrivalStart.HasValue)
@@ -60,14 +62,16 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             //     flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime + ft.Duration <= request.ArrivalEnd.Value);
             // }
 
-            if (request.ArrivalStart.HasValue)
+            if (request.MinArrival.HasValue)
             {
-                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime >= request.ArrivalStart.Value);
+                var minArrival = DateTime.SpecifyKind(request.MinArrival.Value, DateTimeKind.Utc);
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime >= minArrival);
             }
 
-            if (request.ArrivalEnd.HasValue)
+            if (request.MaxArrival.HasValue)
             {
-                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime <= request.ArrivalEnd.Value);
+                var maxArrival = DateTime.SpecifyKind(request.MaxArrival.Value, DateTimeKind.Utc);
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime <= maxArrival);
             }
 
             if (!string.IsNullOrEmpty(request.Airline))

@@ -11,15 +11,13 @@ public record GetAvailableTicketsQuery(
 // DateTime? MaxEventDate,
 
     // flight stuff coba dlu
-    DateTime? DepartureStart,
-    DateTime? DepartureEnd,
-    DateTime? ArrivalStart,
-    DateTime? ArrivalEnd,
+    DateTime? MinDeparture,
+    DateTime? MaxDeparture,
+    DateTime? MinArrival,
+    DateTime? MaxArrival,
     string? Airline,
     List<string>? Amenities,
     string? SeatClass,
-
-
 
     string? OrderBy = "TicketCode",
     string? OrderState = "asc",

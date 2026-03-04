@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 public class GetTicketMetadataHandler
     : IRequestHandler<GetTicketMetadataQuery, TicketMetadataDto>
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _context;
 
-    public GetTicketMetadataHandler(AppDbContext db)
+    public GetTicketMetadataHandler(AppDbContext context)
     {
-        _db = db;
+        this._context = context;
     }
 
     public async Task<TicketMetadataDto> Handle(GetTicketMetadataQuery request, CancellationToken ct)
@@ -20,7 +20,7 @@ public class GetTicketMetadataHandler
 
         if (string.Equals(request.TicketCategory, "flights", StringComparison.OrdinalIgnoreCase))
         {
-            var flights = _db.Tickets.OfType<FlightTicket>().AsQueryable();
+            var flights = _context.Tickets.Where(t => t.Quota > 0).AsQueryable().OfType<FlightTicket>().AsQueryable();
 
             if (await flights.AnyAsync(ct))
             {
@@ -28,12 +28,20 @@ public class GetTicketMetadataHandler
                 .Select(f => f.Price)
                 .MaxAsync(ct);
 
-                dto.EarliestDeparture = await flights
-                    .Select(f => f.DepartureTime)
+                dto.MinDeparture = await flights
+                    .Select(f => f.DepartureTime ?? DateTime.MinValue)
                     .MinAsync(ct);
 
-                dto.LatestDeparture = await flights
-                    .Select(f => f.DepartureTime)
+                dto.MaxDeparture = await flights
+                    .Select(f => f.DepartureTime ?? DateTime.MaxValue)
+                    .MaxAsync(ct);
+
+                dto.MinArrival = await flights
+                    .Select(f => f.DepartureTime + f.Duration)
+                    .MinAsync(ct);
+
+                dto.MaxArrival = await flights
+                    .Select(f => f.DepartureTime + f.Duration)
                     .MaxAsync(ct);
 
                 dto.Airlines = await flights
@@ -43,17 +51,17 @@ public class GetTicketMetadataHandler
 
                 var amenitiesQuery = flights
             .Select(f => f.Amenities)
-            .ToListAsync(ct);  // Bring to memory
+            .ToListAsync(ct);
 
                 var amenities = await amenitiesQuery;
                 dto.Amenities = amenities
                     .Where(a => a != null)
-                    .SelectMany(a => a)
+                    .SelectMany(a => a!)
                     .Distinct()
                     .ToList();
 
                 dto.SeatClasses = await flights
-                    .Select(f => f.SeatClass ?? string.Empty)  // ← handle null SeatClass
+                    .Select(f => f.SeatClass ?? string.Empty)
                     .Distinct()
                     .ToListAsync(ct);
             }
