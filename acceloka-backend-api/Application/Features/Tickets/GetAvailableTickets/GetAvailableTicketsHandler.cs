@@ -52,38 +52,32 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime <= maxDeparture);
             }
 
-            // if (request.ArrivalStart.HasValue)
-            // {
-            //     flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime + ft.Duration >= request.ArrivalStart.Value);
-            // }
-
-            // if (request.ArrivalEnd.HasValue)
-            // {
-            //     flightTicketQuery = flightTicketQuery.Where(ft => ft.DepartureTime + ft.Duration <= request.ArrivalEnd.Value);
-            // }
-
             if (request.MinArrival.HasValue)
             {
                 var minArrival = DateTime.SpecifyKind(request.MinArrival.Value, DateTimeKind.Utc);
-                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime >= minArrival);
+                flightTicketQuery = flightTicketQuery.Where(ft => (ft.DepartureTime + ft.Duration) >= minArrival);
             }
 
             if (request.MaxArrival.HasValue)
             {
                 var maxArrival = DateTime.SpecifyKind(request.MaxArrival.Value, DateTimeKind.Utc);
-                flightTicketQuery = flightTicketQuery.Where(ft => ft.ArrivalTime <= maxArrival);
+                flightTicketQuery = flightTicketQuery.Where(ft => (ft.DepartureTime + ft.Duration) <= maxArrival);
             }
 
-            if (!string.IsNullOrEmpty(request.Airline))
-                flightTicketQuery = flightTicketQuery.Where(f => EF.Functions.ILike(f.Airline, request.Airline));
+            if (request.Airlines != null && request.Airlines.Any())
+            {
+                flightTicketQuery = flightTicketQuery.Where(f => request.Airlines.Contains(f.Airline));
+            }
 
-            if (!string.IsNullOrEmpty(request.SeatClass))
-                flightTicketQuery = flightTicketQuery.Where(f => EF.Functions.ILike(f.SeatClass!, request.SeatClass));
-
-            if (request.Amenities is { Count: > 0 })
+            if (request.Amenities is { Length: > 0 })
                 flightTicketQuery = flightTicketQuery.Where(f =>
                     request.Amenities.All(a => f.Amenities!.Contains(a))
                 );
+
+            if (request.Airlines != null && request.Airlines.Any())
+            {
+                flightTicketQuery = flightTicketQuery.Where(f => request.Airlines.Contains(f.Airline));
+            }
 
             query = flightTicketQuery;
         }
