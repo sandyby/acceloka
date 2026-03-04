@@ -10,7 +10,7 @@ export function StyledSliderLabel(props: SliderValueLabelProps) {
     );
 }
 
-export const MaxPriceSlider = styled(Slider)({
+export const StyledSlider = styled(Slider)({
     color: 'var(--color-primary-500)',
     height: 8,
     '& .MuiSlider-track': {

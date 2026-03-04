@@ -24,15 +24,21 @@ export const fetchTicketsByCategory = async (
 
   try {
     console.log(
-      "dbg start fetchticketsbycategory, params: ",
-      filters.mindeparture,
-      filters.maxdeparture,
-      filters.minarrival,
-      filters.maxarrival,
-      filters.airlines,
-      filters.seatclasses,
-      filters.amenities,
-      filters.maxprice,
+      `dbg start fetchticketsbycategory: ${activeCategory}, params:
+      mindeparture: ${filters.mindeparture},
+      maxdeparture: ${filters.maxdeparture},
+      minarrival: ${filters.minarrival},
+      maxarrival: ${filters.maxarrival},
+      mincheckin: ${filters.mincheckin},
+      maxcheckout: ${filters.maxcheckout},
+      airlines: ${filters.airlines},
+      seatclasses: ${filters.seatclasses},
+      hotelnames: ${filters.hotelnames},
+      roomtypes: ${filters.roomtypes},
+      amenities: ${filters.amenities},
+      maxprice: ${filters.maxprice},
+      maxoccupancy: ${filters.maxoccupancy},
+      `,
     );
 
     const response = await axios.get(
@@ -43,15 +49,20 @@ export const fetchTicketsByCategory = async (
           pagenumber: currentPageNumber,
           pagesize: ticketsPerPage,
           maxprice: filters.maxprice,
+          maxoccupancy: filters.maxoccupancy,
           mindeparture: filters.mindeparture,
           maxdeparture: filters.maxdeparture,
           minarrival: filters.minarrival,
           maxarrival: filters.maxarrival,
+          mincheckin: filters.mincheckin,
+          maxcheckout: filters.maxcheckout,
           airlines: filters.airlines,
           seatclasses: filters.seatclasses,
+          hotelnames: filters.hotelnames,
+          roomtypes: filters.roomtypes,
           amenities: filters.amenities,
         },
-        paramsSerializer:{
+        paramsSerializer: {
           indexes: null,
         },
         signal: signal || controller.signal,

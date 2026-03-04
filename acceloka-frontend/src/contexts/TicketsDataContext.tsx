@@ -27,6 +27,7 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
     const { filters, validationError } = useMemo(() => {
         try {
             const maxPriceParam = searchParams.get("maxprice");
+            const maxOccupancyParam = searchParams.get("maxoccupancy");
 
             let parsedMaxPrice: number | undefined = undefined;
             if (maxPriceParam !== null && maxPriceParam !== "") {
@@ -36,15 +37,28 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
                 }
             }
 
+            let parsedMaxOccupancy: number | undefined = undefined;
+            if (maxOccupancyParam !== null && maxOccupancyParam !== "") {
+                const num = Number(maxOccupancyParam);
+                if (!isNaN(num)) {
+                    parsedMaxOccupancy = num;
+                }
+            }
+
             const rawFilters = {
                 maxprice: parsedMaxPrice,
+                maxoccupancy: parsedMaxOccupancy,
                 airlines: searchParams.getAll("airlines"),
                 seatclasses: searchParams.getAll("seatclasses"),
+                hotelnames: searchParams.getAll("hotels"),
+                roomtypes: searchParams.getAll("roomtypes"),
                 amenities: searchParams.getAll("amenities"),
                 mindeparture: searchParams.get("mindeparture"),
                 maxdeparture: searchParams.get("maxdeparture"),
                 minarrival: searchParams.get("minarrival"),
                 maxarrival: searchParams.get("maxarrival"),
+                mincheckin: searchParams.get("mincheckin"),
+                maxcheckout: searchParams.get("maxcheckout"),
             };
             const parsed = FilterSchema.parse(rawFilters);
             return { filters: parsed, validationError: undefined };
@@ -61,8 +75,21 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
 
     console.log(
         `ticketsdatacontext dbg, activecategory: ${activeCategory}, filters: ${filters
-            ? `${filters.airlines}, ${filters.seatclasses}, ${filters.amenities}, ${filters.maxprice}, ${filters.mindeparture}, ${filters.maxdeparture}, ${filters.minarrival}, ${filters.maxarrival}`
-            : 'undefined (validation failed)'
+            ? `
+            airlines: ${filters.airlines},
+            seatclasses: ${filters.seatclasses},
+            hotelnames: ${filters.hotelnames},
+            roomtypes: ${filters.roomtypes},
+            amenities: ${filters.amenities},
+            maxprice: ${filters.maxprice},
+            maxoccupancy: ${filters.maxoccupancy},
+            mindeparture: ${filters.mindeparture},
+            maxdeparture: ${filters.maxdeparture},
+            minarrival: ${filters.minarrival},
+            maxarrival: ${filters.maxarrival}
+            mincheckin: ${filters.mincheckin},
+            maxcheckout: ${filters.maxcheckout}
+            ` : 'undefined (validation failed)'
         } `
     );
 

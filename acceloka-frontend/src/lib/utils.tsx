@@ -5,6 +5,9 @@ import StyledHotelTicketCard from "@/components/ui/cards/StyledHotelTicketCard";
 import StyledMovieTicketCard from "@/components/ui/cards/StyledMovieTicketCard";
 import StyledSeaTransportationTicketCard from "@/components/ui/cards/StyledSeaTransportationTicketCard";
 import StyledTrainTicketCard from "@/components/ui/cards/StyledTrainTicketCard";
+import DateTimeInput from "@/components/ui/DateTimeInput";
+import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
+import MultiCheckboxGroup from "@/components/ui/MultiCheckboxGroup";
 import { AvailableTicketTypes } from "@/types/card";
 import { DEFAULT_FORMAT_DATETIME_OPTIONS, FormatDateTimeOptions } from "@/types/date";
 import {
@@ -17,7 +20,7 @@ import {
   DirectionsBoatRounded,
   TheatersRounded,
 } from "@mui/icons-material";
-import { format, add, differenceInMinutes } from "date-fns";
+import { add, differenceInMinutes } from "date-fns";
 
 
 export function fetchDataSimulated(duration: number = 2000) {
@@ -161,3 +164,46 @@ export function durationFormatter(durationInput: string) {
 export function generateRandomDays(maxNumber: number) {
   return Math.ceil(Math.random() * (maxNumber ?? 5));
 }
+
+
+// export const FILTER_COMPONENTS: Record<
+//   string,
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   (props: any) => Element
+// > = {
+//   airlines: (props) => (
+//     <MultiSelectDropdown label="Airlines" {...props} />
+//   ),
+//   seatClasses: (props) => (
+//     <MultiCheckboxGroup label="Seat Classes" {...props} />
+//   ),
+//   amenities: (props) => (
+//     <MultiCheckboxGroup label="Amenities" {...props} />
+//   ),
+//   minDeparture: (props) => (
+//     <DateTimeInput label="Min. Departure" {...props} />
+//   ),
+//   maxDeparture: (props) => (
+//     <DateTimeInput label="Max. Departure" {...props} />
+//   ),
+//   // Add train/event/hotel components later:
+// };
+
+// function TrainTypeCheckbox(props: any): Element {
+//   throw new Error("Function not implemented.");
+// }
+
+
+// function CabinCheckbox(props: any): Element {
+//   throw new Error("Function not implemented.");
+// }
+
+
+// function VenueDropdown(props: any): Element {
+//   throw new Error("Function not implemented.");
+// }
+
+
+// function PerformerDropdown(props: any): Element {
+//   throw new Error("Function not implemented.");
+// }
