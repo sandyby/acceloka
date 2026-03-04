@@ -1,19 +1,18 @@
 "use client";
 
 import { IHotelTicket } from "@/types/card";
-import StyledTypography from "../StyledTypography";
-import Image from "next/image";
+import StyledTypography from "@/components/ui/StyledTypography";
 import { calculateDuration, formatDateTimeWithWords, generateRandomDays } from "@/lib/utils";
-import { add, addDays } from "date-fns";
+import { addDays } from "date-fns";
 
 export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket }) {
     const tempMaxCheckOutDate = addDays(ticket.minCheckInDate, generateRandomDays(5)).toString();
 
     return (
-        <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200 flex">
+        <div className="relative bg-white rounded-2xl shadow-md h-max overflow-clip border border-gray-200 flex">
             <div className="w-[200px] h-full bg-accent-tertiary-900">
             </div>
-            <div className="grid grid-cols-[1fr_auto] w-full h-full pt-1 pb-2 px-3">
+            <div className="grid grid-cols-[1fr_auto] w-full h-full py-2 px-3">
                 <div className="w-full col-span-2 flex flex-row justify-between">
                     <div className="">
                         <StyledTypography fontSizeInput={24} fontWeightInput="bold" className="text-secondary-900">

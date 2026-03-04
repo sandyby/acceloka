@@ -1,9 +1,8 @@
 "use client";
 
-import StyledFlightTicketCard from "@/components/ui/cards/StyledFlightTicketCard";
 import { useTicketsData } from "@/contexts/TicketsDataContext";
-import StyledTypography from "../ui/StyledTypography";
-import StyledTicketCardsSkeleton from "../ui/skeletons/StyledTicketCardsSkeleton";
+import StyledTypography from "@/components/ui/StyledTypography";
+import StyledTicketCardsSkeleton from "@/components/ui/skeletons/StyledTicketCardsSkeleton";
 import { AvailableTicketTypes } from "@/types/card";
 import { ticketCardMapper } from "@/lib/utils";
 

@@ -17,20 +17,13 @@ export interface TicketMetadata {
   seatClasses: string[];
 }
 
-interface TicketFilters {
+export interface TicketFilters {
   maxprice?: number;
   mindeparture?: string;
   maxdeparture?: string;
-  airline?: string;
+  minarrival?: string;
+  maxarrival?: string;
+  airlines?: string[];
   seatclasses?: string[];
   amenities?: string[];
 }
-
-/*
-DateTime EventDate,
-string TicketCategory,
-string TicketCode,
-string TicketName,
-int Quota,
-int Price
-*/

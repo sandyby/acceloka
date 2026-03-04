@@ -94,3 +94,13 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+html {
+  caret-color: var(--color-primary-500);
+  caret-shape: underscore;
+}
+
+::selection {
+  background-color: var(--color-primary-500);
+  color: var(--color-secondary-900);
+}

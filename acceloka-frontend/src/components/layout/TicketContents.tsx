@@ -1,18 +1,22 @@
 "use client";
 
 import TicketsHeader from "./TicketsHeader";
-import { Suspense, useContext } from "react";
+import { Suspense, useEffect } from "react";
 import TicketCards from "./TicketCards";
-import { ActiveCategoryContext } from "@/contexts/ActiveCategoryContext";
 import { useSearchParams } from "next/navigation";
-import StyledTicketContentsSkeleton from "../ui/skeletons/StyledTicketContentsSkeleton";
-import { TicketsDataProvider } from "@/contexts/TicketsDataContext";
+import StyledTicketContentsSkeleton from "@/components/ui/skeletons/StyledTicketContentsSkeleton";
 import TicketsPagination from "./TicketsPagination";
 
 export default function TicketContents() {
-    const { activeCategory } = useContext(ActiveCategoryContext);
     const searchParams = useSearchParams();
-    const pageNumber = Number(searchParams.get("page")) || 1;
+    const page = searchParams.get("page");
+
+    useEffect(() => {
+        const cardsDiv = document.getElementById("cards");
+        if (cardsDiv) {
+            cardsDiv.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, [page]);
 
     return (
         <Suspense fallback={<StyledTicketContentsSkeleton />}>
@@ -29,60 +33,3 @@ export default function TicketContents() {
         </Suspense >
     )
 }
-
-/*
-{data !== undefined && data.totalTicketsCount > 0 && (<div
-                    id="pagination"
-                    className=""
-                >
-                    <StyledPagination
-                        count={totalPageCount}
-                        page={pageNumber}
-                        onChange={handleOnPageChange}
-                        shape="rounded"
-                        size="medium"
-                        color="primary"
-                        disabled={isFetching || data.totalTicketsCount === 0}
-                        sx={{
-                            bgcolor: "var(--color-white-900)",
-                            px: 1.5,
-                            py: 1,
-                        }}
-                        renderItem={(item) => {
-
-                            if (item.type === "previous") {
-                                return (
-                                    <>
-                                        <PaginationItem
-                                            {...item}
-                                            type="first"
-                                            aria-label="Go to first page"
-                                            onClick={() => handleOnPageChange(null, 1)}
-                                            slots={{ previous: KeyboardDoubleArrowLeftRounded }}
-                                        />
-                                        <PaginationItem {...item} />
-                                    </>
-                                );
-                            }
-
-                            if (item.type === "next") {
-                                return (
-                                    <>
-                                        <PaginationItem {...item} />
-                                        <PaginationItem
-                                            {...item}
-                                            type="last"
-                                            aria-label="Go to last page"
-                                            onClick={() => handleOnPageChange(null, totalPageCount)}
-                                            slots={{ next: KeyboardDoubleArrowRightRounded }}
-                                        />
-                                    </>
-                                );
-                            }
-
-                            return <PaginationItem {...item} />;
-                        }}
-                    />
-                </div>)}
-
-*/

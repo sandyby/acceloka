@@ -18,12 +18,22 @@ export const fetchTicketsByCategory = async (
     controller.abort();
   }, 10000);
 
-  await fetchDataSimulated(1000);
+  await fetchDataSimulated(1000); // ! for ux testing purposes
 
   const ticketsPerPage = pageSize;
 
   try {
-    console.log("dbg start fetchticketsbycategory, params: ", filters.mindeparture, filters.maxdeparture, filters.airline, filters.maxprice);
+    console.log(
+      "dbg start fetchticketsbycategory, params: ",
+      filters.mindeparture,
+      filters.maxdeparture,
+      filters.minarrival,
+      filters.maxarrival,
+      filters.airlines,
+      filters.seatclasses,
+      filters.amenities,
+      filters.maxprice,
+    );
 
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE_URL_DEV}/get-available-tickets`,
@@ -35,7 +45,14 @@ export const fetchTicketsByCategory = async (
           maxprice: filters.maxprice,
           mindeparture: filters.mindeparture,
           maxdeparture: filters.maxdeparture,
-          airline: filters.airline,
+          minarrival: filters.minarrival,
+          maxarrival: filters.maxarrival,
+          airlines: filters.airlines,
+          seatclasses: filters.seatclasses,
+          amenities: filters.amenities,
+        },
+        paramsSerializer:{
+          indexes: null,
         },
         signal: signal || controller.signal,
       },

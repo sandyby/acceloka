@@ -11,7 +11,7 @@ export default function DateTimeInput({ label, value, onChange }: UIInputBasePro
                 type="datetime-local"
                 value={value?.toString() || ""}
                 onChange={(e) => onChange(e.target.value)}
-                className="border border-accent-tertiary-900 px-4 py-2 rounded-3xl w-full text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                className="border border-accent-tertiary-900 px-4 py-2 rounded-3xl w-full text-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white cursor-text"
             />
         </div>
     );

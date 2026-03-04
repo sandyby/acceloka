@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import StyledSingleRowSkeleton from "../ui/skeletons/StyledSingleRowSkeleton"
+import StyledSingleRowSkeleton from "@/components/ui/skeletons/StyledSingleRowSkeleton"
 import TicketsHeader from "./TicketsHeader"
 
 export default function TicketsHeaderWrapper() {

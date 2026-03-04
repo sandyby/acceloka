@@ -1,7 +1,7 @@
 "use client";
 
 import { IConcertTicket } from "@/types/card";
-import StyledTypography from "../StyledTypography";
+import StyledTypography from "@/components/ui/StyledTypography";
 import { durationFormatter, formatDateTimeWithWords } from "@/lib/utils";
 
 
@@ -9,10 +9,10 @@ export default function StyledConcertTicketCard({ ticket }: { ticket: IConcertTi
   const { hours, minutes, seconds } = durationFormatter(ticket.duration);
 
   return (
-    <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200 flex">
+    <div className="relative bg-white rounded-2xl shadow-md h-max border overflow-clip border-gray-200 flex">
       <div className="w-[200px] h-full bg-accent-tertiary-900">
       </div>
-      <div className="grid grid-cols-[1fr_auto] w-full h-full pt-1 pb-2 px-3">
+      <div className="grid grid-cols-[1fr_auto] w-full h-full py-2 px-3">
         <div className="w-full col-span-2 flex flex-row justify-between">
           <div className="">
             <StyledTypography fontSizeInput={24} fontWeightInput="bold" className="text-secondary-900">

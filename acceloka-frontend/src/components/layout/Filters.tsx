@@ -1,38 +1,64 @@
 "use client";
 
-import { Slider, SliderValueLabelProps, Tooltip, SliderOwnProps, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTicketMetadata } from "@/contexts/TicketMetadataContext";
 import StyledTypography from "@/components/ui/StyledTypography";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StyledFiltersSkeleton from "@/components/ui/skeletons/StyledFiltersSkeleton";
-import { Select } from "thereactselect";
-import DateInput from "@/components/ui/DateInput";
 import DateTimeInput from "@/components/ui/DateTimeInput";
-import { styled, width } from '@mui/system';
-import { red } from "@mui/material/colors";
 import { FilterSchema } from "@/lib/filters-schema";
 import z from "zod";
-import { useTicketsData } from "@/contexts/TicketsDataContext";
+import MultiSelectDropdown from "../ui/MultiSelectDropdown";
+import { MaxPriceSlider, StyledSliderLabel } from "@/components/ui/StyledRangeSlider";
+import MultiCheckboxGroup from "../ui/MultiCheckboxGroup";
 
 export default function Filters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [isApplyingFilter, setIsApplyingFilter] = useState<boolean>(false);
-  const { data: metadata, isFetching, isError, refetch } = useTicketMetadata();
-  const { isFetching: isTicketsFetching, isError: isTicketsFetchError } = useTicketsData();
+  const filtersWrapperRef = useRef<HTMLDivElement>(null);
 
+  const { data: metadata, isFetching, isError, refetch } = useTicketMetadata();
+  const [isApplyingFilter, setIsApplyingFilter] = useState<boolean>(false);
+
+  // * slider needs
+  const MAX_PRICE = metadata?.maxPrice ?? 0;
+  const MIN_PRICE = 0;
+  const marks = [
+    {
+      value: MIN_PRICE,
+      label: MIN_PRICE.toString(),
+    },
+    {
+      value: MAX_PRICE,
+      label: MAX_PRICE!.toString(),
+    },
+  ];
+
+  // * clear all button needs (conditional)
+  const hasActiveFilters = [
+    "maxprice", "airlines", "amenities", "seatclasses", "mindeparture",
+    "maxdeparture", "minarrival", "maxarrival"
+  ].some(key => searchParams.has(key));
 
   const getInitialMaxPrice = () => {
     const param = searchParams.get("maxprice");
-    if (param) return Number(param);
+    if (param) {
+      console.log("dbg gim 0: ", param);
+      return Number(param);
+    }
+    console.log("dbg gim 1: ", metadata?.maxPrice);
     return metadata?.maxPrice ?? 0;
   };
 
-  const [localMaxPrice, setLocalMaxPrice] = useState<number>(getInitialMaxPrice);
-  const [localAirline, setLocalAirline] = useState<string | undefined>();
+  // * filters need
+  // TODO: somehow make it polymorhpic to each ticket cards type
+  const [localMaxPrice, setLocalMaxPrice] = useState<number>(getInitialMaxPrice());
+  const [localAirlines, setLocalAirlines] = useState<string[]>([]);
+  const [localAmenities, setLocalAmenities] = useState<string[]>([]);
+  const [localSeatClasses, setLocalSeatClasses] = useState<string[]>([]);
   const [localMinDeparture, setLocalMinDeparture] = useState<string | undefined>();
   const [localMaxDeparture, setLocalMaxDeparture] = useState<string | undefined>();
   const [localMinArrival, setLocalMinArrival] = useState<string | undefined>();
@@ -44,9 +70,13 @@ export default function Filters() {
     try {
       FilterSchema.parse({
         maxprice: localMaxPrice,
-        airline: localAirline,
+        airlines: localAirlines,
+        seatclasses: localSeatClasses,
+        amenities: localAmenities,
         mindeparture: localMinDeparture,
         maxdeparture: localMaxDeparture,
+        minarrival: localMinArrival,
+        maxarrival: localMaxArrival,
       });
       setValidationErrors({});
       return true;
@@ -69,76 +99,153 @@ export default function Filters() {
     }
   };
 
+  // * for real-time like validating if local state changes
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     validateLocal();
-  }, [localMaxPrice, localAirline, localMinDeparture, localMaxDeparture, localMinArrival, localMaxArrival]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localMaxPrice, localAirlines, localSeatClasses, localAmenities, localMinDeparture, localMaxDeparture, localMinArrival, localMaxArrival]);
 
+  // * for real-time update on filters content based on new params/URL
   useEffect(() => {
     const maxPriceParam = searchParams.get("maxprice");
-    const airlineParam = searchParams.get("airline");
+
+    let targetMaxPrice: number;
+    if (maxPriceParam) {
+      targetMaxPrice = Number(maxPriceParam);
+    } else {
+      targetMaxPrice = metadata?.maxPrice ?? -1;
+    }
+
+    const airlinesParam = searchParams.getAll("airlines");
+    const seatClassesParam = searchParams.getAll("seatclasses");
+    const amenitiesParam = searchParams.getAll("amenities");
     const minDepartureParam = searchParams.get("mindeparture");
     const maxDepartureParam = searchParams.get("maxdeparture");
     const minArrivalParam = searchParams.get("minarrival");
     const maxArrivalParam = searchParams.get("maxarrival");
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLocalMaxPrice(maxPriceParam ? Number(maxPriceParam) < 0 ? 0 : Number(maxPriceParam) : metadata?.maxPrice ?? 0);
-    setLocalAirline(airlineParam ?? undefined);
+    if (targetMaxPrice !== -1) {
+      setLocalMaxPrice(targetMaxPrice);
+    }
+
+    if (airlinesParam) {
+      setLocalAirlines(airlinesParam);
+    } else {
+      setLocalAirlines([]);
+    }
+
+    if (seatClassesParam) {
+      setLocalSeatClasses(seatClassesParam);
+    } else {
+      setLocalSeatClasses([]);
+    }
+
+    if (amenitiesParam) {
+      setLocalAmenities(amenitiesParam);
+    } else {
+      setLocalAmenities([]);
+    }
+
     setLocalMinDeparture(minDepartureParam ?? undefined);
     setLocalMaxDeparture(maxDepartureParam ?? undefined);
     setLocalMinArrival(minArrivalParam ?? undefined);
     setLocalMaxArrival(maxArrivalParam ?? undefined);
 
     validateLocal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, metadata]);
 
-  function applyFilters() {
+  // ? temporary async for testing purposes if needed to make it load longer (via fetchDataSimulated method)
+  async function applyFilters() {
+    console.log("dbg 0.0: ", isApplyingFilter)
+    if (isApplyingFilter) {
+      console.log("dbg 0.1: ", isApplyingFilter)
+      return;
+    }
+    console.log("dbg 0.2: ", isApplyingFilter)
     setIsApplyingFilter(true);
-    if (!validateLocal()) return;
+    console.log("dbg 0.3: ", isApplyingFilter)
+    if (!validateLocal()) {
+      setIsApplyingFilter(false);
+      return;
+    }
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", "1");
     params.set("maxprice", String(localMaxPrice));
 
-    if (localAirline) params.set("airline", localAirline);
-    else params.delete("airline");
+    params.delete("airlines");
+    localAirlines.forEach(a => params.append("airlines", a));
+
+    params.delete("seatclasses");
+    localSeatClasses.forEach(sc => params.append("seatclasses", sc));
+
+    params.delete("amenities");
+    localAmenities.forEach(sc => params.append("amenities", sc));
+
+    // if (localAmenities.length > 0) params.set("amenities", localAmenities.join(","));
+    // else params.delete("amenities");
 
     if (localMinDeparture) params.set("mindeparture", localMinDeparture);
     else params.delete("mindeparture");
     if (localMaxDeparture) params.set("maxdeparture", localMaxDeparture);
     else params.delete("maxdeparture");
 
-    router.push(`?${params.toString()}`);
-    console.log("dbg params after push/filter updt: ", window.location.href);
-    setIsApplyingFilter(false);
+    if (localMinArrival) params.set("minarrival", localMinArrival);
+    else params.delete("minarrival");
+    if (localMaxArrival) params.set("maxarrival", localMaxArrival);
+    else params.delete("maxarrival");
+
+    console.log("dbg 1: ", params.toString())
+    console.log("dbg 2: ", searchParams.toString())
+
+    if (params.toString() === searchParams.toString()) {
+      console.log("dbg 3: sama aja params");
+      // await fetchDataSimulated(2000); // ! for testing purposes
+      setIsApplyingFilter(false);
+      return;
+    }
+
+    try {
+      router.push(`?${params.toString()}`);
+      console.log("dbg params after push/filter updt: ", window.location.href);
+    } finally {
+      console.log("dbg 4: finally ends");
+      setTimeout(() => {
+        setIsApplyingFilter(false);
+      }, 500); // ! for testing purposes!
+      if (filtersWrapperRef.current) {
+        filtersWrapperRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
   }
 
-  const MAX_PRICE = metadata?.maxPrice ?? 0;
-  const MIN_PRICE = 0;
-  const marks = [
-    {
-      value: MIN_PRICE,
-      label: MIN_PRICE.toString(),
-    },
-    {
-      value: MAX_PRICE,
-      label: MAX_PRICE!.toString(),
-    },
-  ];
+  function clearAllFilters() {
+    setLocalMaxPrice(getInitialMaxPrice() ?? 0);
+    setLocalAirlines([]);
+    setLocalSeatClasses([]);
+    setLocalAmenities([]);
+    setLocalMinDeparture(undefined);
+    setLocalMaxDeparture(undefined);
+    setLocalMinArrival(undefined);
+    setLocalMaxArrival(undefined);
+    setValidationErrors({});
 
-  // thereactselect punya
-  // const airlineOptions = [
-  //   { value: "", label: "All Airlines", description: "" },
-  //   ...(metadata?.airlines.map(a => ({ value: a, label: a, description: "" })) || [])
-  // ];
+    const params = new URLSearchParams();
+    const currentCategory = searchParams.get("category") ?? "flights";
+    params.set("category", currentCategory);
+    params.set("page", "1");
+
+    router.push(`?${params.toString()}`);
+    if (filtersWrapperRef.current){
+      filtersWrapperRef.current.scrollTo({top: 0, behavior: "smooth"});
+    }
+  }
 
   return (
     <>
       {isFetching && !metadata && (
-        <>
-          <StyledFiltersSkeleton />
-        </>
+        <StyledFiltersSkeleton />
       )}
       {!isFetching && isError && !metadata && (
         <div className="p-6 rounded-3xl bg-white-900 row-span-3 h-100 overflow-y-auto">
@@ -165,11 +272,13 @@ export default function Filters() {
       )}
       {
         !isFetching && metadata && (
-          <div className="px-6 pt-5 pb-3 rounded-3xl bg-white-900 row-span-3 h-100 flex flex-col">
-            <div className="flex-1 overflow-y-auto space-y-8">
+          <div className="px-6 pt-5 pb-3 rounded-3xl bg-white-900 overflow-clip box-b row-span-3 max-h-125 h-fit flex flex-col">
+            <div className="border-b pb-3 border-accent-secondary-900 bg-white-900">
               <StyledTypography fontSizeInput={20} fontWeightInput="bold" sx={{ color: "var(--color-primary-500)" }} >
                 Filters
               </StyledTypography>
+            </div>
+            <div ref={filtersWrapperRef} className="flex-1 overflow-y-auto space-y-2.5 py-3 mx-1">
               <div className="w-full flex flex-col">
                 <div className="flex gap-x-2 items-center mb-2">
                   <StyledTypography fontSizeInput={16} fontWeightInput="bold">
@@ -179,12 +288,12 @@ export default function Filters() {
                     Rp {localMaxPrice.toLocaleString('id-ID')}
                   </StyledTypography>
                 </div>
-                <div className="ms-4 me-16">
-                  <MaxPriceSlider min={MIN_PRICE} max={MAX_PRICE} step={200000} onChange={(_, v) => setLocalMaxPrice(v as number)} value={localMaxPrice} defaultValue={0} marks={marks} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
+                <div className="ms-4 w-[75%]">
+                  <MaxPriceSlider min={MIN_PRICE} max={MAX_PRICE} step={200000} onChange={(_: Event, v: number | number[]) => setLocalMaxPrice(v as number)} value={localMaxPrice} defaultValue={0} marks={marks} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
                   {validationErrors.maxprice && <p className="text-red-500 text-sm mt-1">{validationErrors.maxprice}</p>}
                 </div>
               </div>
-              {/* // TODO: study thereactselect more about the styling and all/other components*/}
+              {/*  // TODO: study thereactselect more about the styling and all/other components  might be  useful! */}
               {/* <Select
                   className="text-secondary-900 bg-white-900"
                   options={airlineOptions}
@@ -196,23 +305,28 @@ export default function Filters() {
                   value={localAirline}
                 /> */}
               <div className="mb-2">
-                <div className="mb-2">
-                  <StyledTypography fontSizeInput={16} fontWeightInput="bold">
-                    Selected Airline
-                  </StyledTypography>
-                </div>
-                <select
-                  value={localAirline ?? ""}
-                  onChange={(e) => setLocalAirline(e.target.value || undefined)}
-                  className="border px-3 py-2 rounded-3xl w-full text-primary-500"
-                >
-                  <option value="">All Airlines</option>
-                  {metadata.airlines.map((airline) => (
-                    <option key={airline} value={airline} >
-                      {airline}
-                    </option>
-                  ))}
-                </select>
+                <MultiSelectDropdown
+                  label="Airlines"
+                  options={metadata.airlines}
+                  selected={localAirlines}
+                  onChange={setLocalAirlines}
+                />
+              </div>
+              <div className="mb-2">
+                <MultiCheckboxGroup
+                  label="Seat Classes"
+                  options={metadata.seatClasses}
+                  selected={localSeatClasses}
+                  onChange={setLocalSeatClasses}
+                />
+              </div>
+              <div className="mb-2">
+                <MultiCheckboxGroup
+                  label="Amenities"
+                  options={metadata.amenities}
+                  selected={localAmenities}
+                  onChange={setLocalAmenities}
+                />
               </div>
               <div className="mb-2">
                 <DateTimeInput
@@ -230,23 +344,43 @@ export default function Filters() {
                 />
                 {validationErrors.maxdeparture && <p className="text-red-500 text-sm mt-1">{validationErrors.maxdeparture}</p>}
               </div>
+              <div className="mb-2">
+                <DateTimeInput
+                  label="Min. Arrival Time"
+                  value={localMinArrival}
+                  onChange={setLocalMinArrival}
+                />
+                {validationErrors.minarrival && <p className="text-red-500 text-sm mt-1">{validationErrors.minarrival}</p>}
+              </div>
+              <div className="mb-2">
+                <DateTimeInput
+                  label="Max. Arrival Time"
+                  value={localMaxArrival}
+                  onChange={setLocalMaxArrival}
+                />
+                {validationErrors.maxarrival && <p className="text-red-500 text-sm mt-1">{validationErrors.maxarrival}</p>}
+              </div>
             </div>
-            <div className="border-t pt-3 border-accent-secondary-900 bg-white-900 flex justify-end">
+            <div className="border-t pt-3 border-accent-secondary-900 bg-white-900 flex justify-between">
+              <button
+                onClick={clearAllFilters}
+                disabled={isApplyingFilter || !hasActiveFilters}
+                className={`border border-secondary-900 text-secondary-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-secondary-900 hover:text-white-900 transition-colors ${isApplyingFilter || !hasActiveFilters ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                Clear All
+              </button>
               <button
                 onClick={applyFilters}
-                disabled={Object.keys(validationErrors).length > 0}
-                className={`bg-primary-500 text-white-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-primary-600 transition-colors shadow-md ${Object.keys(validationErrors).length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={Object.keys(validationErrors).length > 0 || isApplyingFilter}
+                className={`bg-primary-500 text-white-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-primary-600 transition-colors shadow-md ${Object.keys(validationErrors).length > 0 || isApplyingFilter ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {(isTicketsFetching || isApplyingFilter) && (
-                  <>
-                    <span className="flex flex-row items-center gap-x-2">
-                      <CircularProgress size="20px" sx={{ color: 'var(--color-white-900)' }} />
-                      Applying
-                    </span>
-                  </>
-                )}
-                {!isTicketsFetching && !isApplyingFilter && (
-                  `Apply Filters`
+                {(isApplyingFilter) ? (
+                  <span className="flex flex-row items-center gap-x-2">
+                    <CircularProgress size="20px" sx={{ color: 'var(--color-white-900)' }} />
+                    Applying
+                  </span>
+                ) : (
+                  "Apply Filters"
                 )}
               </button>
             </div>
@@ -257,50 +391,3 @@ export default function Filters() {
   );
 }
 
-function StyledSliderLabel(props: SliderValueLabelProps) {
-  const { children, value } = props;
-  return (
-    <Tooltip enterTouchDelay={0} placement="bottom" title={value}>
-      {children}
-    </Tooltip>
-  );
-}
-
-const MaxPriceSlider = styled(Slider)({
-  color: 'var(--color-primary-500)',
-  height: 8,
-  '& .MuiSlider-track': {
-    border: 'none',
-  },
-  '& .MuiSlider-thumb': {
-    height: 24,
-    width: 24,
-    backgroundColor: 'var(--color-white-900)',
-    border: '2px solid currentColor',
-    '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-      boxShadow: 'inherit',
-    },
-    '&::before': {
-      display: 'none',
-    },
-  },
-  '& .MuiSlider-valueLabel': {
-    lineHeight: 1.2,
-    fontSize: 12,
-    background: 'unset',
-    padding: 0,
-    width: 32,
-    height: 32,
-    borderRadius: '50% 50% 50% 0',
-    backgroundColor: 'var(--color-primary-500)',
-    transformOrigin: 'bottom left',
-    transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
-    '&::before': { display: 'none' },
-    '&.MuiSlider-valueLabelOpen': {
-      transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
-    },
-    '& > *': {
-      transform: 'rotate(45deg)',
-    },
-  },
-});

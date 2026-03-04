@@ -1,8 +1,7 @@
 "use client";
 
 import { fetchTicketsByCategory } from "@/lib/api";
-import { GetAvailableTicketQueryResponse, TicketFilters } from "@/types/api";
-import { FilterSharp } from "@mui/icons-material";
+import { GetAvailableTicketQueryResponse } from "@/types/api";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { z } from "zod";
@@ -27,11 +26,25 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
 
     const { filters, validationError } = useMemo(() => {
         try {
+            const maxPriceParam = searchParams.get("maxprice");
+
+            let parsedMaxPrice: number | undefined = undefined;
+            if (maxPriceParam !== null && maxPriceParam !== "") {
+                const num = Number(maxPriceParam);
+                if (!isNaN(num)) {
+                    parsedMaxPrice = num;
+                }
+            }
+
             const rawFilters = {
-                maxprice: searchParams.get("maxprice"),
-                airline: searchParams.get("airline"),
+                maxprice: parsedMaxPrice,
+                airlines: searchParams.getAll("airlines"),
+                seatclasses: searchParams.getAll("seatclasses"),
+                amenities: searchParams.getAll("amenities"),
                 mindeparture: searchParams.get("mindeparture"),
                 maxdeparture: searchParams.get("maxdeparture"),
+                minarrival: searchParams.get("minarrival"),
+                maxarrival: searchParams.get("maxarrival"),
             };
             const parsed = FilterSchema.parse(rawFilters);
             return { filters: parsed, validationError: undefined };
@@ -48,16 +61,16 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
 
     console.log(
         `ticketsdatacontext dbg, activecategory: ${activeCategory}, filters: ${filters
-            ? `${filters.airline}, ${filters.maxprice}, ${filters.mindeparture}, ${filters.maxdeparture}`
+            ? `${filters.airlines}, ${filters.seatclasses}, ${filters.amenities}, ${filters.maxprice}, ${filters.mindeparture}, ${filters.maxdeparture}, ${filters.minarrival}, ${filters.maxarrival}`
             : 'undefined (validation failed)'
-        }`
+        } `
     );
 
     const { data, isFetching, isError, error, refetch } = useQuery({
         queryKey: ["tickets", activeCategory, pageNumber, pageSize, JSON.stringify(filters)],
         queryFn: () => {
             if (validationError) {
-                throw new Error(`Invalid filters: ${validationError}`);
+                throw new Error(`Invalid filters: ${validationError} `);
             }
             console.log("fetchticketsbycategory dbg: ", { activeCategory, pageNumber, pageSize, filters });
             return fetchTicketsByCategory(activeCategory, pageNumber, pageSize, filters as FilterType);

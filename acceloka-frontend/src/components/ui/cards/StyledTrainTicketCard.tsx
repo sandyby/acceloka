@@ -3,14 +3,14 @@ import StyledTypography from '@/components/ui/StyledTypography';
 import { calculateArrivalTime, formatDateTimeWithWords, durationFormatter } from '@/lib/utils';
 import { ITrainTicket } from '@/types/card';
 import { KeyboardDoubleArrowRightSharp, TrainRounded } from "@mui/icons-material";
-import { color } from 'framer-motion';
 
 export default function StyledITrainTicketCard({ ticket }: { ticket: ITrainTicket }) {
     const { hours, minutes, seconds } = durationFormatter(ticket.duration);
 
     return (
-        <div className="relative bg-white rounded-2xl shadow-md overflow-hidden h-64 border border-gray-200 flex">
-            <div className="grid grid-cols-[1fr_auto] w-full h-full pt-1 pb-2 px-3">
+
+        <div className="relative bg-white rounded-2xl shadow-md h-max border border-gray-200">
+            <div className="grid grid-cols-[1fr_auto] w-full h-full py-2 px-3">
                 <div className="w-full col-span-2 flex flex-row justify-between">
                     <div className="w-max">
                         <StyledTypography fontSizeInput={24} fontWeightInput="bold" className="text-secondary-900">
