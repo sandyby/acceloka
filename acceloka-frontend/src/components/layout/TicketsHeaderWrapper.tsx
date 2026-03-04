@@ -1,10 +1,10 @@
 import { Suspense } from "react"
-import StyledTicketsHeaderSkeleton from "../ui/skeletons/StyledTicketCountDisplaySkeleton"
+import StyledSingleRowSkeleton from "../ui/skeletons/StyledSingleRowSkeleton"
 import TicketsHeader from "./TicketsHeader"
 
 export default function TicketsHeaderWrapper() {
     return (
-        <Suspense fallback={<StyledTicketsHeaderSkeleton height={"30px"} />}>
+        <Suspense fallback={<StyledSingleRowSkeleton height={"30px"} />}>
             <TicketsHeader />
         </Suspense>
     )

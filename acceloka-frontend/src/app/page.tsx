@@ -22,9 +22,7 @@ export default function Home() {
               <TicketsDataProvider>
                 <TotalTicketsFilteredProvider>
                   <div className="h-fit w-full grid grid-cols-[360px_minmax(0,auto)] grid-rows-[110px_1fr_48px] gap-x-6 gap-y-4 mt-2.5">
-                    <div className="p-6 rounded-3xl bg-white-900 row-span-3 h-100 overflow-y-auto">
-                      <Filters />
-                    </div>
+                    <Filters />
                     <TicketContents />
                   </div>
                 </TotalTicketsFilteredProvider>

@@ -18,27 +18,13 @@ export const fetchTicketsByCategory = async (
     controller.abort();
   }, 10000);
 
-  const ticketCategoryParam = activeCategory;
-
-  // activeCategory === "flights"
-  //   ? "flights"
-  //   : activeCategory === "hotels"
-  //     ? "hotels"
-  //     : activeCategory === "movies"
-  //       ? "movies"
-  //       : activeCategory === "trains"
-  //         ? "trains"
-  //         : activeCategory === "buses"
-  //           ? "buses"
-  //           : activeCategory === "sea-transportations"
-  //             ? "sea-transportations"
-  //             : "concert";
-
-  // await fetchDataSimulated(1200);
+  await fetchDataSimulated(1000);
 
   const ticketsPerPage = pageSize;
 
   try {
+    console.log("dbg start fetchticketsbycategory, params: ", filters.mindeparture, filters.maxdeparture, filters.airline, filters.maxprice);
+
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE_URL_DEV}/get-available-tickets`,
       {
@@ -46,9 +32,9 @@ export const fetchTicketsByCategory = async (
           ticketcategory: activeCategory ?? "flights",
           pagenumber: currentPageNumber,
           pagesize: ticketsPerPage,
-          maxprice: filters.maxPrice,
-          departurestart: filters.departureStart,
-          departureend: filters.departureEnd,
+          maxprice: filters.maxprice,
+          mindeparture: filters.mindeparture,
+          maxdeparture: filters.maxdeparture,
           airline: filters.airline,
         },
         signal: signal || controller.signal,
@@ -57,7 +43,7 @@ export const fetchTicketsByCategory = async (
     clearTimeout(timeoutId);
     return response.data;
   } catch (err) {
-    console.error("fetching error: ", err)
+    console.error("fetchticketsbycategory error: ", err);
     clearTimeout(timeoutId);
     if (axios.isCancel(err)) {
       throw new Error(
@@ -67,8 +53,6 @@ export const fetchTicketsByCategory = async (
     throw err;
   }
 };
-
-// ?ticketcategory=${ticketCategoryParam}&pagenumber=${currentPageNumber || 1}&pagesize=${ticketsPerPage}`,
 
 export const fetchTicketMetadataByCategory = async (
   activeCategory: string,

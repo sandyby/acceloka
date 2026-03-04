@@ -8,19 +8,21 @@ export interface GetAvailableTicketQueryResponse {
 }
 export interface TicketMetadata {
   maxPrice: number;
-  earliestDeparture?: string;
-  latestDeparture?: string;
+  minDeparture?: string;
+  maxDeparture?: string;
+  minArrival?: string;
+  maxArrival?: string;
   airlines: string[];
   amenities: string[];
   seatClasses: string[];
 }
 
 interface TicketFilters {
-  maxPrice?: number;
-  departureStart?: string;
-  departureEnd?: string;
+  maxprice?: number;
+  mindeparture?: string;
+  maxdeparture?: string;
   airline?: string;
-  seatClasses?: string[];
+  seatclasses?: string[];
   amenities?: string[];
 }
 

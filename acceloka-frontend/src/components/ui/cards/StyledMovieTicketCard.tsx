@@ -1,7 +1,7 @@
 "use client";
 import StyledTypography from '@/components/ui/StyledTypography';
 import { formatDateTimeWithWords, durationFormatter } from '@/lib/utils';
-import { IMovieTicket } from '@/types/card'; // adjust import path to your types
+import { IMovieTicket } from '@/types/card';
 
 export default function StyledMovieTicketCard({ ticket }: { ticket: IMovieTicket }) {
     const { hours, minutes, seconds } = durationFormatter(ticket.duration);

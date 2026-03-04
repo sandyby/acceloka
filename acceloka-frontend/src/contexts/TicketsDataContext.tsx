@@ -2,15 +2,19 @@
 
 import { fetchTicketsByCategory } from "@/lib/api";
 import { GetAvailableTicketQueryResponse, TicketFilters } from "@/types/api";
+import { FilterSharp } from "@mui/icons-material";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import { z } from "zod";
 import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { FilterSchema, FilterType } from "@/lib/filters-schema";
 
 interface TicketsDataContextType {
     data: GetAvailableTicketQueryResponse | undefined,
     isFetching: boolean,
     isError: boolean,
     refetch: () => Promise<UseQueryResult<GetAvailableTicketQueryResponse, unknown>>;
+    validationError?: z.ZodError;
 }
 
 const TicketsDataContext = createContext<TicketsDataContextType | null>(null);
@@ -21,33 +25,47 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
     const pageSize = Number(searchParams.get("pagesize") ?? 2);
     const activeCategory = searchParams.get("category") ?? "flights";
 
-    // const maxPriceStr = searchParams.get("maxprice");
-    // const departureStart = searchParams.get("departurestart");
-    // const departureEnd = searchParams.get("departureend");
-    // const airline = searchParams.get("airline");
+    const { filters, validationError } = useMemo(() => {
+        try {
+            const rawFilters = {
+                maxprice: searchParams.get("maxprice"),
+                airline: searchParams.get("airline"),
+                mindeparture: searchParams.get("mindeparture"),
+                maxdeparture: searchParams.get("maxdeparture"),
+            };
+            const parsed = FilterSchema.parse(rawFilters);
+            return { filters: parsed, validationError: undefined };
+        }
+        catch (err) {
+            if (err instanceof z.ZodError) {
+                console.error("dbg filter validation error: ", err.issues);
+                return { filters: undefined, validationError: err };
+            }
+            console.error("dbg unexpected/unhandled error: ", err);
+            return { filters: undefined, validationError: undefined };
+        }
+    }, [searchParams]);
 
-    // const filters = useMemo<TicketFilters>(() => {
-    //     const maxPriceStr = searchParams.get("maxprice");
-    //     return {
-    //         maxPrice: maxPriceStr ? Number(maxPriceStr) : undefined,
-    //         departureStart: searchParams.get("departurestart") ?? undefined,
-    //         departureEnd: searchParams.get("departureend") ?? undefined,
-    //         airline: searchParams.get("airline") ?? undefined,
-    //     };
-    // }, [searchParams]);
-
-    const filters = useMemo(() => ({
-        maxPrice: searchParams.get("maxprice")
-            ? Number(searchParams.get("maxprice"))
-            : undefined,
-        airline: searchParams.get("airline") ?? undefined,
-        departureStart: searchParams.get("departurestart") ?? undefined,
-        departureEnd: searchParams.get("departureend") ?? undefined,
-    }), [searchParams]);
+    console.log(
+        `ticketsdatacontext dbg, activecategory: ${activeCategory}, filters: ${filters
+            ? `${filters.airline}, ${filters.maxprice}, ${filters.mindeparture}, ${filters.maxdeparture}`
+            : 'undefined (validation failed)'
+        }`
+    );
 
     const { data, isFetching, isError, error, refetch } = useQuery({
         queryKey: ["tickets", activeCategory, pageNumber, pageSize, JSON.stringify(filters)],
-        queryFn: () => fetchTicketsByCategory(activeCategory, pageNumber, pageSize, filters),
+        queryFn: () => {
+            if (validationError) {
+                throw new Error(`Invalid filters: ${validationError}`);
+            }
+            console.log("fetchticketsbycategory dbg: ", { activeCategory, pageNumber, pageSize, filters });
+            return fetchTicketsByCategory(activeCategory, pageNumber, pageSize, filters as FilterType);
+        }
+        ,
+        enabled: !validationError,
+        onSuccess: () => console.log("fetchticketsbycategory success"),
+        onError: (err) => console.error("fetchticketsbycategory error: ", err),
         suspense: false,
         useErrorBoundary: false,
         staleTime: 1000 * 60 * 5,
@@ -56,7 +74,7 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
     });
 
     return (
-        <TicketsDataContext.Provider value={{ data, isFetching, isError, refetch }}>
+        <TicketsDataContext.Provider value={{ data, isFetching, isError, refetch, validationError }}>
             {children}
         </TicketsDataContext.Provider>
     )

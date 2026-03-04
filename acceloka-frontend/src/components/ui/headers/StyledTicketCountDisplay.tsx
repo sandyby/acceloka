@@ -1,12 +1,12 @@
 import { useTicketsData } from "@/contexts/TicketsDataContext";
-import StyledTicketCountDisplaySkeleton from "../skeletons/StyledTicketCountDisplaySkeleton";
-import StyledTypography from "../StyledTypography";
+import StyledSingleRowSkeleton from "@/components/ui/skeletons/StyledSingleRowSkeleton";
+import StyledTypography from "@/components/ui/StyledTypography";
 
 export default function StyledTicketCountDisplay({ count }: { count?: number }) {
     const { isFetching, isError } = useTicketsData();
 
     if (isFetching && count === undefined) {
-        return <StyledTicketCountDisplaySkeleton height={"40px"} />;
+        return <StyledSingleRowSkeleton />;
     }
 
     if (!isFetching && (isError || count === undefined)) {
