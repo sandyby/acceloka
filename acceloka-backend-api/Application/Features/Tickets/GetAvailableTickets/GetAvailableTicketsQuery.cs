@@ -16,6 +16,12 @@ public record GetAvailableTicketsQuery(
     string[]? Amenities,
     string[]? SeatClasses,
 
+    DateTime? MinCheckIn,
+    DateTime? MaxCheckOut,
+    string[]? HotelNames,
+    string[]? RoomTypes,
+    int? MaxOccupancy,
+
     string? OrderBy = "TicketCode",
     string? OrderState = "asc",
     int PageNumber = 1,

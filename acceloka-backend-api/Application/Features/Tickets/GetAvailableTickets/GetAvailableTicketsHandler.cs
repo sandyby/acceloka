@@ -74,21 +74,6 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 flightTicketQuery = flightTicketQuery.Where(f => request.SeatClasses.Contains(f.SeatClass));
             }
 
-            // if (request.Amenities != null && request.Amenities.Any())
-            // {
-            //     var loweredRequestAmenities = request.Amenities.Select(a => a.ToLower()).ToArray();
-            //     flightTicketQuery = flightTicketQuery.Where(f => f.Amenities != null && f.Amenities.Any(a => loweredRequestAmenities.Contains(a)));
-            // }
-
-            // if (request.Amenities != null && request.Amenities.Any())
-            // {
-            //     var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
-            //     if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
-            //     {
-            //         flightTicketQuery = flightTicketQuery.Where(f => f.Amenities != null && EF.Functions.JsonExistAny(f.Amenities, normalizedAmenitiesRequest));
-            //     }
-            // }
-
             if (request.Amenities != null && request.Amenities.Any())
             {
                 var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
@@ -100,17 +85,55 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
 
             query = flightTicketQuery;
         }
+        else if (request.TicketCategory!.Equals("hotels", StringComparison.OrdinalIgnoreCase))
+        {
+            var hotelTicketQuery = query.OfType<HotelTicket>();
+            if (request.MinCheckIn.HasValue)
+            {
+                var minCheckInDate = DateTime.SpecifyKind(request.MinCheckIn.Value, DateTimeKind.Utc);
+                hotelTicketQuery = hotelTicketQuery.Where(ft => ft.MinCheckInDate >= minCheckInDate);
+            }
+
+            // ! UPDATE MAX CHECK OUT DATE DI DATABASE
+            if (request.MaxCheckOut.HasValue)
+            {
+                var maxCheckOutDate = DateTime.SpecifyKind(request.MaxCheckOut.Value, DateTimeKind.Utc);
+                hotelTicketQuery = hotelTicketQuery.Where(ft => ft.MaxCheckOutDate >= maxCheckOutDate);
+            }
+
+            if (request.HotelNames != null && request.HotelNames.Any())
+            {
+                hotelTicketQuery = hotelTicketQuery.Where(f => request.HotelNames.Contains(f.HotelName));
+            }
+
+            if (request.RoomTypes != null && request.RoomTypes.Any())
+            {
+                hotelTicketQuery = hotelTicketQuery.Where(f => request.RoomTypes.Contains(f.RoomType));
+            }
+
+            if (request.Amenities != null && request.Amenities.Any())
+            {
+                var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
+                if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
+                {
+                    hotelTicketQuery = hotelTicketQuery.Where(f => f.Amenities != null && EF.Functions.JsonExistAny(f.Amenities, normalizedAmenitiesRequest));
+                }
+            }
+
+            query = hotelTicketQuery;
+        }
 
         var totalFilteredTicketsCount = await query.CountAsync();
 
         bool isOrderStateDesc = request.OrderState?.ToLower() == "desc";
+        // TODO: dynamic sorting?
         query = request.OrderBy?.ToLower() switch
         {
             "ticketcategory" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCategory.TicketCategoryName) : query.OrderBy(t => t.TicketCategory.TicketCategoryName),
             "ticketname" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketName) : query.OrderBy(t => t.TicketName),
             "price" => isOrderStateDesc ? query.OrderByDescending(t => t.Price) : query.OrderBy(t => t.Price),
-            "departuretime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.DepartureTime) : query.OrderBy(t => (t as FlightTicket)!.DepartureTime),
-            "arrivaltime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.ArrivalTime) : query.OrderBy(t => (t as FlightTicket)!.ArrivalTime),
+            // "departuretime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.DepartureTime) : query.OrderBy(t => (t as FlightTicket)!.DepartureTime),
+            // "arrivaltime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.ArrivalTime) : query.OrderBy(t => (t as FlightTicket)!.ArrivalTime),
             _ => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCode) : query.OrderBy(t => t.TicketCode)
         };
 
