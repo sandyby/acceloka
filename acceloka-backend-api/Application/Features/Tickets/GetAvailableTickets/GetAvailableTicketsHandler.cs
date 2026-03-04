@@ -69,14 +69,33 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 flightTicketQuery = flightTicketQuery.Where(f => request.Airlines.Contains(f.Airline));
             }
 
-            if (request.Amenities is { Length: > 0 })
-                flightTicketQuery = flightTicketQuery.Where(f =>
-                    request.Amenities.All(a => f.Amenities!.Contains(a))
-                );
-
-            if (request.Airlines != null && request.Airlines.Any())
+            if (request.SeatClasses != null && request.SeatClasses.Any())
             {
-                flightTicketQuery = flightTicketQuery.Where(f => request.Airlines.Contains(f.Airline));
+                flightTicketQuery = flightTicketQuery.Where(f => request.SeatClasses.Contains(f.SeatClass));
+            }
+
+            // if (request.Amenities != null && request.Amenities.Any())
+            // {
+            //     var loweredRequestAmenities = request.Amenities.Select(a => a.ToLower()).ToArray();
+            //     flightTicketQuery = flightTicketQuery.Where(f => f.Amenities != null && f.Amenities.Any(a => loweredRequestAmenities.Contains(a)));
+            // }
+
+            // if (request.Amenities != null && request.Amenities.Any())
+            // {
+            //     var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
+            //     if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
+            //     {
+            //         flightTicketQuery = flightTicketQuery.Where(f => f.Amenities != null && EF.Functions.JsonExistAny(f.Amenities, normalizedAmenitiesRequest));
+            //     }
+            // }
+
+            if (request.Amenities != null && request.Amenities.Any())
+            {
+                var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
+                if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
+                {
+                    flightTicketQuery = flightTicketQuery.Where(f => f.Amenities != null && EF.Functions.JsonExistAny(f.Amenities, normalizedAmenitiesRequest));
+                }
             }
 
             query = flightTicketQuery;
