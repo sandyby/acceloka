@@ -33,7 +33,7 @@ public class TicketToDtoMapper : ITicketToDtoMapper
                 DepartureTime = ticket.DepartureTime ?? default,
                 Duration = ticket.Duration ?? default,
                 SeatClass = ticket.SeatClass ?? "Economy",
-                BaggageKg = ticket.BaggageKg ?? 25,
+                BaggageKg = ft.BaggageKg,
                 TransitsCount = ticket.TransitsCount ?? 0,
                 Amenities = ft.Amenities?.ToList() ?? new()
             };

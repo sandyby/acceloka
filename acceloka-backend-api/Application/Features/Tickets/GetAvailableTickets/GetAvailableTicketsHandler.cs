@@ -74,6 +74,23 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 flightTicketQuery = flightTicketQuery.Where(ft => request.SeatClasses.Contains(ft.SeatClass));
             }
 
+            if (request.BaggageKg.HasValue)
+            {
+                flightTicketQuery = flightTicketQuery.Where(ft => ft.BaggageKg >= request.BaggageKg);
+            }
+
+            if (request.Direct.HasValue)
+            {
+                if (request.Direct.Value)
+                {
+                    flightTicketQuery = flightTicketQuery.Where(ft => ft.TransitsCount == 0);
+                }
+                else
+                {
+                    flightTicketQuery = flightTicketQuery.Where(ft => ft.TransitsCount > 0);
+                }
+            }
+
             if (request.Amenities != null && request.Amenities.Any())
             {
                 var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
@@ -105,9 +122,9 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 hotelTicketQuery = hotelTicketQuery.Where(htl => request.HotelNames.Contains(htl.HotelName));
             }
 
-            if (request.RoomTypes != null && request.RoomTypes.Any())
+            if (request.Types != null && request.Types.Any())
             {
-                hotelTicketQuery = hotelTicketQuery.Where(htl => request.RoomTypes.Contains(htl.RoomType));
+                hotelTicketQuery = hotelTicketQuery.Where(htl => request.Types.Contains(htl.RoomType));
             }
 
             if (request.Amenities != null && request.Amenities.Any())
@@ -156,12 +173,240 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 var normalizedPackagesRequest = request.Packages.Where(pkg => !string.IsNullOrWhiteSpace(pkg)).Select(pkg => pkg.Trim().ToLower()).ToArray();
                 if (normalizedPackagesRequest != null && normalizedPackagesRequest.Any())
                 {
-                    concertTicketQuery = concertTicketQuery.Where(c => c.Packages != null &&
-    EF.Functions.JsonExistAny(c.Packages, normalizedPackagesRequest));
+                    concertTicketQuery = concertTicketQuery.Where(c => c.Packages != null && EF.Functions.JsonExistAny(c.Packages, normalizedPackagesRequest));
                 }
             }
 
             query = concertTicketQuery;
+        }
+        else if (request.TicketCategory!.Equals("movies", StringComparison.OrdinalIgnoreCase))
+        {
+            var movieTicketQuery = query.OfType<MovieTicket>();
+            if (request.MinScreening.HasValue)
+            {
+                var minScreeningTime = DateTime.SpecifyKind(request.MinScreening.Value, DateTimeKind.Utc);
+                movieTicketQuery = movieTicketQuery.Where(c => c.ScreeningTime >= minScreeningTime);
+            }
+
+            if (request.MaxScreening.HasValue)
+            {
+                var maxScreeningTime = DateTime.SpecifyKind(request.MaxScreening.Value, DateTimeKind.Utc);
+                movieTicketQuery = movieTicketQuery.Where(m => m.ScreeningTime <= maxScreeningTime);
+            }
+
+            if (request.Cinemas != null && request.Cinemas.Any())
+            {
+                movieTicketQuery = movieTicketQuery.Where(m => request.Cinemas.Contains(m.Cinema));
+            }
+
+            if (request.Types != null && request.Types.Any())
+            {
+                movieTicketQuery = movieTicketQuery.Where(m => request.Types.Contains(m.CinemaType));
+            }
+
+            if (request.SeatSections != null && request.SeatSections.Any())
+            {
+                movieTicketQuery = movieTicketQuery.Where(m => request.SeatSections.Contains(m.SeatSection));
+            }
+
+            // * kalo data type string
+            // if (!string.IsNullOrWhiteSpace(request.MaxDuration))
+            // {
+            //     var normalizedMaxDurationRequest = request.MaxDuration.Trim();
+            //     if (TimeSpan.TryParseExact(request.MaxDuration, @"HH\:mm", null, out var maxDurationTimeSpan))
+            //     {
+            //         movieTicketQuery = movieTicketQuery.Where(m => m.Duration <= maxDurationTimeSpan);
+            //     }
+            // }
+
+            // * int, kalo dari zod passing sebagai int (total minutes)
+            if (request.MaxDuration.HasValue)
+            {
+                var maxDurationTimeSpan = TimeSpan.FromMinutes(request.MaxDuration.Value);
+                movieTicketQuery = movieTicketQuery.Where(m => m.Duration <= maxDurationTimeSpan);
+            }
+
+            query = movieTicketQuery;
+        }
+        else if (request.TicketCategory!.Equals("trains", StringComparison.OrdinalIgnoreCase))
+        {
+            var trainTicketQuery = query.OfType<TrainTicket>();
+            if (request.MinDeparture.HasValue)
+            {
+                var minDeparture = DateTime.SpecifyKind(request.MinDeparture.Value, DateTimeKind.Utc);
+                trainTicketQuery = trainTicketQuery.Where(tr => tr.DepartureTime >= minDeparture);
+            }
+
+            if (request.MaxDeparture.HasValue)
+            {
+                var maxDeparture = DateTime.SpecifyKind(request.MaxDeparture.Value, DateTimeKind.Utc);
+                trainTicketQuery = trainTicketQuery.Where(tr => tr.DepartureTime <= maxDeparture);
+            }
+
+            if (request.MinArrival.HasValue)
+            {
+                var minArrival = DateTime.SpecifyKind(request.MinArrival.Value, DateTimeKind.Utc);
+                trainTicketQuery = trainTicketQuery.Where(tr => (tr.DepartureTime + tr.Duration) >= minArrival);
+            }
+
+            if (request.MaxArrival.HasValue)
+            {
+                var maxArrival = DateTime.SpecifyKind(request.MaxArrival.Value, DateTimeKind.Utc);
+                trainTicketQuery = trainTicketQuery.Where(tr => (tr.DepartureTime + tr.Duration) <= maxArrival);
+            }
+
+            if (request.Types != null && request.Types.Any())
+            {
+                trainTicketQuery = trainTicketQuery.Where(tr => request.Types.Contains(tr.TrainType));
+            }
+
+            if (request.SeatClasses != null && request.SeatClasses.Any())
+            {
+                trainTicketQuery = trainTicketQuery.Where(tr => request.SeatClasses.Contains(tr.SeatClass));
+            }
+
+            if (request.Direct.HasValue)
+            {
+                if (request.Direct.Value)
+                {
+                    trainTicketQuery = trainTicketQuery.Where(tr => tr.TransitsCount == 0);
+                }
+                else
+                {
+                    trainTicketQuery = trainTicketQuery.Where(tr => tr.TransitsCount > 0);
+                }
+            }
+
+            if (request.Amenities != null && request.Amenities.Any())
+            {
+                var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
+                if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
+                {
+                    trainTicketQuery = trainTicketQuery.Where(tr => tr.Amenities != null && EF.Functions.JsonExistAny(tr.Amenities, normalizedAmenitiesRequest));
+                }
+            }
+
+            query = trainTicketQuery;
+        }
+        else if (request.TicketCategory!.Equals("buses", StringComparison.OrdinalIgnoreCase))
+        {
+            var busTicketQuery = query.OfType<BusTicket>();
+            if (request.MinDeparture.HasValue)
+            {
+                var minDeparture = DateTime.SpecifyKind(request.MinDeparture.Value, DateTimeKind.Utc);
+                busTicketQuery = busTicketQuery.Where(bus => bus.DepartureTime >= minDeparture);
+            }
+
+            if (request.MaxDeparture.HasValue)
+            {
+                var maxDeparture = DateTime.SpecifyKind(request.MaxDeparture.Value, DateTimeKind.Utc);
+                busTicketQuery = busTicketQuery.Where(bus => bus.DepartureTime <= maxDeparture);
+            }
+
+            if (request.MinArrival.HasValue)
+            {
+                var minArrival = DateTime.SpecifyKind(request.MinArrival.Value, DateTimeKind.Utc);
+                busTicketQuery = busTicketQuery.Where(bus => (bus.DepartureTime + bus.Duration) >= minArrival);
+            }
+
+            if (request.MaxArrival.HasValue)
+            {
+                var maxArrival = DateTime.SpecifyKind(request.MaxArrival.Value, DateTimeKind.Utc);
+                busTicketQuery = busTicketQuery.Where(bus => (bus.DepartureTime + bus.Duration) <= maxArrival);
+            }
+
+            if (request.Types != null && request.Types.Any())
+            {
+                busTicketQuery = busTicketQuery.Where(bus => request.Types.Contains(bus.BusType));
+            }
+
+            if (request.SeatClasses != null && request.SeatClasses.Any())
+            {
+                busTicketQuery = busTicketQuery.Where(bus => request.SeatClasses.Contains(bus.SeatClass));
+            }
+
+            if (request.Direct.HasValue)
+            {
+                if (request.Direct.Value)
+                {
+                    busTicketQuery = busTicketQuery.Where(bus => bus.TransitsCount == 0);
+                }
+                else
+                {
+                    busTicketQuery = busTicketQuery.Where(bus => bus.TransitsCount > 0);
+                }
+            }
+
+            if (request.Amenities != null && request.Amenities.Any())
+            {
+                var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
+                if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
+                {
+                    busTicketQuery = busTicketQuery.Where(bus => bus.Amenities != null && EF.Functions.JsonExistAny(bus.Amenities, normalizedAmenitiesRequest));
+                }
+            }
+
+            query = busTicketQuery;
+        }
+        else if (request.TicketCategory!.Equals("sea-transportations", StringComparison.OrdinalIgnoreCase))
+        {
+            var seaTransportationTicketQuery = query.OfType<SeaTransportationTicket>();
+            if (request.MinDeparture.HasValue)
+            {
+                var minDeparture = DateTime.SpecifyKind(request.MinDeparture.Value, DateTimeKind.Utc);
+                seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => sea.DepartureTime >= minDeparture);
+            }
+
+            if (request.MaxDeparture.HasValue)
+            {
+                var maxDeparture = DateTime.SpecifyKind(request.MaxDeparture.Value, DateTimeKind.Utc);
+                seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => sea.DepartureTime <= maxDeparture);
+            }
+
+            if (request.MinArrival.HasValue)
+            {
+                var minArrival = DateTime.SpecifyKind(request.MinArrival.Value, DateTimeKind.Utc);
+                seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => (sea.DepartureTime + sea.Duration) >= minArrival);
+            }
+
+            if (request.MaxArrival.HasValue)
+            {
+                var maxArrival = DateTime.SpecifyKind(request.MaxArrival.Value, DateTimeKind.Utc);
+                seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => (sea.DepartureTime + sea.Duration) <= maxArrival);
+            }
+
+            if (request.Types != null && request.Types.Any())
+            {
+                seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => request.Types.Contains(sea.TransportationType));
+            }
+
+            if (request.SeatClasses != null && request.SeatClasses.Any())
+            {
+                seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => request.SeatClasses.Contains(sea.SeatClass));
+            }
+
+            if (request.Direct.HasValue)
+            {
+                if (request.Direct.Value)
+                {
+                    seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => sea.TransitsCount == 0);
+                }
+                else
+                {
+                    seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => sea.TransitsCount > 0);
+                }
+            }
+
+            if (request.Amenities != null && request.Amenities.Any())
+            {
+                var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
+                if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
+                {
+                    seaTransportationTicketQuery = seaTransportationTicketQuery.Where(sea => sea.Amenities != null && EF.Functions.JsonExistAny(sea.Amenities, normalizedAmenitiesRequest));
+                }
+            }
+
+            query = seaTransportationTicketQuery;
         }
 
         var totalFilteredTicketsCount = await query.CountAsync();

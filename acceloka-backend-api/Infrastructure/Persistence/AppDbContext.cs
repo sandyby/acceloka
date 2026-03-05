@@ -46,7 +46,7 @@ public class AppDbContext : DbContext
                 .HasColumnName("Amenities")
                 .HasColumnType("jsonb")
                 .HasConversion(
-                    v => JsonSerializer.Serialize(v ?? new List<string>(), new JsonSerializerOptions()), v => JsonSerializer.Deserialize<List<string>>(v, new JsonSerializerOptions()), new ValueComparer<List<string>>((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList()));
+                v => JsonSerializer.Serialize(v ?? new List<string>(), new JsonSerializerOptions()), v => JsonSerializer.Deserialize<List<string>>(v, new JsonSerializerOptions()), new ValueComparer<List<string>>((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList()));
 
         });
 
@@ -64,7 +64,6 @@ public class AppDbContext : DbContext
             nameof(TicketBase.Duration),
             nameof(TicketBase.SeatClass),
             nameof(TicketBase.TransitsCount),
-            nameof(TicketBase.BaggageKg)
         };
 
         foreach (var prop in sharedProps)

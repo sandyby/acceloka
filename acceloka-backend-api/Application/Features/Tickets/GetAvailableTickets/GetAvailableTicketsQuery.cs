@@ -7,6 +7,7 @@ public record GetAvailableTicketsQuery(
     string? TicketCode,
     string? TicketName,
     int? MaxPrice,
+    bool? Direct,
 
     DateTime? MinDeparture,
     DateTime? MaxDeparture,
@@ -15,6 +16,7 @@ public record GetAvailableTicketsQuery(
     string[]? Airlines,
     string[]? Amenities,
     string[]? SeatClasses,
+    int? BaggageKg,
 
     DateTime? MinCheckIn,
     DateTime? MaxCheckOut,
@@ -28,6 +30,12 @@ public record GetAvailableTicketsQuery(
     string[]? Artists,
     string[]? SeatSections,
     string[]? Packages,
+
+    DateTime? MinScreening,
+    DateTime? MaxScreening,
+    string[]? Cinemas,
+    string[]? Types,
+    int? MaxDuration,
 
     string? OrderBy = "TicketCode",
     string? OrderState = "asc",
