@@ -22,6 +22,13 @@ public record GetAvailableTicketsQuery(
     string[]? RoomTypes,
     int? MaxOccupancy,
 
+    DateTime? MinConcert,
+    DateTime? MaxConcert,
+    string[]? Venues,
+    string[]? Artists,
+    string[]? SeatSections,
+    string[]? Packages,
+
     string? OrderBy = "TicketCode",
     string? OrderState = "asc",
     int PageNumber = 1,

@@ -66,12 +66,12 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
 
             if (request.Airlines != null && request.Airlines.Any())
             {
-                flightTicketQuery = flightTicketQuery.Where(f => request.Airlines.Contains(f.Airline));
+                flightTicketQuery = flightTicketQuery.Where(ft => request.Airlines.Contains(ft.Airline));
             }
 
             if (request.SeatClasses != null && request.SeatClasses.Any())
             {
-                flightTicketQuery = flightTicketQuery.Where(f => request.SeatClasses.Contains(f.SeatClass));
+                flightTicketQuery = flightTicketQuery.Where(ft => request.SeatClasses.Contains(ft.SeatClass));
             }
 
             if (request.Amenities != null && request.Amenities.Any())
@@ -79,7 +79,7 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
                 if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
                 {
-                    flightTicketQuery = flightTicketQuery.Where(f => f.Amenities != null && EF.Functions.JsonExistAny(f.Amenities, normalizedAmenitiesRequest));
+                    flightTicketQuery = flightTicketQuery.Where(ft => ft.Amenities != null && EF.Functions.JsonExistAny(ft.Amenities, normalizedAmenitiesRequest));
                 }
             }
 
@@ -91,24 +91,23 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             if (request.MinCheckIn.HasValue)
             {
                 var minCheckInDate = DateTime.SpecifyKind(request.MinCheckIn.Value, DateTimeKind.Utc);
-                hotelTicketQuery = hotelTicketQuery.Where(ft => ft.MinCheckInDate >= minCheckInDate);
+                hotelTicketQuery = hotelTicketQuery.Where(htl => htl.MinCheckInDate >= minCheckInDate);
             }
 
-            // ! UPDATE MAX CHECK OUT DATE DI DATABASE
             if (request.MaxCheckOut.HasValue)
             {
                 var maxCheckOutDate = DateTime.SpecifyKind(request.MaxCheckOut.Value, DateTimeKind.Utc);
-                hotelTicketQuery = hotelTicketQuery.Where(ft => ft.MaxCheckOutDate >= maxCheckOutDate);
+                hotelTicketQuery = hotelTicketQuery.Where(htl => htl.MaxCheckOutDate <= maxCheckOutDate);
             }
 
             if (request.HotelNames != null && request.HotelNames.Any())
             {
-                hotelTicketQuery = hotelTicketQuery.Where(f => request.HotelNames.Contains(f.HotelName));
+                hotelTicketQuery = hotelTicketQuery.Where(htl => request.HotelNames.Contains(htl.HotelName));
             }
 
             if (request.RoomTypes != null && request.RoomTypes.Any())
             {
-                hotelTicketQuery = hotelTicketQuery.Where(f => request.RoomTypes.Contains(f.RoomType));
+                hotelTicketQuery = hotelTicketQuery.Where(htl => request.RoomTypes.Contains(htl.RoomType));
             }
 
             if (request.Amenities != null && request.Amenities.Any())
@@ -116,11 +115,53 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
                 var normalizedAmenitiesRequest = request.Amenities.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLower()).ToArray();
                 if (normalizedAmenitiesRequest != null && normalizedAmenitiesRequest.Any())
                 {
-                    hotelTicketQuery = hotelTicketQuery.Where(f => f.Amenities != null && EF.Functions.JsonExistAny(f.Amenities, normalizedAmenitiesRequest));
+                    hotelTicketQuery = hotelTicketQuery.Where(htl => htl.Amenities != null && EF.Functions.JsonExistAny(htl.Amenities, normalizedAmenitiesRequest));
                 }
             }
 
             query = hotelTicketQuery;
+        }
+        else if (request.TicketCategory!.Equals("concerts", StringComparison.OrdinalIgnoreCase))
+        {
+            var concertTicketQuery = query.OfType<ConcertTicket>();
+            if (request.MinConcert.HasValue)
+            {
+                var minConcertDate = DateTime.SpecifyKind(request.MinConcert.Value, DateTimeKind.Utc);
+                concertTicketQuery = concertTicketQuery.Where(c => c.ConcertDate.Date >= minConcertDate.Date);
+            }
+
+            if (request.MaxConcert.HasValue)
+            {
+                var maxConcertDate = DateTime.SpecifyKind(request.MaxConcert.Value, DateTimeKind.Utc);
+                concertTicketQuery = concertTicketQuery.Where(c => c.ConcertDate.Date <= maxConcertDate.Date);
+            }
+
+            if (request.Venues != null && request.Venues.Any())
+            {
+                concertTicketQuery = concertTicketQuery.Where(c => request.Venues.Contains(c.Venue));
+            }
+
+            if (request.Artists != null && request.Artists.Any())
+            {
+                concertTicketQuery = concertTicketQuery.Where(c => request.Artists.Contains(c.Artist));
+            }
+
+            if (request.SeatSections != null && request.SeatSections.Any())
+            {
+                concertTicketQuery = concertTicketQuery.Where(c => request.SeatSections.Contains(c.SeatSection));
+            }
+
+            if (request.Packages != null && request.Packages.Any())
+            {
+                var normalizedPackagesRequest = request.Packages.Where(pkg => !string.IsNullOrWhiteSpace(pkg)).Select(pkg => pkg.Trim().ToLower()).ToArray();
+                if (normalizedPackagesRequest != null && normalizedPackagesRequest.Any())
+                {
+                    concertTicketQuery = concertTicketQuery.Where(c => c.Packages != null &&
+    EF.Functions.JsonExistAny(c.Packages, normalizedPackagesRequest));
+                }
+            }
+
+            query = concertTicketQuery;
         }
 
         var totalFilteredTicketsCount = await query.CountAsync();
@@ -132,6 +173,7 @@ public class GetAvailableTicketsHandler : IRequestHandler<GetAvailableTicketsQue
             "ticketcategory" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCategory.TicketCategoryName) : query.OrderBy(t => t.TicketCategory.TicketCategoryName),
             "ticketname" => isOrderStateDesc ? query.OrderByDescending(t => t.TicketName) : query.OrderBy(t => t.TicketName),
             "price" => isOrderStateDesc ? query.OrderByDescending(t => t.Price) : query.OrderBy(t => t.Price),
+            // TODO: decide sorting logics later
             // "departuretime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.DepartureTime) : query.OrderBy(t => (t as FlightTicket)!.DepartureTime),
             // "arrivaltime" => isOrderStateDesc ? query.OrderByDescending(t => (t as FlightTicket)!.ArrivalTime) : query.OrderBy(t => (t as FlightTicket)!.ArrivalTime),
             _ => isOrderStateDesc ? query.OrderByDescending(t => t.TicketCode) : query.OrderBy(t => t.TicketCode)

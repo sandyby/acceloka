@@ -22,50 +22,6 @@ public class GetTicketMetadataHandler
         {
             var flights = _context.Tickets.OfType<FlightTicket>().Where(t => t.Quota > 0 && t.DepartureTime > DateTime.UtcNow).AsQueryable();
 
-            // if (await flights.AnyAsync(ct))
-            // {
-            //     dto.MaxPrice = await flights
-            //     .Select(f => f.Price)
-            //     .MaxAsync(ct);
-
-            //     dto.MinDeparture = await flights
-            //         .Select(f => f.DepartureTime ?? DateTime.MinValue)
-            //         .MinAsync(ct);
-
-            //     dto.MaxDeparture = await flights
-            //         .Select(f => f.DepartureTime ?? DateTime.MaxValue)
-            //         .MaxAsync(ct);
-
-            //     dto.MinArrival = await flights
-            //         .Select(f => f.DepartureTime + f.Duration)
-            //         .MinAsync(ct);
-
-            //     dto.MaxArrival = await flights
-            //         .Select(f => f.DepartureTime + f.Duration)
-            //         .MaxAsync(ct);
-
-            //     dto.Airlines = await flights
-            //         .Select(f => f.Airline)
-            //         .Distinct()
-            //         .ToListAsync(ct);
-
-            //     var amenitiesQuery = flights
-            // .Select(f => f.Amenities)
-            // .ToListAsync(ct);
-
-            //     var amenities = await amenitiesQuery;
-            //     dto.Amenities = amenities
-            //         .Where(a => a != null)
-            //         .SelectMany(a => a!)
-            //         .Distinct()
-            //         .ToList();
-
-            //     dto.SeatClasses = await flights
-            //         .Select(f => f.SeatClass ?? string.Empty)
-            //         .Distinct()
-            //         .ToListAsync(ct);
-            // }
-
             if (await flights.AnyAsync(ct))
             {
                 dto.MaxPrice = await flights.Select(f => f.Price).MaxAsync(ct);
@@ -75,29 +31,12 @@ public class GetTicketMetadataHandler
                 dto.MaxArrival = await flights.Select(f => f.DepartureTime + f.Duration).MaxAsync(ct);
 
                 dto.Airlines = await flights.Select(f => f.Airline).Distinct().ToListAsync(ct);
-                // dto.Amenities = await flights.SelectMany(f => f.Amenities ?? Enumerable.Empty<string>()).Distinct().ToListAsync(ct);
+
                 var amenitiesQuery = flights.Select(f => f.Amenities).ToListAsync();
 
                 var amenities = await amenitiesQuery;
                 dto.Amenities = amenities.Where(a => a != null).SelectMany(a => a!).Distinct().ToList();
                 dto.SeatClasses = await flights.Select(f => f.SeatClass ?? "").Distinct().ToListAsync(ct);
-
-                // dto.FilterFields["minDeparture"] = await flights.MinAsync(f => f.DepartureTime, ct);
-
-                // dto.FilterFields["maxDeparture"] = await flights.MaxAsync(f => f.DepartureTime, ct);
-
-                // dto.FilterFields["minArrival"] = await flights.MinAsync(f => f.DepartureTime + f.Duration, ct);
-
-                // dto.FilterFields["maxArrival"] = await flights.MaxAsync(f => f.DepartureTime + f.Duration, ct);
-
-                // dto.FilterFields["airlines"] = await flights.Select(f => f.Airline).Distinct().ToListAsync(ct);
-
-                // dto.FilterFields["seatClasses"] = await flights.Select(f => f.SeatClass).Distinct().ToListAsync(ct);
-
-                // var amenitiesQuery = flights.Select(f => f.Amenities).ToListAsync();
-
-                // var amenities = await amenitiesQuery;
-                // dto.FilterFields["amenities"] = amenities.Where(a => a != null).SelectMany(a => a!).Distinct().ToList();
             }
         }
         else if (string.Equals(request.TicketCategory, "hotels", StringComparison.OrdinalIgnoreCase))
@@ -118,7 +57,23 @@ public class GetTicketMetadataHandler
 
                 var amenities = await amenitiesQuery;
                 dto.Amenities = amenities.Where(a => a != null).SelectMany(a => a!).Distinct().ToList();
-                // dto.Amenities = await hotels.SelectMany(h => h.Amenities ?? Enumerable.Empty<string>()).Distinct().ToListAsync(ct);
+            }
+        }
+        else if (string.Equals(request.TicketCategory, "concerts", StringComparison.OrdinalIgnoreCase))
+        {
+            var concerts = _context.Tickets.OfType<ConcertTicket>().Where(t => t.Quota > 0 && t.ConcertDate > DateTime.UtcNow).AsQueryable();
+
+            if (await concerts.AnyAsync(ct))
+            {
+                dto.MaxPrice = await concerts.Select(c => c.Price).MaxAsync(ct);
+                dto.MinConcertDate = await concerts.Select(c => c.ConcertDate).MinAsync(ct);
+                dto.MaxConcertDate = await concerts.Select(c => c.ConcertDate).MaxAsync(ct);
+                dto.Venues = await concerts.Select(c => c.Venue).Distinct().ToListAsync(ct);
+                dto.Artists = await concerts.Select(c => c.Artist).Distinct().ToListAsync(ct);
+                dto.SeatSections = await concerts.Select(c => c.SeatSection).Distinct().ToListAsync(ct);
+                var packagesQuery = concerts.Select(f => f.Packages).ToListAsync();
+                var packages = await packagesQuery;
+                dto.Packages = packages.Where(pkg => pkg != null).SelectMany(pkg => pkg!).Distinct().ToList();
             }
         }
 

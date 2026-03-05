@@ -50,6 +50,15 @@ public class AppDbContext : DbContext
 
         });
 
+        modelBuilder.Entity<ConcertTicket>(builder =>
+        {
+            builder.Property(t => t.Packages)
+            .HasColumnName("Packages")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v ?? new List<string>(), new JsonSerializerOptions()), v => JsonSerializer.Deserialize<List<string>>(v, new JsonSerializerOptions()), new ValueComparer<List<string>>((c1, c2) => c1!.SequenceEqual(c2!), c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), c => c.ToList()));
+        });
+
         var sharedProps = new[] {
             nameof(TicketBase.DepartureTime),
             nameof(TicketBase.Duration),
@@ -68,11 +77,11 @@ public class AppDbContext : DbContext
 
         // categories
         modelBuilder.Entity<TicketCategory>(builder =>
-                {
-                    builder.HasKey(tc => tc.Id);
-                    builder.Property(tc => tc.Id).ValueGeneratedNever();
-                    builder.HasIndex(tc => tc.TicketCategoryName).IsUnique();
-                });
+                        {
+                            builder.HasKey(tc => tc.Id);
+                            builder.Property(tc => tc.Id).ValueGeneratedNever();
+                            builder.HasIndex(tc => tc.TicketCategoryName).IsUnique();
+                        });
 
         // booked tickets
         modelBuilder.Entity<BookedTicket>(builder =>
