@@ -24,11 +24,11 @@ export default function MultiCheckboxGroup({
     };
 
     return (
-        <div className="mb-4">
+        <div className="">
             <StyledTypography fontSizeInput={16} fontWeightInput="bold" className="mb-2">
                 {label}
             </StyledTypography>
-            <FormGroup className="ms-3">
+            <FormGroup className="ms-3 mt-1">
                 {options.map(option => (
                     <FormControlLabel
                         key={option}

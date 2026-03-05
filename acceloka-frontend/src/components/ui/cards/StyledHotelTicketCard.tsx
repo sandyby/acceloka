@@ -4,6 +4,7 @@ import { IHotelTicket } from "@/types/card";
 import StyledTypography from "@/components/ui/StyledTypography";
 import { calculateDuration, formatDateTimeWithWords, generateRandomDays } from "@/lib/utils";
 import { addDays } from "date-fns";
+import { PersonRounded } from "@mui/icons-material";
 
 export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket }) {
     const tempMaxCheckOutDate = addDays(ticket.minCheckInDate, generateRandomDays(5)).toString();
@@ -39,20 +40,28 @@ export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket
                     <div className="flex flex-col justify-between h-full">
                         <div className="">
                             <div className="mb-2 flex flex-col gap-y-0.5">
-                                <div className="flex gap-x-4">
-                                    <div className="">
+                                <div className="flex gap-x-8">
+                                    <div className="mb-2 flex flex-col gap-y-0.5">
                                         <StyledTypography fontSizeInput={16} fontWeightInput="bold">
                                             Room Type
                                         </StyledTypography>
                                         <div className="">
-                                            <span className="inline-block px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
+                                            <span className="inline-flex px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
                                                 {ticket.roomType}
                                             </span>
                                         </div>
                                     </div>
-                                    <p className="my-auto text-[14px] text-accent-primary-900">
-                                        Max. Occupancies: {ticket.maxOccupancy} {ticket.maxOccupancy > 1 ? 'guests' : 'guest'}
-                                    </p>
+                                    <div className="mb-2 flex flex-col gap-y-0.5">
+                                        <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                            Max. Occupancies
+                                        </StyledTypography>
+                                        <div className="">
+                                            <span className="inline-flex items-center ps-3 pe-4 py-1 border border-secondary-900 text-secondary-900 text-xs rounded-full">
+                                                <PersonRounded sx={{ color: "var(--color-secondary-900)", marginRight: "4px", fontSize: "16px" }} />
+                                                {ticket.maxOccupancy} {ticket.maxOccupancy > 1 ? 'guests' : 'guest'}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="mb-2 flex flex-col gap-y-0.5">
@@ -89,6 +98,6 @@ export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

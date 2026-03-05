@@ -96,11 +96,11 @@
 }
 
 html {
-  caret-color: var(--color-primary-500);
-  caret-shape: underscore;
+  caret-color: var(--color-primary-50);
+  caret-shape: block;
 }
 
 ::selection {
-  background-color: var(--color-primary-500);
+  background-color: var(--color-primary-50);
   color: var(--color-secondary-900);
 }

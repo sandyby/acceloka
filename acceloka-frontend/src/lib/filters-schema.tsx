@@ -3,12 +3,45 @@ import { z } from "zod";
 export const FilterSchema = z.object({
     maxprice: z.preprocess((val) => (
         val === "" || val === null || val === undefined ? undefined : val),
-        z.coerce.number().min(0, "The max. price can't be below Rp 0!").max(999999999, "The max. price limit is Rp 999.999.999!").optional(),
-    ).catch(undefined),
+        z.coerce.number("Max. price must be a number!").min(0, "The max. price can't be below Rp 0!").max(999999999, "The max. price limit is Rp 999.999.999!").optional(),
+    ),
     maxoccupancy: z.preprocess((val) => (
         val === "" || val === null || val === undefined ? undefined : val),
         z.coerce.number().min(1, "Max. occupancy can't be lower than 1!").max(999, "Max. occupancy can't be greater than 999!").optional(),
-    ).catch(undefined),
+    ),
+    baggagekg: z.preprocess((val) => (
+        val === "" || val === null || val === undefined ? undefined : val),
+        z.coerce.number("Max. baggage (kg) must be a number!")
+            .min(0, "Max. baggage (kg) can't be lighter than 0kg!")
+            .max(100, "Max. baggage (kg) can't be heavier than 100kg!").optional(),
+    ),
+    direct: z.preprocess((val) => {
+        if (typeof val === "string") {
+            const loweredVal = val.toLowerCase();
+            if (loweredVal === "false") {
+                return false;
+            } else if (loweredVal === "true") {
+                return true;
+            }
+        }
+        if (typeof val === "boolean") {
+            return val;
+        }
+        return undefined;
+    }, z.boolean().optional()),
+    maxduration: z.preprocess(
+        (val) => (val === "" || val === null ? undefined : val),
+        z.string().optional()
+    ).pipe(
+        z.string()
+            .regex(/^(00|\d{2}):([0-5]\d)$/, "Max. duration must have a valid Format HH:mm!")
+            .transform((val) => {
+                const [hours, minutes] = val.split(":").map(Number);
+                return hours * 60 + minutes;
+            })
+            .refine((val) => val > 0, "Max. duration must be at least 1 minute!")
+            .optional()
+    ),
     seatclasses: z.preprocess((val) => {
         if (Array.isArray(val) && val.length === 0) {
             return undefined;
@@ -39,7 +72,13 @@ export const FilterSchema = z.object({
         }
         return val;
     }, z.array(z.string()).optional()).catch(undefined),
-    roomtypes: z.preprocess((val) => {
+    cinemas: z.preprocess((val) => {
+        if (Array.isArray(val) && val.length === 0) {
+            return undefined;
+        }
+        return val;
+    }, z.array(z.string()).optional()).catch(undefined),
+    types: z.preprocess((val) => {
         if (Array.isArray(val) && val.length === 0) {
             return undefined;
         }
@@ -65,6 +104,8 @@ export const FilterSchema = z.object({
     maxcheckout: z.string().optional().catch(undefined),
     minconcert: z.string().optional().catch(undefined),
     maxconcert: z.string().optional().catch(undefined),
+    minscreening: z.string().optional().catch(undefined),
+    maxscreening: z.string().optional().catch(undefined),
 }).superRefine((filters, ctx) => {
     const now = new Date();
 
@@ -94,6 +135,9 @@ export const FilterSchema = z.object({
     checkPastDateTime(filters.maxarrival, "maxarrival", "Max. arrival time");
     checkPastDateTime(filters.mincheckin, "mincheckin", "Min. check in time");
     checkPastDateTime(filters.maxcheckout, "maxcheckout", "Max. check out time");
+    checkPastDateTime(filters.minscreening, "minscreening", "Min. screening time");
+    checkPastDateTime(filters.maxscreening, "maxscreening", "Max. screening time");
+
     checkPastDateonly(filters.minconcert, "minconcert", "Min. concert date");
     checkPastDateonly(filters.maxconcert, "maxconcert", "Max. concert date");
 
@@ -142,6 +186,14 @@ export const FilterSchema = z.object({
             code: 'custom',
             message: "Max. concert date must be greater than the min. concert date!",
             path: ["maxconcert"],
+        });
+    }
+
+    if (filters.minscreening && filters.maxscreening && (new Date(filters.maxscreening) < new Date(filters.minscreening))) {
+        ctx.addIssue({
+            code: 'custom',
+            message: "Max. screening time must be greater than the min. screening time!",
+            path: ["maxscreening"],
         });
     }
 });

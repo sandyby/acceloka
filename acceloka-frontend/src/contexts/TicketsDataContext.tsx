@@ -5,7 +5,7 @@ import { GetAvailableTicketQueryResponse } from "@/types/api";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { z } from "zod";
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { createContext, ReactNode, useMemo } from 'react';
 import { FilterSchema, FilterType } from "@/lib/filters-schema";
 
 interface TicketsDataContextType {
@@ -26,34 +26,17 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
 
     const { filters, validationError } = useMemo(() => {
         try {
-            const maxPriceParam = searchParams.get("maxprice");
-            const maxOccupancyParam = searchParams.get("maxoccupancy");
-
-            let parsedMaxPrice: number | undefined = undefined;
-            if (maxPriceParam !== null && maxPriceParam !== "") {
-                const num = Number(maxPriceParam);
-                if (!isNaN(num)) {
-                    parsedMaxPrice = num;
-                }
-            }
-
-            let parsedMaxOccupancy: number | undefined = undefined;
-            if (maxOccupancyParam !== null && maxOccupancyParam !== "") {
-                const num = Number(maxOccupancyParam);
-                if (!isNaN(num)) {
-                    parsedMaxOccupancy = num;
-                }
-            }
-
             const rawFilters = {
-                maxprice: parsedMaxPrice,
-                maxoccupancy: parsedMaxOccupancy,
+                maxprice: searchParams.get("maxprice"),
+                maxoccupancy: searchParams.get("maxoccupancy"),
+                baggagekg: searchParams.get("baggagekg"),
                 airlines: searchParams.getAll("airlines"),
                 seatclasses: searchParams.getAll("seatclasses"),
                 seatsections: searchParams.getAll("seatsections"),
                 hotelnames: searchParams.getAll("hotels"),
                 venues: searchParams.getAll("venues"),
-                roomtypes: searchParams.getAll("roomtypes"),
+                cinemas: searchParams.getAll("cinemas"),
+                types: searchParams.getAll("types"),
                 amenities: searchParams.getAll("amenities"),
                 packages: searchParams.getAll("packages"),
                 mindeparture: searchParams.get("mindeparture"),
@@ -64,13 +47,17 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
                 maxcheckout: searchParams.get("maxcheckout"),
                 minconcert: searchParams.get("minconcert"),
                 maxconcert: searchParams.get("maxconcert"),
+                minscreening: searchParams.get("minscreening"),
+                maxscreening: searchParams.get("maxscreening"),
+                maxduration: searchParams.get("maxduration"),
+                direct: searchParams.get("direct"),
             };
             const parsed = FilterSchema.parse(rawFilters);
             return { filters: parsed, validationError: undefined };
         }
         catch (err) {
             if (err instanceof z.ZodError) {
-                console.error("dbg filter validation error: ", err.issues);
+                console.log("dbg filter validation error: ", err.issues);
                 return { filters: undefined, validationError: err };
             }
             console.error("dbg unexpected/unhandled error: ", err);
@@ -86,7 +73,8 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
             seatsections: ${filters.seatsections},
             hotelnames: ${filters.hotelnames},
             venues: ${filters.venues},
-            roomtypes: ${filters.roomtypes},
+            cinemas: ${filters.cinemas},
+            types: ${filters.types},
             amenities: ${filters.amenities},
             packages: ${filters.packages},
             maxprice: ${filters.maxprice},
@@ -99,6 +87,11 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
             maxcheckout: ${filters.maxcheckout}
             minconcert: ${filters.minconcert},
             maxconcert: ${filters.maxconcert}
+            minscreening: ${filters.minscreening}
+            maxscreening: ${filters.maxscreening},
+            maxduration: ${filters.maxduration},
+            baggagekg: ${filters.baggagekg},
+            direct: ${filters.direct},
             ` : 'undefined (validation failed)'
         } `
     );

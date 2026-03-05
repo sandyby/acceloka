@@ -38,7 +38,7 @@ export default function StyledMovieTicketCard({ ticket }: { ticket: IMovieTicket
                                     Cinema Type
                                 </StyledTypography>
                                 <div className="mb-2">
-                                    <span className="inline-block px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
+                                    <span className="inline-flex px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
                                         {ticket.cinemaType}
                                     </span>
                                 </div>
@@ -46,7 +46,7 @@ export default function StyledMovieTicketCard({ ticket }: { ticket: IMovieTicket
                                     Seat Section
                                 </StyledTypography>
                                 <div className="">
-                                    <span className="inline-block px-3 py-1 border border-secondary-900 text-secondary-900 text-xs rounded-full">
+                                    <span className="inline-flex px-3 py-1 border border-secondary-900 text-secondary-900 text-xs rounded-full">
                                         {ticket.seatSection}
                                     </span>
                                 </div>

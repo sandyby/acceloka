@@ -21,7 +21,7 @@ export default function MultiSelectDropdown({
     const handleClearAll = () => onChange([]);
 
     return (
-        <div className="mb-4 w-[95%] flex flex-col gap-y-2">
+        <div className="mb-4 w-full flex flex-col gap-y-2">
             <StyledTypography fontSizeInput={16} fontWeightInput="bold" className="mb-2 flex items-center justify-between">
                 {label}
                 <span className="flex gap-2">

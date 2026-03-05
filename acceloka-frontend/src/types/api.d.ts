@@ -8,8 +8,6 @@ export interface GetAvailableTicketQueryResponse {
 }
 export interface TicketMetadata {
   maxPrice: number;
-  // fields: Record<string, object>;
-
   minDeparture?: string;
   maxDeparture?: string;
   minArrival?: string;
@@ -18,16 +16,23 @@ export interface TicketMetadata {
   maxCheckOutDate?: string;
   minConcertDate?: string;
   maxConcertDate?: string;
-
+  minScreeningTime?: string;
+  maxScreeningTime?: string;
+  maxDurationInMinutes?: int;
+  direct?: boolean;
+  directCount?: int;
+  transitsCount?: int;
   airlines?: string[];
   hotelNames?: string[];
   venues?: string[];
-  roomTypes?: string[];
+  cinemas?: string[];
+  types?: string[];
   amenities?: string[];
   packages?: string[];
   seatClasses?: string[];
   seatSections?: string[];
   maxOccupancy?: number;
+  maxBaggageKg?: number;
 }
 
 export interface TicketFilters {
@@ -41,12 +46,18 @@ export interface TicketFilters {
   maxcheckout?: string;
   minconcert?: string;
   maxconcert?: string;
+  minscreening?: string;
+  maxscreening?: string;
+  maxduration?: int;
+  baggagekg?: int;
+  direct?: boolean;
   airlines?: string[];
   seatclasses?: string[];
   seatsections?: string[];
   hotelnames?: string[];
   venues?: string[];
-  roomtypes?: string[];
+  cinemas?: string[];
+  types?: string[];
   amenities?: string[];
   packages?: string[];
 }

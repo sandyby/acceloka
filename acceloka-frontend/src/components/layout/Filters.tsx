@@ -9,14 +9,18 @@ import { useEffect, useRef, useState, useContext, act, Suspense } from "react";
 import StyledFiltersSkeleton from "@/components/ui/skeletons/StyledFiltersSkeleton";
 import DateTimeInput from "@/components/ui/DateTimeInput";
 import { FilterSchema } from "@/lib/filters-schema";
-import z from "zod";
+import z, { string } from "zod";
 import MultiSelectDropdown from "../ui/MultiSelectDropdown";
 import { StyledSlider, StyledSliderLabel } from "@/components/ui/StyledRangeSlider";
 import MultiCheckboxGroup from "../ui/MultiCheckboxGroup";
 import { ActiveCategoryContext } from "@/contexts/ActiveCategoryContext";
-import { PersonRounded } from "@mui/icons-material";
+import { PersonRounded, LuggageRounded } from "@mui/icons-material";
 import DateInput from "../ui/DateInput";
 import useScrollToTop from "@/hooks/useScrollToTop";
+import TimeInput from "../ui/TimeInput";
+import DurationInput from "../ui/DurationInput";
+import { minutesToHHmmFormat } from "@/lib/utils";
+import ButtonGroup from "../ui/ButtonGroup";
 
 export default function Filters() {
   const router = useRouter();
@@ -58,8 +62,25 @@ export default function Filters() {
     "maxprice", "venue", "seatsections", "concertdate", "packages"
   ];
 
+  const movieTicketFIlters = [
+    "maxprice", "cinemas", "seatsections", "types", "minscreening", "maxscreening", "maxduration"
+  ];
+
+  // * in case more filters are applied in the future
+  const trainTicketFilters = [
+    "maxprice", "mindeparture", "maxdeparture", "types", "minarrival", "maxarrival", "direct", "amenities"
+  ];
+
+  const busTicketFilters = [
+    "maxprice", "mindeparture", "maxdeparture", "types", "minarrival", "maxarrival", "direct", "amenities"
+  ];
+
+  const seaTransportationTicketFilters = [
+    "maxprice", "mindeparture", "maxdeparture", "types", "minarrival", "maxarrival", "direct", "amenities"
+  ];
+
   // * clear all button needs (conditional)
-  const hasActiveFilters = activeCategory === "flights" ? flightTicketFilters.some(key => searchParams.has(key)) : activeCategory === "hotels" ? hotelTicketFilters.some(key => searchParams.has(key)) : activeCategory === "concerts" ? concertTicketFilters.some(key => searchParams.has(key)) : false;
+  const hasActiveFilters = activeCategory === "flights" ? flightTicketFilters.some(key => searchParams.has(key)) : activeCategory === "hotels" ? hotelTicketFilters.some(key => searchParams.has(key)) : activeCategory === "concerts" ? concertTicketFilters.some(key => searchParams.has(key)) : activeCategory === "movies" ? movieTicketFIlters.some(key => searchParams.has(key)) : activeCategory === "trains" ? trainTicketFilters.some(key => searchParams.has(key)) : activeCategory === "buses" ? busTicketFilters.some(key => searchParams.has(key)) : activeCategory === "sea-transportations" ? seaTransportationTicketFilters.some(key => searchParams.has(key)) : false;
 
   const getInitialMaxPrice = () => {
     const param = searchParams.get("maxprice");
@@ -68,7 +89,7 @@ export default function Filters() {
       return Number(param);
     }
     console.log("dbg gim 1: ", metadata?.maxPrice);
-    return metadata?.maxPrice ?? 0;
+    return metadata?.maxPrice ?? 999999;
   };
 
   const getInitialMaxOccupancy = () => {
@@ -77,6 +98,27 @@ export default function Filters() {
       return Number(param);
     }
     return metadata?.maxOccupancy ?? 1;
+  };
+
+  const getInitialBaggageKg = () => {
+    const param = searchParams.get("baggagekg");
+    console.log("dbg bagagagaga 1: ", param);
+    if (param) {
+      console.log("dbg bagagagaga 2: ", metadata?.maxBaggageKg);
+      return Number(param);
+    }
+    console.log("dbg bagagagaga 3: ", metadata?.maxBaggageKg);
+    console.log("dbg bagagagaga 4 seharusnya 0!");
+    return 0;
+  };
+
+  const getInitialMaxDuration = (): string | undefined => {
+    const param = searchParams.get("maxduration");
+    if (param) {
+      return param;
+    }
+    console.log("dbg maxdur: ", metadata?.maxDurationInMinutes);
+    return minutesToHHmmFormat(metadata?.maxDurationInMinutes) ?? undefined;
   };
 
   // * filters need
@@ -88,11 +130,18 @@ export default function Filters() {
   const [localAirlines, setLocalAirlines] = useState<string[]>([]);
   const [localSeatClasses, setLocalSeatClasses] = useState<string[]>([]);
   const [localHotelNames, setLocalHotelNames] = useState<string[]>([]);
-  const [localRoomTypes, setLocalRoomTypes] = useState<string[]>([]);
   const [localVenues, setLocalVenues] = useState<string[]>([]);
+  const [localCinemas, setLocalCinemas] = useState<string[]>([]);
+  const [localTypes, setLocalTypes] = useState<string[]>([]);
+  // TODO: mungkin bisa ganti dari boolean jadi ke list of either direct or/and transits, which will display direct if only direct exists, vice versa
+  const [localDirect, setLocalDirect] = useState<boolean | undefined>(undefined);
   const [localSeatSections, setLocalSeatSections] = useState<string[]>([]);
   const [localMinConcertDate, setLocalMinConcertDate] = useState<string | undefined>();
   const [localMaxConcertDate, setLocalMaxConcertDate] = useState<string | undefined>();
+  const [localMinScreeningTime, setLocalMinScreeningTime] = useState<string | undefined>();
+  const [localMaxScreeningTime, setLocalMaxScreeningTime] = useState<string | undefined>();
+  const [localMaxDuration, setLocalMaxDuration] = useState<string | undefined>(getInitialMaxDuration());
+  const [localBaggageKg, setLocalBaggageKg] = useState<number>(getInitialBaggageKg());
   const [localMinDeparture, setLocalMinDeparture] = useState<string | undefined>();
   const [localMaxDeparture, setLocalMaxDeparture] = useState<string | undefined>();
   const [localMinArrival, setLocalMinArrival] = useState<string | undefined>();
@@ -111,7 +160,7 @@ export default function Filters() {
         seatclasses: localSeatClasses,
         seatsections: localSeatSections,
         hotelnames: localHotelNames,
-        roomtypes: localRoomTypes,
+        cinemas: localCinemas,
         amenities: localAmenities,
         packages: localPackages,
         mindeparture: localMinDeparture,
@@ -122,6 +171,11 @@ export default function Filters() {
         maxcheckout: localMaxCheckOutDate,
         minconcert: localMinConcertDate,
         maxconcert: localMaxConcertDate,
+        minscreening: localMinScreeningTime,
+        maxscreening: localMaxScreeningTime,
+        maxduration: localMaxDuration,
+        baggagekg: localBaggageKg,
+        direct: localDirect,
       });
       setValidationErrors({});
       return true;
@@ -155,16 +209,17 @@ export default function Filters() {
   useEffect(() => {
     validateLocal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localMaxPrice, localAirlines, localHotelNames, localRoomTypes, localMaxCheckOutDate, localMinCheckInDate, localMaxConcertDate, localMinConcertDate, localMaxOccupancy, localSeatSections, localVenues, localSeatClasses, localAmenities, localPackages, localMinDeparture, localMaxDeparture, localMinArrival, localMaxArrival]);
+  }, [localMaxPrice, localAirlines, localHotelNames, localMaxCheckOutDate, localMinCheckInDate, localMaxConcertDate, localMinConcertDate, localMaxOccupancy, localSeatSections, localVenues, localSeatClasses, localSeatSections, localAmenities, localPackages, localMinDeparture, localMaxDeparture, localMinArrival, localMaxArrival, localMinScreeningTime, localMaxScreeningTime, localMaxDuration, localCinemas, localTypes, localDirect, localBaggageKg]);
 
   // * for real-time update on filters content based on new params/URL
   useEffect(() => {
     const seatClassesParam = searchParams.getAll("seatclasses");
     const seatSectionsParam = searchParams.getAll("seatsections");
     const airlinesParam = searchParams.getAll("airlines");
-    const roomTypesParam = searchParams.getAll("roomtypes");
-    const hotelNamesParam = searchParams.getAll("hotels");
+    const typesParam = searchParams.getAll("types");
     const venuesParam = searchParams.getAll("venues");
+    const hotelNamesParam = searchParams.getAll("hotels");
+    const cinemasParam = searchParams.getAll("cinemas");
     const packagesParam = searchParams.getAll("packages");
     const amenitiesParam = searchParams.getAll("amenities");
     const minDepartureParam = searchParams.get("mindeparture");
@@ -175,6 +230,11 @@ export default function Filters() {
     const maxCheckOutDateParam = searchParams.get("maxcheckout");
     const minConcertDateParam = searchParams.get("minconcert");
     const maxConcertDateParam = searchParams.get("maxconcert");
+    const minScreeningTimeParam = searchParams.get("minscreening");
+    const maxScreeningTimeParam = searchParams.get("maxscreening");
+    const maxDurationParam = searchParams.get("maxduration");
+    const baggageKgParam = searchParams.get("baggagekg");
+    const directParam = searchParams.get("direct");
 
     const maxPriceParam = searchParams.get("maxprice");
     const maxOccupancyParam = searchParams.get("maxoccupancy");
@@ -193,8 +253,45 @@ export default function Filters() {
       targetMaxOccupancy = metadata?.maxOccupancy ?? -1;
     }
 
+    let targetBaggageKg: number;
+    if (baggageKgParam) {
+      console.log("dbg bag: ", baggageKgParam);
+      targetBaggageKg = Number(baggageKgParam);
+    } else {
+      console.log("dbg bag meta: ", metadata?.maxBaggageKg);
+      targetBaggageKg = -1;
+    }
+
+    let targetDirect: boolean | undefined;
+    if (directParam) {
+      const loweredDirectParam = directParam.toLowerCase();
+      targetDirect = loweredDirectParam === "false" ? false : loweredDirectParam === "true" ? true : undefined;
+    } else {
+      targetDirect = undefined;
+    }
+    setLocalDirect(targetDirect);
+
+    let targetMaxDuration: string | undefined;
+    if (maxDurationParam) {
+      targetMaxDuration = maxDurationParam;
+    } else {
+      targetMaxDuration = minutesToHHmmFormat(metadata?.maxDurationInMinutes) ?? undefined;
+      console.log("dbg maxmaxmax: ", targetMaxDuration);
+    }
+
+    if (targetMaxDuration) {
+      console.log("dbg tarmaxx: ", targetMaxDuration);
+      setLocalMaxDuration(targetMaxDuration);
+    }
+
     if (targetMaxPrice !== -1) {
       setLocalMaxPrice(targetMaxPrice);
+    }
+
+    console.log("dbg maxbag tar1: ", targetBaggageKg);
+    if (targetBaggageKg !== -1) {
+      console.log("dbg maxbag tar2: ", targetBaggageKg);
+      setLocalBaggageKg(targetBaggageKg);
     }
 
     if (targetMaxOccupancy !== -1) {
@@ -219,6 +316,12 @@ export default function Filters() {
       setLocalVenues([]);
     }
 
+    if (cinemasParam) {
+      setLocalCinemas(cinemasParam);
+    } else {
+      setLocalCinemas([]);
+    }
+
     if (seatClassesParam) {
       setLocalSeatClasses(seatClassesParam);
     } else {
@@ -231,10 +334,10 @@ export default function Filters() {
       setLocalSeatSections([]);
     }
 
-    if (roomTypesParam) {
-      setLocalRoomTypes(roomTypesParam);
+    if (typesParam) {
+      setLocalTypes(typesParam);
     } else {
-      setLocalRoomTypes([]);
+      setLocalTypes([]);
     }
 
     if (amenitiesParam) {
@@ -257,6 +360,8 @@ export default function Filters() {
     setLocalMaxCheckOutDate(maxCheckOutDateParam ?? undefined);
     setLocalMinConcertDate(minConcertDateParam ?? undefined);
     setLocalMaxConcertDate(maxConcertDateParam ?? undefined);
+    setLocalMinScreeningTime(minScreeningTimeParam ?? undefined);
+    setLocalMaxScreeningTime(maxScreeningTimeParam ?? undefined);
 
     validateLocal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -285,46 +390,21 @@ export default function Filters() {
       params.delete("airlines");
       localAirlines.forEach(a => params.append("airlines", a));
 
-      params.delete("seatclasses");
-      localSeatClasses.forEach(sc => params.append("seatclasses", sc));
-
-      if (localMinDeparture) {
-        params.set("mindeparture", localMinDeparture);
+      if (localBaggageKg) {
+        params.set("baggagekg", String(localBaggageKg));
       } else {
-        params.delete("mindeparture");
-      }
-
-      if (localMaxDeparture) {
-        params.set("maxdeparture", localMaxDeparture);
-      }
-      else {
-        params.delete("maxdeparture");
-      }
-
-      if (localMinArrival) {
-        params.set("minarrival", localMinArrival);
-      }
-      else {
-        params.delete("minarrival");
-      }
-
-      if (localMaxArrival) {
-        params.set("maxarrival", localMaxArrival);
-      }
-      else {
-        params.delete("maxarrival");
+        params.delete("baggagekg");
       }
     }
 
     if (activeCategory === "hotels") {
       params.delete("maxoccupancy");
-      params.set("maxoccupancy", String(localMaxOccupancy));
+      if (localMaxOccupancy) {
+        params.set("maxoccupancy", String(localMaxOccupancy));
+      }
 
       params.delete("hotels");
       localHotelNames.forEach(htl => params.append("hotels", htl));
-
-      params.delete("roomtypes");
-      localRoomTypes.forEach(rt => params.append("roomtypes", rt));
 
       if (localMinCheckInDate) {
         params.set("mincheckin", localMinCheckInDate);
@@ -366,9 +446,85 @@ export default function Filters() {
       localPackages.forEach(pkg => params.append("packages", pkg));
     }
 
+    if (activeCategory === "movies") {
+      params.delete("cinemas");
+      localCinemas.forEach(c => params.append("cinemas", c));
+
+      params.delete("seatsections");
+      localSeatSections.forEach(ss => params.append("seatsections", ss));
+
+      if (localMinScreeningTime) {
+        params.set("minscreening", localMinScreeningTime);
+      }
+      else {
+        params.delete("minscreening");
+      }
+
+      if (localMaxScreeningTime) {
+        params.set("maxscreening", localMaxScreeningTime);
+      }
+      else {
+        params.delete("maxscreening");
+      }
+    }
+
+    // * for future filters (if any)
+    if (["movies"].some(key => activeCategory === key)) {
+      if (localMaxDuration) {
+        params.set("maxduration", localMaxDuration);
+      }
+      else {
+        params.delete("maxduration");
+      }
+    }
+
+    if (["flights", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
+      params.delete("seatclasses");
+      localSeatClasses.forEach(sc => params.append("seatclasses", sc));
+
+      if (localDirect === undefined) {
+        params.delete("direct");
+      } else {
+        params.delete("direct");
+        params.set("direct", String(localDirect));
+      }
+
+      if (localMinDeparture) {
+        params.set("mindeparture", localMinDeparture);
+      } else {
+        params.delete("mindeparture");
+      }
+
+      if (localMaxDeparture) {
+        params.set("maxdeparture", localMaxDeparture);
+      }
+      else {
+        params.delete("maxdeparture");
+      }
+
+      if (localMinArrival) {
+        params.set("minarrival", localMinArrival);
+      }
+      else {
+        params.delete("minarrival");
+      }
+
+      if (localMaxArrival) {
+        params.set("maxarrival", localMaxArrival);
+      }
+      else {
+        params.delete("maxarrival");
+      }
+    }
+
+    if (["hotels", "movies", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
+      params.delete("types");
+      localTypes.forEach(t => params.append("types", t));
+    }
+
     if (["flights", "hotels", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
       params.delete("amenities");
-      localAmenities.forEach(sc => params.append("amenities", sc));
+      localAmenities.forEach(a => params.append("amenities", a));
     }
 
     console.log("dbg 1: ", params.toString())
@@ -400,26 +556,45 @@ export default function Filters() {
     setLocalMaxPrice(getInitialMaxPrice() ?? 0);
     if (activeCategory === "hotels") {
       setLocalHotelNames([]);
-      setLocalRoomTypes([]);
+      setLocalMaxOccupancy(getInitialMaxOccupancy());
       setLocalMinCheckInDate(undefined);
       setLocalMaxCheckOutDate(undefined);
     }
 
     if (activeCategory === "flights") {
       setLocalAirlines([]);
+      setLocalBaggageKg(0);
+    }
+
+    if (activeCategory === "concerts") {
+      setLocalVenues([]);
+      setLocalPackages([]);
+      setLocalMinConcertDate(undefined);
+      setLocalMaxConcertDate(undefined);
+    }
+
+    if (activeCategory === "movies") {
+      setLocalCinemas([]);
+      setLocalMinScreeningTime(undefined);
+      setLocalMaxScreeningTime(undefined);
+      setLocalMaxDuration("");
+    }
+
+    if (["concerts", "movies"].some(key => activeCategory === key)) {
+      setLocalSeatSections([]);
+    }
+
+    if (["flights", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
       setLocalSeatClasses([]);
+      setLocalDirect(undefined);
       setLocalMinDeparture(undefined);
       setLocalMaxDeparture(undefined);
       setLocalMinArrival(undefined);
       setLocalMaxArrival(undefined);
     }
 
-    if (activeCategory === "concerts") {
-      setLocalVenues([]);
-      setLocalSeatSections([]);
-      setLocalPackages([]);
-      setLocalMinConcertDate(undefined);
-      setLocalMaxConcertDate(undefined);
+    if (["hotels", "movies", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
+      setLocalTypes([]);
     }
 
     if (["flights", "hotels", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
@@ -434,7 +609,7 @@ export default function Filters() {
     params.set("page", "1");
 
     router.push(`?${params.toString()}`);
-    setHasToScrollToTop(true); // TODO: fix!
+    // setHasToScrollToTop(true); // TODO: fix!
     if (filtersWrapperRef.current) {
       filtersWrapperRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -478,18 +653,18 @@ export default function Filters() {
                 Filters
               </StyledTypography>
             </div>
-            <div ref={filtersWrapperRef} className="flex-1 overflow-y-auto space-y-2.5 py-3 mx-1">
+            <div ref={filtersWrapperRef} className="flex-1 overflow-y-auto space-y-2.5 py-3 px-3 bg-white-900">
               <div className="w-full flex flex-col">
                 <div className="flex gap-x-2 items-center mb-2">
                   <StyledTypography fontSizeInput={16} fontWeightInput="bold">
                     Max. Price
                   </StyledTypography>
-                  <StyledTypography fontSizeInput={14} fontWeightInput="normal" sx={{ bgcolor: 'var(--color-primary-500)', color: 'var(--color-white-900)', paddingX: 1.5, paddingY: 0.5, borderRadius: 4 }}>
+                  <StyledTypography fontSizeInput={14} fontWeightInput="normal" sx={{ bgcolor: 'var(--color-primary-500)', color: 'var(--color-white-900)', paddingX: 1.5, paddingY: 0.5, borderRadius: 4, maxWidth: "18ch", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     Rp {localMaxPrice.toLocaleString('id-ID')}
                   </StyledTypography>
                 </div>
-                <div className="ms-4 w-[75%]">
-                  <StyledSlider min={MIN_PRICE} max={MAX_PRICE} step={200000} onChange={(_: Event, v: number | number[]) => setLocalMaxPrice(v as number)} value={localMaxPrice} defaultValue={0} marks={priceMarks} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
+                <div className="w-[80%]">
+                  <StyledSlider min={MIN_PRICE} max={MAX_PRICE} step={metadata.maxPrice * 0.05} onChange={(_: Event, v: number | number[]) => setLocalMaxPrice(v as number)} value={localMaxPrice} defaultValue={0} marks={priceMarks} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
                   {validationErrors.maxprice && <p className="text-red-500 text-sm mt-1">{validationErrors.maxprice}</p>}
                 </div>
               </div>
@@ -504,6 +679,93 @@ export default function Filters() {
                   onValueChange={(newAirline) => setLocalAirline(newAirline ? String(newAirline) : undefined)}
                   value={localAirline}
                   /> */}
+              {(activeCategory === "movies") && (
+                <div className="mb-2">
+                  <DurationInput
+                    label="Max. Duration"
+                    value={localMaxDuration}
+                    onChange={setLocalMaxDuration}
+                    maxDuration={minutesToHHmmFormat(metadata.maxDurationInMinutes) ?? "99:59"}
+                  />
+                  {validationErrors.maxduration && <p className="text-red-500 text-sm mt-1">{validationErrors.maxduration}</p>}
+                </div>
+              )}
+              {(activeCategory === "hotels") && metadata?.maxOccupancy && (
+                <>
+                  <div className="flex gap-x-2 items-center mb-2">
+                    <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                      Max. Occupancy
+                    </StyledTypography>
+                    <StyledTypography fontSizeInput={14} fontWeightInput="normal" sx={{ bgcolor: 'var(--color-primary-500)', color: 'var(--color-white-900)', paddingLeft: 1.5, paddingRight: 2, paddingY: 0.5, borderRadius: 4 }}>
+                      <span>
+                        <PersonRounded sx={{ color: "var(--color-white-900)", fontSize: "20px" }} />
+                      </span> {localMaxOccupancy}
+                    </StyledTypography>
+                  </div>
+                  <div className="w-[80%]">
+                    <StyledSlider min={1} max={metadata.maxOccupancy} step={1} onChange={(_: Event, v: number | number[]) => setLocalMaxOccupancy(v as number)} value={localMaxOccupancy} defaultValue={1} marks={[
+                      {
+                        value: 1,
+                        label: '1',
+                      },
+                      {
+                        value: metadata.maxOccupancy,
+                        label: metadata.maxOccupancy.toString(),
+                      },
+                    ]} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
+                    {validationErrors.maxoccupancy && <p className="text-red-500 text-sm mt-1">{validationErrors.maxoccupancy}</p>}
+                  </div>
+                </>
+              )}
+              {(activeCategory === "flights") && metadata?.maxBaggageKg && (
+                <div className="w-full flex flex-col">
+                  <div className="flex gap-x-2 items-center mb-2">
+                    <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                      Baggage Weight
+                    </StyledTypography>
+                    <StyledTypography fontSizeInput={14} fontWeightInput="normal" sx={{ bgcolor: 'var(--color-primary-500)', color: 'var(--color-white-900)', paddingLeft: 1, paddingRight: 1.5, paddingY: 0.5, borderRadius: 4 }}>
+                      <span>
+                        <LuggageRounded sx={{ color: "var(--color-white-900)", fontSize: "20px" }} />
+                      </span> {localBaggageKg} kg
+                    </StyledTypography>
+                  </div>
+                  <div className="w-[80%]">
+                    <StyledSlider min={0} max={metadata.maxBaggageKg} step={1} onChange={(_: Event, v: number | number[]) => setLocalBaggageKg(v as number)} value={localBaggageKg} defaultValue={0} marks={[
+                      {
+                        value: 0,
+                        label: '0',
+                      },
+                      {
+                        value: metadata.maxBaggageKg,
+                        label: metadata.maxBaggageKg.toString(),
+                      },
+                    ]} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
+                    {validationErrors.baggagekg
+                      && <p className="text-red-500 text-sm mt-1">{validationErrors.baggagekg
+                      }</p>}
+                  </div>
+                </div>
+              )}
+              {["flights", "trains", "buses", "sea-transportations"].includes(activeCategory) && metadata?.directCount && metadata?.transitsCount && (
+                <div className="mb-2">
+                  <ButtonGroup
+                    label="Transits/Stops"
+                    value={localDirect}
+                    onChange={setLocalDirect}
+                    options={[
+                      { label: "All", val: undefined },
+                      { label: "Direct", val: true },
+                      { label: "Transits", val: false }
+                    ]}
+                  />
+                  <div className="h-4.25">
+                    <p className="text-[12px] text-accent-primary-900 mt-1.5 px-1">
+                      {localDirect === true && "Showing non-stop trips only"}
+                      {localDirect === false && "Showing trips with transit(s)"}
+                    </p>
+                  </div>
+                </div>
+              )}
               {(activeCategory == "flights") && metadata?.airlines && (
                 <div className="mb-2">
                   <MultiSelectDropdown
@@ -534,32 +796,15 @@ export default function Filters() {
                   />
                 </div>
               )}
-              {(activeCategory === "hotels") && metadata?.maxOccupancy && (
-                <>
-                  <div className="flex gap-x-2 items-center mb-2">
-                    <StyledTypography fontSizeInput={16} fontWeightInput="bold">
-                      Max. Occupancy
-                    </StyledTypography>
-                    <StyledTypography fontSizeInput={14} fontWeightInput="normal" sx={{ bgcolor: 'var(--color-primary-500)', color: 'var(--color-white-900)', paddingLeft: 1.5, paddingRight: 2, paddingY: 0.5, borderRadius: 4 }}>
-                      <span>
-                        <PersonRounded sx={{ color: "var(--color-white-900)", fontSize: "20px" }} />
-                      </span> {localMaxOccupancy}
-                    </StyledTypography>
-                  </div>
-                  <div className="mb-2 ms-4 w-[75%]">
-                    <StyledSlider min={1} max={metadata.maxOccupancy} step={1} onChange={(_: Event, v: number | number[]) => setLocalMaxOccupancy(v as number)} value={localMaxOccupancy} defaultValue={1} marks={[
-                      {
-                        value: 0,
-                        label: '0',
-                      },
-                      {
-                        value: metadata.maxOccupancy,
-                        label: metadata.maxOccupancy.toString(),
-                      },
-                    ]} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
-                    {validationErrors.maxoccupancy && <p className="text-red-500 text-sm mt-1">{validationErrors.maxoccupancy}</p>}
-                  </div>
-                </>
+              {(activeCategory == "movies") && metadata?.cinemas && (
+                <div className="mb-2">
+                  <MultiSelectDropdown
+                    label="Cinemas"
+                    options={metadata.cinemas}
+                    selected={localCinemas}
+                    onChange={setLocalCinemas}
+                  />
+                </div>
               )}
               {(activeCategory === "concerts") && metadata?.minConcertDate && metadata?.maxConcertDate && (
                 <>
@@ -578,6 +823,26 @@ export default function Filters() {
                       onChange={setLocalMaxConcertDate}
                     />
                     {validationErrors.maxconcert && <p className="text-red-500 text-sm mt-1">{validationErrors.maxconcert}</p>}
+                  </div>
+                </>
+              )}
+              {(activeCategory === "movies") && metadata?.minScreeningTime && metadata?.maxScreeningTime && (
+                <>
+                  <div className="mb-2">
+                    <DateTimeInput
+                      label="Min. Screening Time"
+                      value={localMinScreeningTime}
+                      onChange={setLocalMinScreeningTime}
+                    />
+                    {validationErrors.minscreening && <p className="text-red-500 text-sm mt-1">{validationErrors.minscreening}</p>}
+                  </div>
+                  <div className="mb-2">
+                    <DateTimeInput
+                      label="Max. Screening Time"
+                      value={localMaxScreeningTime}
+                      onChange={setLocalMaxScreeningTime}
+                    />
+                    {validationErrors.maxscreening && <p className="text-red-500 text-sm mt-1">{validationErrors.maxscreening}</p>}
                   </div>
                 </>
               )}
@@ -601,74 +866,6 @@ export default function Filters() {
                   </div>
                 </>
               )}
-              {(activeCategory == "hotels") && metadata?.roomTypes && (
-                <div className="mb-2">
-                  <MultiCheckboxGroup
-                    label="Room Types"
-                    options={metadata.roomTypes}
-                    selected={localRoomTypes}
-                    onChange={setLocalRoomTypes}
-                  />
-                </div>
-              )}
-              {["flights", "trains", "buses", "sea-transportations"].includes(activeCategory)
-                && metadata?.seatClasses && (
-                  <div className="mb-2">
-                    <MultiCheckboxGroup
-                      label="Seat Classes"
-                      options={metadata.seatClasses}
-                      selected={localSeatClasses}
-                      onChange={setLocalSeatClasses}
-                    />
-                  </div>
-                )}
-              {(activeCategory === "concerts")
-                && metadata?.seatSections && (
-                  <div className="mb-2">
-                    <MultiCheckboxGroup
-                      label="Seat Sections"
-                      options={metadata.seatSections}
-                      selected={localSeatSections}
-                      onChange={setLocalSeatSections}
-                    />
-                  </div>
-                )}
-              {/* <MultiCheckboxGroup
-                  label="Seat Classes"
-                  options={metadata.seatClasses}
-                  selected={localSeatClasses}
-                  onChange={setLocalSeatClasses}
-                /> */}
-              {["flights", "trains", "buses", "sea-transportations", "hotels"].includes(activeCategory)
-                && metadata?.amenities && (
-                  <div className="mb-2">
-                    <MultiCheckboxGroup
-                      label="Amenities"
-                      options={metadata.amenities}
-                      selected={localAmenities}
-                      onChange={setLocalAmenities}
-                    />
-
-                  </div>
-                )}
-              {(activeCategory === "concerts")
-                && metadata?.packages && (
-                  <div className="mb-2">
-                    <MultiCheckboxGroup
-                      label="Packages"
-                      options={metadata.packages}
-                      selected={localPackages}
-                      onChange={setLocalPackages}
-                    />
-
-                  </div>
-                )}
-              {/* <MultiCheckboxGroup
-                label="Amenities"
-                options={metadata.amenities}
-                selected={localAmenities}
-                onChange={setLocalAmenities}
-              /> */}
               {["flights", "trains", "buses", "sea-transportations"].includes(activeCategory)
                 && metadata?.minDeparture && metadata?.maxDeparture && metadata?.minArrival && metadata?.maxArrival && (
                   <>
@@ -705,6 +902,62 @@ export default function Filters() {
                       {validationErrors.maxarrival && <p className="text-red-500 text-sm mt-1">{validationErrors.maxarrival}</p>}
                     </div>
                   </>
+                )}
+              {["hotels", "movies", "trains", "buses", "sea-transportations"].includes(activeCategory)
+                && metadata?.types && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label={`${activeCategory === "hotels" ? `Room` : activeCategory === "movies" ? "Cinema" : activeCategory === "trains" ? "Train" : activeCategory === "buses" ? "Bus" : "Transportation"} Types`}
+                      options={metadata.types}
+                      selected={localTypes}
+                      onChange={setLocalTypes}
+                    />
+                  </div>
+                )}
+              {["flights", "trains", "buses", "sea-transportations"].includes(activeCategory)
+                && metadata?.seatClasses && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label="Seat Classes"
+                      options={metadata.seatClasses}
+                      selected={localSeatClasses}
+                      onChange={setLocalSeatClasses}
+                    />
+                  </div>
+                )}
+              {["movies", "concerts"].includes(activeCategory)
+                && metadata?.seatSections && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label="Seat Sections"
+                      options={metadata.seatSections}
+                      selected={localSeatSections}
+                      onChange={setLocalSeatSections}
+                    />
+                  </div>
+                )}
+              {["flights", "trains", "buses", "sea-transportations", "hotels"].includes(activeCategory)
+                && metadata?.amenities && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label="Amenities"
+                      options={metadata.amenities}
+                      selected={localAmenities}
+                      onChange={setLocalAmenities}
+                    />
+
+                  </div>
+                )}
+              {(activeCategory === "concerts")
+                && metadata?.packages && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label="Packages"
+                      options={metadata.packages}
+                      selected={localPackages}
+                      onChange={setLocalPackages}
+                    />
+                  </div>
                 )}
             </div>
             <div className="border-t pt-3 border-accent-secondary-900 bg-white-900 flex justify-between">

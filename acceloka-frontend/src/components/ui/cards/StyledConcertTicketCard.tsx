@@ -40,7 +40,7 @@ export default function StyledConcertTicketCard({ ticket }: { ticket: IConcertTi
                   Section
                 </StyledTypography>
                 <div className="">
-                  <span className="inline-block px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
+                  <span className="inline-flex px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
                     {ticket.seatSection}
                   </span>
                 </div>

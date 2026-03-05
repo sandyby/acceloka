@@ -165,6 +165,13 @@ export function generateRandomDays(maxNumber: number) {
   return Math.ceil(Math.random() * (maxNumber ?? 5));
 }
 
+export function minutesToHHmmFormat(totalMinutes: number | undefined): string | undefined {
+  if (!totalMinutes) return undefined;
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+};
+
 
 // export const FILTER_COMPONENTS: Record<
 //   string,

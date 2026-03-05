@@ -3,7 +3,7 @@
 import StyledTypography from '@/components/ui/StyledTypography';
 import { calculateArrivalTime, durationFormatter, formatDateTimeWithWords } from '@/lib/utils';
 import { IFlightTicket } from '@/types/card';
-import { KeyboardDoubleArrowRightSharp } from '@mui/icons-material';
+import { KeyboardDoubleArrowRightSharp, LuggageRounded } from '@mui/icons-material';
 import { color } from 'framer-motion';
 
 export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTicket }) {
@@ -34,14 +34,27 @@ export default function StyledFlightTicketCard({ ticket }: { ticket: IFlightTick
                 <div className="flex flex-row items-end justify-between items-start content-start">
                     <div className="flex flex-col justify-between h-full">
                         <div className="">
-                            <div className="mb-2 flex flex-col gap-y-0.5">
-                                <StyledTypography fontSizeInput={16} fontWeightInput="bold">
-                                    Seat Class
-                                </StyledTypography>
-                                <div className="">
-                                    <span className="inline-block px-3 py-1 bg-primary-500 text-white text-xs rounded-full">
-                                        {ticket.seatClass}
-                                    </span>
+                            <div className="flex gap-x-8">
+                                <div className="mb-2 flex flex-col gap-y-0.5">
+                                    <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                        Seat Class
+                                    </StyledTypography>
+                                    <div className="">
+                                        <span className="inline-flex ps-3 pe-4 py-1 bg-primary-500 text-white text-xs rounded-full">
+                                            {ticket.seatClass}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="mb-2 flex flex-col gap-y-0.5">
+                                    <StyledTypography fontSizeInput={16} fontWeightInput="bold">
+                                        Max. Baggage Weight
+                                    </StyledTypography>
+                                    <div className="">
+                                        <span className="inline-flex items-center ps-3 pe-4 py-1 bg-primary-500 text-white text-xs rounded-full">
+                                            <LuggageRounded sx={{ color: "var(--color-white-900)", marginRight: "4px", fontSize: "16px" }} />
+                                            {ticket.baggageKg} kg
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="mb-2 flex flex-col gap-y-0.5">
