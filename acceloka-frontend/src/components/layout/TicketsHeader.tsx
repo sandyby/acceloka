@@ -7,7 +7,7 @@ import StyledTicketCountDisplay from "@/components/ui/headers/StyledTicketCountD
 import StyledSingleRowSkeleton from "@/components/ui/skeletons/StyledSingleRowSkeleton";
 import StyledTicketHeaderSkeleton from "@/components/ui/skeletons/StyledTicketHeaderSkeleton";
 import { iconCategoryMapper } from "@/lib/utils";
-import { useTicketsData } from "@/contexts/TicketsDataContext";
+import useTicketsData from "@/hooks/useTicketsData";
 import { width } from '@mui/system';
 
 const TicketsHeader = () => {
@@ -16,9 +16,12 @@ const TicketsHeader = () => {
 
     return (
         <>
+            {(!isError && !validationError && (isFetching || !data)) && (
+                <StyledTicketHeaderSkeleton />
+            )}
             {!isFetching && validationError && (
                 <>
-                <StyledTypography fontSizeInput={36} fontWeightInput="bold" sx={{ color: 'var(--color-red-500)' }} >
+                    <StyledTypography fontSizeInput={36} fontWeightInput="bold" sx={{ color: 'var(--color-red-500)' }} >
                         Invalid Filter(s)
                     </StyledTypography>
                     <div className="flex gap-x-1.5 overflow-x-scroll">
@@ -27,9 +30,6 @@ const TicketsHeader = () => {
                         </p>
                     </div>
                 </>
-            )}
-            {(!isError && !validationError && (isFetching || !data)) && (
-                <StyledTicketHeaderSkeleton />
             )}
             {!isFetching && !isError && !validationError && data && (
                 <div className="gap-y-1.5">

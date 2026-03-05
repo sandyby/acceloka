@@ -1,6 +1,6 @@
 "use client";
 
-import { useTicketsData } from "@/contexts/TicketsDataContext";
+import useTicketsData from "@/hooks/useTicketsData";
 import StyledTypography from "@/components/ui/StyledTypography";
 import StyledTicketCardsSkeleton from "@/components/ui/skeletons/StyledTicketCardsSkeleton";
 import { AvailableTicketTypes } from "@/types/card";

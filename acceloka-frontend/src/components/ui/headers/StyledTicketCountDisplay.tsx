@@ -1,4 +1,4 @@
-import { useTicketsData } from "@/contexts/TicketsDataContext";
+import useTicketsData from "@/hooks/useTicketsData";
 import StyledSingleRowSkeleton from "@/components/ui/skeletons/StyledSingleRowSkeleton";
 import StyledTypography from "@/components/ui/StyledTypography";
 

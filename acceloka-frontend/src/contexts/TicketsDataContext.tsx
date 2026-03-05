@@ -16,7 +16,7 @@ interface TicketsDataContextType {
     validationError?: z.ZodError;
 }
 
-const TicketsDataContext = createContext<TicketsDataContextType | null>(null);
+export const TicketsDataContext = createContext<TicketsDataContextType | null>(null);
 
 export function TicketsDataProvider({ children }: { children: ReactNode }) {
     const searchParams = useSearchParams();
@@ -50,15 +50,20 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
                 maxoccupancy: parsedMaxOccupancy,
                 airlines: searchParams.getAll("airlines"),
                 seatclasses: searchParams.getAll("seatclasses"),
+                seatsections: searchParams.getAll("seatsections"),
                 hotelnames: searchParams.getAll("hotels"),
+                venues: searchParams.getAll("venues"),
                 roomtypes: searchParams.getAll("roomtypes"),
                 amenities: searchParams.getAll("amenities"),
+                packages: searchParams.getAll("packages"),
                 mindeparture: searchParams.get("mindeparture"),
                 maxdeparture: searchParams.get("maxdeparture"),
                 minarrival: searchParams.get("minarrival"),
                 maxarrival: searchParams.get("maxarrival"),
                 mincheckin: searchParams.get("mincheckin"),
                 maxcheckout: searchParams.get("maxcheckout"),
+                minconcert: searchParams.get("minconcert"),
+                maxconcert: searchParams.get("maxconcert"),
             };
             const parsed = FilterSchema.parse(rawFilters);
             return { filters: parsed, validationError: undefined };
@@ -78,9 +83,12 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
             ? `
             airlines: ${filters.airlines},
             seatclasses: ${filters.seatclasses},
+            seatsections: ${filters.seatsections},
             hotelnames: ${filters.hotelnames},
+            venues: ${filters.venues},
             roomtypes: ${filters.roomtypes},
             amenities: ${filters.amenities},
+            packages: ${filters.packages},
             maxprice: ${filters.maxprice},
             maxoccupancy: ${filters.maxoccupancy},
             mindeparture: ${filters.mindeparture},
@@ -89,6 +97,8 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
             maxarrival: ${filters.maxarrival}
             mincheckin: ${filters.mincheckin},
             maxcheckout: ${filters.maxcheckout}
+            minconcert: ${filters.minconcert},
+            maxconcert: ${filters.maxconcert}
             ` : 'undefined (validation failed)'
         } `
     );
@@ -118,10 +128,4 @@ export function TicketsDataProvider({ children }: { children: ReactNode }) {
             {children}
         </TicketsDataContext.Provider>
     )
-}
-
-export const useTicketsData = () => {
-    const context = useContext(TicketsDataContext);
-    if (!context) throw new Error("useTicketsData must be used inside the provider!");
-    return context;
 }

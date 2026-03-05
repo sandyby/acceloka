@@ -102,13 +102,20 @@ export default function MultiSelectDropdown({
                     const { key, ...restOfTheProps } = props;
 
                     return (
-                        <li key={key} {...restOfTheProps} className="hover:bg-primary-50 text-primary-500">
-                            <Checkbox
-                                checked={selected.includes(option)}
-                                size="small"
-                                sx={{ mr: 1 }}
-                            />
-                            {option}
+                        <li key={key} {...restOfTheProps}
+                            className="flex items-start gap-x-2 px-2 py-2 hover:bg-primary-50 text-primary-500 cursor-pointer"
+                        >
+                            <div className="shrink-0 -mt-1">
+                                <Checkbox
+                                    checked={selected.includes(option)}
+                                    size="small"
+                                    sx={{ p: 0 }}
+                                />
+                            </div>
+
+                            <span className="text-md leading-tight wrap-break-word flex-1">
+                                {option}
+                            </span>
                         </li>)
                 }}
                 slotProps={{

@@ -82,7 +82,7 @@ export default function StyledHotelTicketCard({ ticket }: { ticket: IHotelTicket
                             </div><div className="text-sm text-secondary-900">
                                 <div className="">Max. check-out until</div>
                                 <div className="text-lg font-bold">
-                                    {formatDateTimeWithWords(new Date(tempMaxCheckOutDate), { weekday: "long", month: "short" })}
+                                    {formatDateTimeWithWords(new Date(ticket.maxCheckOutDate), { weekday: "long", month: "short" })}
                                 </div>
                             </div>
                         </div>

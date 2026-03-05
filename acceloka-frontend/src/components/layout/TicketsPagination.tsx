@@ -1,7 +1,8 @@
 "use client";
 
 import StyledPagination from "@/components/ui/StyledPagination";
-import { useTicketsData } from "@/contexts/TicketsDataContext";
+import useScrollToTop from "@/hooks/useScrollToTop";
+import useTicketsData from "@/hooks/useTicketsData";
 import { KeyboardDoubleArrowLeftRounded, KeyboardDoubleArrowRightRounded } from "@mui/icons-material";
 import { PaginationItem } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,6 +11,7 @@ export default function TicketsPagination() {
     const { data } = useTicketsData();
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { setHasToScrollToTop } = useScrollToTop();
 
     if (!data) return null;
 
@@ -20,6 +22,7 @@ export default function TicketsPagination() {
     const changePage = (_: unknown, newPage: number) => {
         const newParams = new URLSearchParams(searchParams);
         newParams.set("page", String(newPage));
+        setHasToScrollToTop(true);
         router.replace(`?${newParams.toString()}`);
     };
 

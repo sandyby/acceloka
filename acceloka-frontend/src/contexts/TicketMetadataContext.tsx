@@ -15,7 +15,7 @@ interface TicketMetadataContextType {
 
 type TicketMetadataContextValue = Pick<UseQueryResult<TicketMetadata, unknown>, 'data' | 'isFetching' | 'isError' | 'error' | 'refetch'>;
 
-const TicketMetadataContext = createContext<TicketMetadataContextValue | null>(null);
+export const TicketMetadataContext = createContext<TicketMetadataContextValue | null>(null);
 
 export function TicketMetadataProvider({ children }: { children: ReactNode }) {
     const searchParams = useSearchParams();
@@ -27,7 +27,8 @@ export function TicketMetadataProvider({ children }: { children: ReactNode }) {
         suspense: false,
         useErrorBoundary: false,
         staleTime: 1000 * 60 * 5,
-        retry: false,
+        retry: 1,
+        retryDelay: 1000,
     });
 
     return (
@@ -36,9 +37,3 @@ export function TicketMetadataProvider({ children }: { children: ReactNode }) {
         </TicketMetadataContext.Provider>
     );
 }
-
-export const useTicketMetadata = () => {
-    const context = useContext(TicketMetadataContext);
-    if (!context) throw new Error("useTicketMetadata must be used inside the provider!");
-    return context;
-};

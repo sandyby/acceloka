@@ -40,7 +40,7 @@ export default function MultiCheckboxGroup({
                             />
                         }
                         label={option}
-                        sx={{ color: "var(--color-secondary-900)", textTransform: "capitalize" }}
+                        sx={{ color: "var(--color-secondary-900)", paddingX: "4px", marginY: "0.5px", borderRadius: "24px", textTransform: "capitalize", ":hover": { bgcolor: "var(--color-primary-50)" } }}
                     />
                 ))}
             </FormGroup>

@@ -3,9 +3,9 @@
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTicketMetadata } from "@/contexts/TicketMetadataContext";
+import useTicketMetadata from "@/hooks/useTicketsMetadata";
 import StyledTypography from "@/components/ui/StyledTypography";
-import { useEffect, useRef, useState, useContext, act } from "react";
+import { useEffect, useRef, useState, useContext, act, Suspense } from "react";
 import StyledFiltersSkeleton from "@/components/ui/skeletons/StyledFiltersSkeleton";
 import DateTimeInput from "@/components/ui/DateTimeInput";
 import { FilterSchema } from "@/lib/filters-schema";
@@ -15,10 +15,13 @@ import { StyledSlider, StyledSliderLabel } from "@/components/ui/StyledRangeSlid
 import MultiCheckboxGroup from "../ui/MultiCheckboxGroup";
 import { ActiveCategoryContext } from "@/contexts/ActiveCategoryContext";
 import { PersonRounded } from "@mui/icons-material";
+import DateInput from "../ui/DateInput";
+import useScrollToTop from "@/hooks/useScrollToTop";
 
 export default function Filters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { hasToScrollToTop, setHasToScrollToTop } = useScrollToTop();
 
   const filtersWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -51,8 +54,12 @@ export default function Filters() {
     "maxdeparture", "minarrival", "maxarrival"
   ];
 
+  const concertTicketFilters = [
+    "maxprice", "venue", "seatsections", "concertdate", "packages"
+  ];
+
   // * clear all button needs (conditional)
-  const hasActiveFilters = activeCategory === "flights" ? flightTicketFilters.some(key => searchParams.has(key)) : activeCategory === "hotels" ? hotelTicketFilters.some(key => searchParams.has(key)) : false;
+  const hasActiveFilters = activeCategory === "flights" ? flightTicketFilters.some(key => searchParams.has(key)) : activeCategory === "hotels" ? hotelTicketFilters.some(key => searchParams.has(key)) : activeCategory === "concerts" ? concertTicketFilters.some(key => searchParams.has(key)) : false;
 
   const getInitialMaxPrice = () => {
     const param = searchParams.get("maxprice");
@@ -77,10 +84,15 @@ export default function Filters() {
   const [localMaxPrice, setLocalMaxPrice] = useState<number>(getInitialMaxPrice());
   const [localMaxOccupancy, setLocalMaxOccupancy] = useState<number>(getInitialMaxOccupancy());
   const [localAmenities, setLocalAmenities] = useState<string[]>([]);
+  const [localPackages, setLocalPackages] = useState<string[]>([]);
   const [localAirlines, setLocalAirlines] = useState<string[]>([]);
   const [localSeatClasses, setLocalSeatClasses] = useState<string[]>([]);
   const [localHotelNames, setLocalHotelNames] = useState<string[]>([]);
   const [localRoomTypes, setLocalRoomTypes] = useState<string[]>([]);
+  const [localVenues, setLocalVenues] = useState<string[]>([]);
+  const [localSeatSections, setLocalSeatSections] = useState<string[]>([]);
+  const [localMinConcertDate, setLocalMinConcertDate] = useState<string | undefined>();
+  const [localMaxConcertDate, setLocalMaxConcertDate] = useState<string | undefined>();
   const [localMinDeparture, setLocalMinDeparture] = useState<string | undefined>();
   const [localMaxDeparture, setLocalMaxDeparture] = useState<string | undefined>();
   const [localMinArrival, setLocalMinArrival] = useState<string | undefined>();
@@ -97,15 +109,19 @@ export default function Filters() {
         maxoccupancy: localMaxOccupancy,
         airlines: localAirlines,
         seatclasses: localSeatClasses,
+        seatsections: localSeatSections,
         hotelnames: localHotelNames,
         roomtypes: localRoomTypes,
         amenities: localAmenities,
+        packages: localPackages,
         mindeparture: localMinDeparture,
         maxdeparture: localMaxDeparture,
         minarrival: localMinArrival,
         maxarrival: localMaxArrival,
         mincheckin: localMinCheckInDate,
-        maxcheckin: localMaxCheckOutDate,
+        maxcheckout: localMaxCheckOutDate,
+        minconcert: localMinConcertDate,
+        maxconcert: localMaxConcertDate,
       });
       setValidationErrors({});
       return true;
@@ -128,18 +144,28 @@ export default function Filters() {
     }
   };
 
+  // TODO: fix logic for this custom hook for smooth scrolling to the top, reset scroll position
+  // useEffect(() => {
+  //   if (filtersWrapperRef.current) {
+  //     filtersWrapperRef.current.scrollTo({ top: 0, behavior: "smooth" });
+  //   }
+  // }, [hasToScrollToTop]);
+
   // * for real-time like validating if local state changes
   useEffect(() => {
     validateLocal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localMaxPrice, localAirlines, localSeatClasses, localAmenities, localMinDeparture, localMaxDeparture, localMinArrival, localMaxArrival]);
+  }, [localMaxPrice, localAirlines, localHotelNames, localRoomTypes, localMaxCheckOutDate, localMinCheckInDate, localMaxConcertDate, localMinConcertDate, localMaxOccupancy, localSeatSections, localVenues, localSeatClasses, localAmenities, localPackages, localMinDeparture, localMaxDeparture, localMinArrival, localMaxArrival]);
 
   // * for real-time update on filters content based on new params/URL
   useEffect(() => {
     const seatClassesParam = searchParams.getAll("seatclasses");
+    const seatSectionsParam = searchParams.getAll("seatsections");
     const airlinesParam = searchParams.getAll("airlines");
     const roomTypesParam = searchParams.getAll("roomtypes");
     const hotelNamesParam = searchParams.getAll("hotels");
+    const venuesParam = searchParams.getAll("venues");
+    const packagesParam = searchParams.getAll("packages");
     const amenitiesParam = searchParams.getAll("amenities");
     const minDepartureParam = searchParams.get("mindeparture");
     const maxDepartureParam = searchParams.get("maxdeparture");
@@ -147,6 +173,8 @@ export default function Filters() {
     const maxArrivalParam = searchParams.get("maxarrival");
     const minCheckInDateParam = searchParams.get("mincheckin");
     const maxCheckOutDateParam = searchParams.get("maxcheckout");
+    const minConcertDateParam = searchParams.get("minconcert");
+    const maxConcertDateParam = searchParams.get("maxconcert");
 
     const maxPriceParam = searchParams.get("maxprice");
     const maxOccupancyParam = searchParams.get("maxoccupancy");
@@ -185,10 +213,22 @@ export default function Filters() {
       setLocalHotelNames([]);
     }
 
+    if (venuesParam) {
+      setLocalVenues(venuesParam);
+    } else {
+      setLocalVenues([]);
+    }
+
     if (seatClassesParam) {
       setLocalSeatClasses(seatClassesParam);
     } else {
       setLocalSeatClasses([]);
+    }
+
+    if (seatSectionsParam) {
+      setLocalSeatSections(seatSectionsParam);
+    } else {
+      setLocalSeatSections([]);
     }
 
     if (roomTypesParam) {
@@ -203,12 +243,20 @@ export default function Filters() {
       setLocalAmenities([]);
     }
 
+    if (packagesParam) {
+      setLocalPackages(packagesParam);
+    } else {
+      setLocalPackages([]);
+    }
+
     setLocalMinDeparture(minDepartureParam ?? undefined);
     setLocalMaxDeparture(maxDepartureParam ?? undefined);
     setLocalMinArrival(minArrivalParam ?? undefined);
     setLocalMaxArrival(maxArrivalParam ?? undefined);
     setLocalMinCheckInDate(minCheckInDateParam ?? undefined);
     setLocalMaxCheckOutDate(maxCheckOutDateParam ?? undefined);
+    setLocalMinConcertDate(minConcertDateParam ?? undefined);
+    setLocalMaxConcertDate(maxConcertDateParam ?? undefined);
 
     validateLocal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -293,11 +341,34 @@ export default function Filters() {
       }
     }
 
+    if (activeCategory === "concerts") {
+      params.delete("venues");
+      localVenues.forEach(v => params.append("venues", v));
+
+      params.delete("seatsections");
+      localSeatSections.forEach(ss => params.append("seatsections", ss));
+
+      if (localMinConcertDate) {
+        params.set("minconcert", localMinConcertDate);
+      }
+      else {
+        params.delete("minconcert");
+      }
+
+      if (localMaxConcertDate) {
+        params.set("maxconcert", localMaxConcertDate);
+      }
+      else {
+        params.delete("maxconcert");
+      }
+
+      params.delete("packages");
+      localPackages.forEach(pkg => params.append("packages", pkg));
+    }
+
     if (["flights", "hotels", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
       params.delete("amenities");
       localAmenities.forEach(sc => params.append("amenities", sc));
-    } else if (activeCategory === "concerts") {
-      // TODO: concert packages
     }
 
     console.log("dbg 1: ", params.toString())
@@ -318,6 +389,7 @@ export default function Filters() {
       setTimeout(() => {
         setIsApplyingFilter(false);
       }, 500); // ! for testing purposes!
+      // setHasToScrollToTop(true); // TODO: fix!
       if (filtersWrapperRef.current) {
         filtersWrapperRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -342,6 +414,14 @@ export default function Filters() {
       setLocalMaxArrival(undefined);
     }
 
+    if (activeCategory === "concerts") {
+      setLocalVenues([]);
+      setLocalSeatSections([]);
+      setLocalPackages([]);
+      setLocalMinConcertDate(undefined);
+      setLocalMaxConcertDate(undefined);
+    }
+
     if (["flights", "hotels", "trains", "buses", "sea-transportations"].some(key => activeCategory === key)) {
       setLocalAmenities([]);
     }
@@ -354,6 +434,7 @@ export default function Filters() {
     params.set("page", "1");
 
     router.push(`?${params.toString()}`);
+    setHasToScrollToTop(true); // TODO: fix!
     if (filtersWrapperRef.current) {
       filtersWrapperRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -361,8 +442,10 @@ export default function Filters() {
 
   return (
     <>
-      {isFetching || !metadata && (
-        <StyledFiltersSkeleton />
+      {(isFetching || !metadata) && !isError && (
+        <>
+          <StyledFiltersSkeleton />
+        </>
       )}
       {!isFetching && isError && !metadata && (
         <div className="p-6 rounded-3xl bg-white-900 row-span-3 h-100 overflow-y-auto">
@@ -441,6 +524,16 @@ export default function Filters() {
                   />
                 </div>
               )}
+              {(activeCategory == "concerts") && metadata?.venues && (
+                <div className="mb-2">
+                  <MultiSelectDropdown
+                    label="Venues"
+                    options={metadata.venues}
+                    selected={localVenues}
+                    onChange={setLocalVenues}
+                  />
+                </div>
+              )}
               {(activeCategory === "hotels") && metadata?.maxOccupancy && (
                 <>
                   <div className="flex gap-x-2 items-center mb-2">
@@ -465,6 +558,26 @@ export default function Filters() {
                       },
                     ]} valueLabelDisplay="auto" slots={{ valueLabel: StyledSliderLabel }} />
                     {validationErrors.maxoccupancy && <p className="text-red-500 text-sm mt-1">{validationErrors.maxoccupancy}</p>}
+                  </div>
+                </>
+              )}
+              {(activeCategory === "concerts") && metadata?.minConcertDate && metadata?.maxConcertDate && (
+                <>
+                  <div className="mb-2">
+                    <DateInput
+                      label="Min. Concert Date"
+                      value={localMinConcertDate}
+                      onChange={setLocalMinConcertDate}
+                    />
+                    {validationErrors.minconcert && <p className="text-red-500 text-sm mt-1">{validationErrors.minconcert}</p>}
+                  </div>
+                  <div className="mb-2">
+                    <DateInput
+                      label="Max. Concert Date"
+                      value={localMaxConcertDate}
+                      onChange={setLocalMaxConcertDate}
+                    />
+                    {validationErrors.maxconcert && <p className="text-red-500 text-sm mt-1">{validationErrors.maxconcert}</p>}
                   </div>
                 </>
               )}
@@ -509,6 +622,17 @@ export default function Filters() {
                     />
                   </div>
                 )}
+              {(activeCategory === "concerts")
+                && metadata?.seatSections && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label="Seat Sections"
+                      options={metadata.seatSections}
+                      selected={localSeatSections}
+                      onChange={setLocalSeatSections}
+                    />
+                  </div>
+                )}
               {/* <MultiCheckboxGroup
                   label="Seat Classes"
                   options={metadata.seatClasses}
@@ -523,6 +647,18 @@ export default function Filters() {
                       options={metadata.amenities}
                       selected={localAmenities}
                       onChange={setLocalAmenities}
+                    />
+
+                  </div>
+                )}
+              {(activeCategory === "concerts")
+                && metadata?.packages && (
+                  <div className="mb-2">
+                    <MultiCheckboxGroup
+                      label="Packages"
+                      options={metadata.packages}
+                      selected={localPackages}
+                      onChange={setLocalPackages}
                     />
 
                   </div>

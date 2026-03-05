@@ -8,6 +8,7 @@ import { TicketMetadataProvider } from "@/contexts/TicketMetadataContext";
 import TotalTicketsFilteredProvider from "@/contexts/TotalTicketsFilteredContext";
 import { Suspense } from "react";
 import Filters from "@/components/layout/Filters";
+import StyledFiltersSkeleton from "@/components/ui/skeletons/StyledFiltersSkeleton";
 
 export default function Home() {
 
@@ -21,7 +22,7 @@ export default function Home() {
             <TicketMetadataProvider>
               <TicketsDataProvider>
                 <TotalTicketsFilteredProvider>
-                  <div className="h-fit w-full grid grid-cols-[360px_968px] grid-rows-[110px_1fr_48px] gap-x-6 gap-y-4 mt-2.5">
+                  <div className="h-full w-full grid grid-cols-[360px_968px] grid-rows-[110px_1fr_48px] gap-x-6 gap-y-4 mt-2.5">
                     <Filters />
                     <TicketContents />
                   </div>
