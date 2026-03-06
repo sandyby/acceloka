@@ -8,7 +8,7 @@ import StyledSingleRowSkeleton from "@/components/ui/skeletons/StyledSingleRowSk
 import StyledTicketHeaderSkeleton from "@/components/ui/skeletons/StyledTicketHeaderSkeleton";
 import { iconCategoryMapper } from "@/lib/utils";
 import useTicketsData from "@/hooks/useTicketsData";
-import { width } from '@mui/system';
+import Sorts from "@/components/layout/Sorts";
 
 const TicketsHeader = () => {
     const { data, isFetching, isError, validationError } = useTicketsData();
@@ -32,15 +32,21 @@ const TicketsHeader = () => {
                 </>
             )}
             {!isFetching && !isError && !validationError && data && (
-                <div className="gap-y-1.5">
-                    <StyledTypography fontSizeInput={36} colorInput="white" fontWeightInput="bold" sx={{ textTransform: "capitalize" }} >
-                        {activeCategory}
-                    </StyledTypography>
-                    <div className="flex items-center gap-x-2 pt-1.5 pb-2.5">
-                        {iconCategoryMapper(activeCategory, "36px", { color: "primary" })}
-                        <StyledTicketCountDisplay count={data?.totalTicketsCount} />
+                <div className="flex gap-x-4">
+                    <div className="gap-y-1.5">
+                        <StyledTypography fontSizeInput={36} colorInput="white" fontWeightInput="bold" sx={{ textTransform: "capitalize" }} >
+                            {activeCategory}
+                        </StyledTypography>
+                        <div className="flex items-center gap-x-2 pt-1.5 pb-2.5">
+                            {iconCategoryMapper(activeCategory, "36px", { color: "primary" })}
+                            <StyledTicketCountDisplay count={data?.totalTicketsCount} />
+                        </div>
                     </div>
-                </div >
+                    {/* // TODO: add sortings di sini! */}
+                    {/* <div>
+                        <Sorts />
+                    </div> */}
+                </div>
             )}
         </>
     );

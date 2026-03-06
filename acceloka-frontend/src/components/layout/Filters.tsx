@@ -50,7 +50,7 @@ export default function Filters() {
   // TODO:  buat mapper
   const flightTicketFilters = [
     "maxprice", "airlines", "amenities", "seatclasses", "mindeparture",
-    "maxdeparture", "minarrival", "maxarrival"
+    "maxdeparture", "minarrival", "maxarrival", "direct"
   ];
 
   const hotelTicketFilters = [
@@ -964,14 +964,18 @@ export default function Filters() {
               <button
                 onClick={clearAllFilters}
                 disabled={isApplyingFilter || !hasActiveFilters}
-                className={`border border-secondary-900 text-secondary-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-secondary-900 hover:text-white-900 transition-colors ${isApplyingFilter || !hasActiveFilters ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`border border-secondary-900 text-secondary-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-secondary-900 hover:text-white-900 transition-colors
+                  ${isApplyingFilter || !hasActiveFilters ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer'}`
+                }
               >
                 Clear All
               </button>
               <button
                 onClick={applyFilters}
                 disabled={Object.keys(validationErrors).length > 0 || isApplyingFilter}
-                className={`bg-primary-500 text-white-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-primary-600 transition-colors shadow-md ${Object.keys(validationErrors).length > 0 || isApplyingFilter ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`bg-primary-500 text-white-900 px-4 py-2.5 rounded-4xl font-bold hover:bg-primary-600 hover:cursor-pointer transition-colors shadow-md
+                  ${Object.keys(validationErrors).length > 0 || isApplyingFilter ? 'opacity-50 cursor-not-allowed' : ''}`
+                }
               >
                 {(isApplyingFilter) ? (
                   <span className="flex flex-row items-center gap-x-2">

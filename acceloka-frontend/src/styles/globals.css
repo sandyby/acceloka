@@ -34,7 +34,7 @@
   --color-red-600: #af121a;
   --color-red-500: #dd1721;
 }
-
+/* 
 @theme inline {
   --color-background: 0 0% 100%;
   --color-foreground: 222.2 84% 4.9%;
@@ -80,7 +80,7 @@
     --color-input: 217.2 32.6% 17.5%;
     --color-ring: 224.3 76.3% 94.1%;
   }
-}
+} */
 
 .font-century-gothic {
   font-family: var(--font-century-gothic);

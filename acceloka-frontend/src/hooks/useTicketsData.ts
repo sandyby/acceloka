@@ -3,8 +3,9 @@ import { useContext } from "react";
 
 const useTicketsData = () => {
   const context = useContext(TicketsDataContext);
-  if (!context)
+  if (!context) {
     throw new Error("useTicketsData must be used inside the provider!");
+  }
   return context;
 };
 

@@ -3,8 +3,9 @@ import { useContext } from "react";
 
 const useTicketMetadata = () => {
   const context = useContext(TicketMetadataContext);
-  if (!context)
+  if (!context) {
     throw new Error("useTicketMetadata must be used inside the provider!");
+  }
   return context;
 };
 

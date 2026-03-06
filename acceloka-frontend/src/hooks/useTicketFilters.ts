@@ -13,6 +13,8 @@ export function useFilters(metadata: TicketMetadata | undefined) {
     setFilterInput((prev) => ({ ...prev, [key]: value }));
   };
 
+  // TODO: figure out this alternative approach for scalable/cleaner version of filters by categories
+
   useEffect(() => {
     if (!metadata) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
