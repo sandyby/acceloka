@@ -19,6 +19,7 @@ export default function MultiSelectDropdown({
 }: MultiSelectDropdownProps) {
     const handleSelectAll = () => onChange([...options]);
     const handleClearAll = () => onChange([]);
+    const isAllOptionsSelected = options.length > 0 && selected.length === options.length;
 
     return (
         <div className="mb-4 w-full flex flex-col gap-y-2">
@@ -44,12 +45,13 @@ export default function MultiSelectDropdown({
                 multiple
                 options={options}
                 value={selected}
+                disableCloseOnSelect
                 onChange={(_, newValue) => onChange(newValue)}
                 renderInput={(params) => (
                     <div className="flex flex-col gap-1">
                         <TextField
                             {...params}
-                            placeholder=""
+                            placeholder={selected.length === 0 ? `All ${label} Selected` : ""}
                             variant="outlined"
                             size="small"
                             sx={{
@@ -61,8 +63,19 @@ export default function MultiSelectDropdown({
                         />
                     </div>
                 )}
-                renderValue={(value, getFilteredTagProps) =>
-                    value.map((option, index) => {
+                renderValue={(value, getFilteredTagProps) => {
+                    if (isAllOptionsSelected) {
+                        return (
+                            <Chip
+                                label={`All ${label}`}
+                                color="primary"
+                                size="small"
+                                onDelete={handleClearAll}
+                                sx={{ borderRadius: "12px" }}
+                            />
+                        );
+                    }
+                    return value.map((option, index) => {
                         const { onDelete, key, ...filteredTagProps } = getFilteredTagProps({ index });
 
                         return (
@@ -96,7 +109,7 @@ export default function MultiSelectDropdown({
                             />
                         )
                     })
-                }
+                }}
                 renderOption={(props, option) => {
                     // ! due to react 19, passing key directly as ...props isn't allowed, need to destructure
                     const { key, ...restOfTheProps } = props;

@@ -35,7 +35,7 @@ const TicketsHeader = () => {
                 <div className="flex gap-x-4">
                     <div className="gap-y-1.5">
                         <StyledTypography fontSizeInput={36} colorInput="white" fontWeightInput="bold" sx={{ textTransform: "capitalize" }} >
-                            {activeCategory}
+                            {activeCategory === "sea-transportations" ? "Sea Transportations" : activeCategory}
                         </StyledTypography>
                         <div className="flex items-center gap-x-2 pt-1.5 pb-2.5">
                             {iconCategoryMapper(activeCategory, "36px", { color: "primary" })}

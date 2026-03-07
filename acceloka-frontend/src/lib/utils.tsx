@@ -172,6 +172,10 @@ export function minutesToHHmmFormat(totalMinutes: number | undefined): string | 
   return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 };
 
+export function capitalizeEachWord(sentence: string) {
+  return sentence.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
 
 // export const FILTER_COMPONENTS: Record<
 //   string,

@@ -6,7 +6,7 @@ const StyledLink = styled(Link, {
 })<{ active?: boolean }>(({ active }) => ({
   position: "relative",
   padding: "8px 16px",
-  cursor: "pointer",
+  cursor: active ? "default" : "pointer",
   textWrap: "nowrap",
   textDecoration: "none",
   borderRadius: "42px",
@@ -16,11 +16,11 @@ const StyledLink = styled(Link, {
   ...(active
     ? {}
     : {
-        ":hover": {
-          backgroundColor: "var(--color-primary-500)",
-          color: "var(--color-white-900)",
-        },
-      }),
+      ":hover": {
+        backgroundColor: "var(--color-primary-500)",
+        color: "var(--color-white-900)",
+      },
+    }),
 }));
 
 export default StyledLink;

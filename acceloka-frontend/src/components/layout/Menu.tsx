@@ -37,7 +37,7 @@ const Menu = () => {
   };
 
   return (
-    <StyledMenuWrapper>
+    <StyledMenuWrapper className="no-select">
       {menuItems.map((item) => {
         const isActive = currentActiveCategory === item.category;
 
