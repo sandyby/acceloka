@@ -24,15 +24,15 @@ public class TicketMetadataDto
     public DateTime? MaxConcertDate { get; set; }
     public DateTime? MinScreeningTime { get; set; }
     public DateTime? MaxScreeningTime { get; set; }
-    public List<string> Airlines { get; set; } = new();
-    public List<string> HotelNames { get; set; } = new();
-    public List<string> Venues { get; set; } = new();
-    public List<string> Cinemas { get; set; } = new();
-    public List<string> Artists { get; set; } = new();
-    public List<string> RoomTypes { get; set; } = new();
-    public List<string> Types { get; set; } = new();
-    public List<string> SeatClasses { get; set; } = new();
-    public List<string> SeatSections { get; set; } = new();
-    public List<string> Amenities { get; set; } = new();
-    public List<string> Packages { get; set; } = new();
+    public List<string>? Airlines { get; set; }
+    public List<string>? HotelNames { get; set; }
+    public List<string>? Venues { get; set; }
+    public List<string>? Cinemas { get; set; }
+    public List<string>? Artists { get; set; }
+    public List<string>? RoomTypes { get; set; }
+    public List<string>? Types { get; set; }
+    public List<string>? SeatClasses { get; set; }
+    public List<string>? SeatSections { get; set; }
+    public List<string>? Amenities { get; set; }
+    public List<string>? Packages { get; set; }
 }
