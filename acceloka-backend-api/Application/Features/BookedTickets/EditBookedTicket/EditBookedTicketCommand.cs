@@ -4,14 +4,9 @@ namespace Application.Features.BookedTickets.EditBookedTicket;
 
 public record EditBookedTicketCommand(
     string BookedTicketId,
-    List<EditBookedTicketBodyContent> ToBeEditedBookedTickets
-    ) : IRequest<EditBookedTicketResponse>;
+    EditBookedTicketRequest ToBeEditedBookedTickets
+) : IRequest<EditBookedTicketResponse>;
 
-public record EditBookedTicketBodyContent(
-    string BookedTicketCode,
-    int NewQuantity
-);
+public record EditBookedTicketBodyContent(string BookedTicketCode, int NewQuantity);
 
-public record EditBookedTicketRequest(
-    List<EditBookedTicketBodyContent> ToBeEditedBookedTickets
-);
+public record EditBookedTicketRequest(List<EditBookedTicketBodyContent> ToBeEditedBookedTicket);
